@@ -1,4 +1,4 @@
-package es.ies.puerto;
+package es.alvarogrlp.marvelsim;
 
 public class Main {
     public static void main(String[] args) {
