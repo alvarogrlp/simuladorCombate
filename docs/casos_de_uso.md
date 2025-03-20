@@ -1,6 +1,6 @@
 # Diagrama de Casos de Uso de MarvelSimu
 
-<img src="/home/dam/Escritorio/Pro/App/simuladorCombate/images/diagrama-1.0.2.drawio.png">
+<img src="../images/diagrama-1.0.2.drawio.png">
 
 ## Especificaicón de Casos de uso de las reservas
 
