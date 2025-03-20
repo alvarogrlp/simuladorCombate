@@ -1,4 +1,4 @@
-package es.alvarogrlp.marvelsim;
+package backend.es.alvarogrlp.marvelsim;
 
 public class Main {
     public static void main(String[] args) {
