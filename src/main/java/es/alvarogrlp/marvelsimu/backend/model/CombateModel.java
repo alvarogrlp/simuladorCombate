@@ -1,4 +1,5 @@
-package main.java.backend.es.alvarogrlp.marvelsim.model;
+package es.alvarogrlp.marvelsimu.backend.model;
+
 import java.util.Objects;
 
 public class CombateModel {

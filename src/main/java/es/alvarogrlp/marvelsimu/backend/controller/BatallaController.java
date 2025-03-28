@@ -1,4 +1,4 @@
-package main.java.backend.es.alvarogrlp.marvelsim.controller;
+package es.alvarogrlp.marvelsimu.backend.controller;
 
 public class BatallaController {
     

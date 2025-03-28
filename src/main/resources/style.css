@@ -1,0 +1,26 @@
+#fondo {
+    -fx-background-image: url("@../../../images/Fondo.png");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-background-repeat: no-repeat;
+}
+
+.text {
+    -fx-font-size: 16px;
+    -fx-fill: white;
+}
+
+#botonAceptar {
+    -fx-background-color: #007bff;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 20px;
+}
+
+#textFieldUsuario, #textFieldPassword {
+    -fx-background-color: white;
+    -fx-text-fill: #333333;
+    -fx-font-size: 14px;
+    -fx-padding: 10px;
+}
