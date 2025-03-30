@@ -1,32 +1,30 @@
 @font-face {
     font-family: BebasNeue;
-    src: url('fonts/BebasNeue-Regular.ttf');
+    src: url('../../fonts/BebasNeue-Regular.ttf');
 }
 
- 
  .text {
     -fx-font-family: BebasNeue;
-    -fx-font-style: bold;
  }
  
 
 /* Aplica la fuente a todos los textos */
 .root {
-    -fx-font-family: 'MarvelFont';
+    -fx-font-family: 'BebasNeue';
 }
 
 /* Tamaño y estilo opcional para títulos */
 .title {
-    -fx-font-family: 'MarvelFont';
-    -fx-font-size: 32px;
+    -fx-font-family: 'BebasNeue';
+    -fx-font-size: 42px;
     -fx-font-weight: bold;
     -fx-fill: white;
 }
 
-/* Contenedor del login (ventana flotante) */
+/* Contenedor del login */
 .login-window {
-    -fx-background-color: rgba(0, 0, 0, 0.6); /* Negro con baja opacidad */
-    -fx-background-radius: 20; /* Bordes redondeados */
+    -fx-background-color: rgba(0, 0, 0, 0.6);
+    -fx-background-radius: 20; 
     -fx-padding: 20;
     -fx-spacing: 15;
     -fx-alignment: center;
@@ -54,10 +52,10 @@ StackPane {
     -fx-font-weight: bold;
 }
 
-/* Caja de inputs translúcida */
+/* Caja de inputs */
 .form-container {
-    -fx-background-color: rgba(0, 0, 0, 0.5); /* Negro translúcido */
-    -fx-background-radius: 25; /* Bordes redondeados */
+    -fx-background-color: rgba(0, 0, 0, 0.5); 
+    -fx-background-radius: 25;
     -fx-padding: 15;
     -fx-spacing: 10;
     -fx-alignment: center;
@@ -68,56 +66,66 @@ StackPane {
 
 /* Etiquetas */
 .label {
-    -fx-font-size: 14px;
+    -fx-font-size: 18px;
     -fx-fill: white;
     -fx-font-weight: bold;
 }
 
-/* Inputs redondeados */
+/* Inputs */
 .input {
-    -fx-pref-height: 35;
-    -fx-pref-width: 250;
-    -fx-background-color: rgba(255, 255, 255, 0.2); /* Blanco translúcido */
-    -fx-background-radius: 10;
-    -fx-text-fill: white;
-    -fx-prompt-text-fill: #ddd;
-    -fx-border-color: white;
-    -fx-border-radius: 10;
+    -fx-background-color: rgba(0, 0, 0, 0.308); 
+    -fx-background-radius: 30;
+    -fx-text-fill: rgb(117, 117, 117);
+    -fx-prompt-text-fill: #ddd; 
+    -fx-border-color: rgb(167, 167, 167);
+    -fx-border-width: 4;
+    -fx-border-radius: 30;
+    -fx-font-weight: bold;
+}
+
+.input:focused {
+    -fx-prompt-text-fill: transparent; 
+    -fx-border-color: #e8450c; 
 }
 
 /* Olvidaste tu contraseña */
 .forgot-password {
-    -fx-font-size: 12px;
-    -fx-fill: red;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-fill: #e8450c;
     -fx-underline: true;
     -fx-alignment: center;
-}
-
-/* Botón Crear Cuenta (Redondeado) */
-.button-secondary {
-    -fx-background-color: red;
-    -fx-text-fill: white;
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 8; /* Bordes redondeados */
-    -fx-pref-width: 250;
-    -fx-pref-height: 45;
-}
-
-/* Botón Entrar (Más grande y redondeado) */
-.button-primary {
-    -fx-background-color: red;
-    -fx-text-fill: white;
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
-    -fx-background-radius: 8; /* Bordes redondeados */
-    -fx-pref-width: 250;
-    -fx-pref-height: 55;
 }
 
 /* Texto Marvel */
 .marvel-text {
     -fx-font-size: 18px;
     -fx-fill: white;
+}
+
+/* Botón */
+.button-marvel {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 19px;
     -fx-font-weight: bold;
+    -fx-border-color: red;
+    -fx-border-width: 3;
+    -fx-border-radius: 35; 
+    -fx-padding: 10px 20px;
+    -fx-cursor: hand;
+    -fx-position: relative;
+    -fx-overflow: hidden;
+}
+
+.button-marvel.large {
+    -fx-font-size: 34px; 
+}
+
+.button-marvel:hover {
+    -fx-text-fill: rgb(255, 255, 255);
+    -fx-background-color: red;
+    -fx-background-radius: 35;
+    -fx-border-radius: 35; 
+    -fx-transition: background-color 0.3s ease-in-out;
 }

@@ -12,7 +12,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<StackPane stylesheets="@styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
     
     <!-- Imagen de Fondo -->
     <ImageView fitHeight="800" fitWidth="400" preserveRatio="false">
@@ -35,14 +35,10 @@
          <children>
       
               <!-- Caja de Inputs -->
-              <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="299.0" prefWidth="365.0" spacing="10" styleClass="form-container">
+              <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="357.0" prefWidth="360.0" spacing="10" styleClass="form-container">
          
                  <!-- Título -->
-                 <Text styleClass="title" text="¿YA TIENES CUENTA?" textAlignment="CENTER">
-                  <font>
-                     <Font size="30.0" />
-                  </font>
-               </Text>
+                 <Text styleClass="title" text="¿YA TIENES CUENTA?" textAlignment="CENTER" wrappingWidth="295.396484375" />
                   <Text styleClass="label" text="NOMBRE DE USUARIO">
                   <VBox.margin>
                      <Insets />
@@ -51,13 +47,16 @@
                      <Font size="16.0" />
                   </font>
                </Text>
-                  <TextField maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="293.0" promptText="Introduce el nombre de usuario" styleClass="input">
+                  <TextField maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="46.0" prefWidth="294.0" promptText="Introduce el nombre de usuario" styleClass="input">
                   <cursor>
                      <Cursor fx:constant="TEXT" />
                   </cursor>
                   <VBox.margin>
                      <Insets />
                   </VBox.margin>
+                  <font>
+                     <Font name="System Bold" size="15.0" />
+                  </font>
                </TextField>
                   
                   <Text styleClass="label" text="CONTRASEÑA">
@@ -68,10 +67,16 @@
                      <Font size="16.0" />
                   </font>
                </Text>
-                  <PasswordField maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="35.0" prefWidth="293.0" promptText="Introduce la contraseña" styleClass="input">
+                  <PasswordField maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="46.0" prefWidth="294.0" promptText="Introduce la contraseña" styleClass="input">
                   <VBox.margin>
                      <Insets />
                   </VBox.margin>
+                  <font>
+                     <Font size="15.0" />
+                  </font>
+                  <cursor>
+                     <Cursor fx:constant="TEXT" />
+                  </cursor>
                </PasswordField>
       
                   <Text styleClass="forgot-password" text="¿Has olvidado tu contraseña?">
@@ -79,29 +84,35 @@
                      <Insets />
                   </VBox.margin>
                   <font>
-                     <Font size="16.0" />
+                     <Font size="19.0" />
                   </font>
                </Text>
          
                  <!-- Botones -->
-                 <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="48.0" prefWidth="189.0" styleClass="button-secondary" text="CREAR CUENTA">
+                 <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="53.0" prefWidth="189.0" styleClass="button-marvel" text="CREAR CUENTA">
                   <VBox.margin>
-                     <Insets top="20.0" />
+                     <Insets />
                   </VBox.margin>
                   <font>
                      <Font size="18.0" />
                   </font>
+                  <cursor>
+                     <Cursor fx:constant="HAND" />
+                  </cursor>
                </Button>
               </VBox>
          </children>
       </VBox>
-        <Button minWidth="-Infinity" prefHeight="80.0" prefWidth="274.0" styleClass="button-primary" text="ENTRAR">
+        <Button minWidth="-Infinity" prefHeight="80.0" prefWidth="274.0" styleClass="button-marvel,large" text="ENTRAR">
          <VBox.margin>
             <Insets top="50.0" />
          </VBox.margin>
          <font>
-            <Font size="34.0" />
+            <Font size="30.0" />
          </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
       </Button>
         
         <!-- Texto de Marvel -->
