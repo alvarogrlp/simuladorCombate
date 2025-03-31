@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
@@ -12,7 +14,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<StackPane stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     
     <!-- Imagen de Fondo -->
     <ImageView fitHeight="800" fitWidth="400" preserveRatio="false">
@@ -28,14 +30,14 @@
             <Image url="@../../../images/logo.png" />
          </image>
          <VBox.margin>
-            <Insets bottom="60.0" top="-10.0" />
+            <Insets bottom="30.0" top="30.0" />
          </VBox.margin>
       </ImageView>
       <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
          <children>
       
               <!-- Caja de Inputs -->
-              <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="357.0" prefWidth="360.0" spacing="10" styleClass="form-container">
+              <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="393.0" prefWidth="360.0" spacing="10">
          
                  <!-- Título -->
                  <Text styleClass="title" text="¿YA TIENES CUENTA?" textAlignment="CENTER" wrappingWidth="295.396484375" />
@@ -55,7 +57,7 @@
                      <Insets />
                   </VBox.margin>
                   <font>
-                     <Font name="System Bold" size="15.0" />
+                     <Font name="System Bold" size="12.0" />
                   </font>
                </TextField>
                   
@@ -72,24 +74,16 @@
                      <Insets />
                   </VBox.margin>
                   <font>
-                     <Font size="15.0" />
+                     <Font size="12.0" />
                   </font>
                   <cursor>
                      <Cursor fx:constant="TEXT" />
                   </cursor>
                </PasswordField>
-      
-                  <Text styleClass="forgot-password" text="¿Has olvidado tu contraseña?">
-                  <VBox.margin>
-                     <Insets />
-                  </VBox.margin>
-                  <font>
-                     <Font size="19.0" />
-                  </font>
-               </Text>
+               <Hyperlink styleClass="forgot-password" text="¿Has olvidado tu contraseña?" />
          
                  <!-- Botones -->
-                 <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="53.0" prefWidth="189.0" styleClass="button-marvel" text="CREAR CUENTA">
+                 <Button maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="63.0" prefWidth="189.0" styleClass="button-marvel" text="CREAR CUENTA">
                   <VBox.margin>
                      <Insets />
                   </VBox.margin>
@@ -100,6 +94,10 @@
                      <Cursor fx:constant="HAND" />
                   </cursor>
                </Button>
+               <styleClass>
+                  <String fx:value="form-container" />
+                  <String fx:value="text" />
+               </styleClass>
               </VBox>
          </children>
       </VBox>
@@ -118,7 +116,7 @@
         <!-- Texto de Marvel -->
         <Text styleClass="marvel-text" text="MARVEL">
          <VBox.margin>
-            <Insets top="70.0" />
+            <Insets bottom="20.0" top="30.0" />
          </VBox.margin></Text>
     </VBox>
 

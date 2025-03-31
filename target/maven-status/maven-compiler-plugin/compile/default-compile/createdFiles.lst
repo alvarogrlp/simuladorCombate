@@ -1,5 +1,5 @@
-es\alvarogrlp\marvelsimu\backend\model\UsuarioModel.class
-es\alvarogrlp\marvelsimu\backend\model\PersonajeModel.class
-es\alvarogrlp\marvelsimu\backend\controller\BatallaController.class
-es\alvarogrlp\marvelsimu\backend\model\CombateModel.class
-es\alvarogrlp\marvelsimu\PrincipalApplication.class
+es/alvarogrlp/marvelsimu/backend/controller/BatallaController.class
+es/alvarogrlp/marvelsimu/backend/model/PersonajeModel.class
+es/alvarogrlp/marvelsimu/backend/model/CombateModel.class
+es/alvarogrlp/marvelsimu/backend/model/UsuarioModel.class
+es/alvarogrlp/marvelsimu/PrincipalApplication.class

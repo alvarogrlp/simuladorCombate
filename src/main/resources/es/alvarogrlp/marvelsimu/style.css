@@ -1,22 +1,22 @@
 @font-face {
-    font-family: BebasNeue;
-    src: url('../../fonts/BebasNeue-Regular.ttf');
+    font-family: Marvel;
+    src: url('../../../fonts/marvel.ttf');
 }
 
  .text {
-    -fx-font-family: BebasNeue;
+    -fx-font-family: Marvel;
  }
  
 
 /* Aplica la fuente a todos los textos */
 .root {
-    -fx-font-family: 'BebasNeue';
+    -fx-font-family: 'Marvel';
 }
 
 /* Tamaño y estilo opcional para títulos */
 .title {
-    -fx-font-family: 'BebasNeue';
-    -fx-font-size: 42px;
+    -fx-font-family: 'Marvel';
+    -fx-font-size: 62px;
     -fx-font-weight: bold;
     -fx-fill: white;
 }
@@ -32,7 +32,7 @@
 
 /* Imagen de fondo */
 StackPane {
-    -fx-background-image: url("images/fondo.png");
+    -fx-background-image: url("../../../images/fondo.png");
     -fx-background-size: cover;
     -fx-background-position: center;
 }
@@ -47,7 +47,7 @@ StackPane {
 
 /* Título */
 .title {
-    -fx-font-size: 28px;
+    -fx-font-size: 38px;
     -fx-fill: white;
     -fx-font-weight: bold;
 }
@@ -66,13 +66,15 @@ StackPane {
 
 /* Etiquetas */
 .label {
-    -fx-font-size: 18px;
+    -fx-font-family: 'Marvel';
+    -fx-font-size: 30px;
     -fx-fill: white;
     -fx-font-weight: bold;
 }
 
 /* Inputs */
 .input {
+    -fx-font-family: 'Marvel';
     -fx-background-color: rgba(0, 0, 0, 0.308); 
     -fx-background-radius: 30;
     -fx-text-fill: rgb(117, 117, 117);
@@ -80,7 +82,6 @@ StackPane {
     -fx-border-color: rgb(167, 167, 167);
     -fx-border-width: 4;
     -fx-border-radius: 30;
-    -fx-font-weight: bold;
 }
 
 .input:focused {
@@ -90,16 +91,19 @@ StackPane {
 
 /* Olvidaste tu contraseña */
 .forgot-password {
+    -fx-font-family: 'Marvel';
     -fx-font-size: 15px;
-    -fx-font-weight: bold;
-    -fx-fill: #e8450c;
-    -fx-underline: true;
-    -fx-alignment: center;
+    -fx-text-fill: #e8450c;
+    -fx-border-color: transparent;
+}
+
+.forgot-password:focused {
+    -fx-focus-color: #e8450c;
 }
 
 /* Texto Marvel */
 .marvel-text {
-    -fx-font-size: 18px;
+    -fx-font-size: 38px;
     -fx-fill: white;
 }
 
@@ -107,7 +111,7 @@ StackPane {
 .button-marvel {
     -fx-background-color: transparent;
     -fx-text-fill: white;
-    -fx-font-size: 19px;
+    -fx-font-size: 34px;
     -fx-font-weight: bold;
     -fx-border-color: red;
     -fx-border-width: 3;
@@ -119,7 +123,7 @@ StackPane {
 }
 
 .button-marvel.large {
-    -fx-font-size: 34px; 
+    -fx-font-size: 76px; 
 }
 
 .button-marvel:hover {
