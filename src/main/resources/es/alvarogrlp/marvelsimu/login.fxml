@@ -25,16 +25,16 @@
     </ImageView>
 
     <!-- Contenedor Principal -->
-    <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="400.0" spacing="15" styleClass="container" stylesheets="@style.css">
+    <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="400.0" spacing="10.0" styleClass="container" stylesheets="@style.css">
       <ImageView fitHeight="158.0" fitWidth="319.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../../../images/logo.png" />
          </image>
          <VBox.margin>
-            <Insets bottom="15.0" top="30.0" />
+            <Insets bottom="10.0" top="10.0" />
          </VBox.margin>
       </ImageView>
-      <ComboBox fx:id="comboIdioma" onAction="#cambiarIdioma" prefWidth="150.0" promptText="Idioma" />
+      <ComboBox fx:id="comboIdioma" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" onAction="#cambiarIdioma" prefHeight="41.0" prefWidth="201.0" promptText="Idioma" />
       <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
          <children>
       
@@ -42,7 +42,7 @@
               <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="393.0" prefWidth="360.0" spacing="10">
          
                  <!-- Título -->
-                 <Text styleClass="title" text="¿YA TIENES CUENTA?" textAlignment="CENTER" wrappingWidth="295.396484375" />
+                 <Text fx:id="textPregunta" styleClass="title" text="¿YA TIENES CUENTA?" textAlignment="CENTER" wrappingWidth="295.396484375" />
                   <Text fx:id="textUsuario" styleClass="label" text="NOMBRE DE USUARIO">
                   <VBox.margin>
                      <Insets />
@@ -82,7 +82,7 @@
                      <Cursor fx:constant="TEXT" />
                   </cursor>
                </PasswordField>
-               <Text fx:id="textFieldMensaje" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+               <Text fx:id="textFieldMensaje" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" />
                <Hyperlink styleClass="forgot-password" text="¿Has olvidado tu contraseña?" />
          
                  <!-- Botones -->
@@ -106,7 +106,7 @@
       </VBox>
         <Button minWidth="-Infinity" onAction="#onLoginButtonClick" prefHeight="80.0" prefWidth="274.0" styleClass="button-marvel,large" text="ENTRAR">
          <VBox.margin>
-            <Insets top="50.0" />
+            <Insets top="20.0" />
          </VBox.margin>
          <font>
             <Font size="30.0" />

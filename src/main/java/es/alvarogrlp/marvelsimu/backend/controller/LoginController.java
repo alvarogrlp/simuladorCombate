@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -31,8 +32,11 @@ public class LoginController extends AbstractController {
     private Text textUsuario;
 
     @FXML
+    private Text textPregunta;
+
+    @FXML
     private Button onRecuperarButton;
-    
+
     @FXML
     private Button onMostrarButton;
 
@@ -49,6 +53,13 @@ public class LoginController extends AbstractController {
         idiomas.add("en");
         idiomas.add("fr");
         comboIdioma.getItems().addAll(idiomas);
+
+        Font font = Font.loadFont(getClass().getResource("/fonts/marvel.ttf").toExternalForm(), 20);
+        if (font == null) {
+            System.out.println("⚠️ No se pudo cargar la fuente Marvel.");
+        } else {
+            System.out.println("✅ Fuente Marvel cargada correctamente.");
+        }
     }
 
     @FXML
@@ -57,8 +68,20 @@ public class LoginController extends AbstractController {
 
         ConfigManager.ConfigProperties.setPath(path);
 
+        // Actualizar textos
         textUsuario.setText(ConfigManager.ConfigProperties.getProperty("textUsuario"));
         textContrasenia.setText(ConfigManager.ConfigProperties.getProperty("textContrasenia"));
+        textPregunta.setText(ConfigManager.ConfigProperties.getProperty("textPregunta"));
+        Font.loadFont(getClass().getResource("/fonts/marvel.ttf").toExternalForm(), 14);
+        textUsuario.setStyle("-fx-font-family: 'Marvel';");
+        textContrasenia.setStyle("-fx-font-family: 'Marvel';");
+        textPregunta.setStyle("-fx-font-family: 'Marvel';");
+        Scene scene = textUsuario.getScene();
+        if (scene != null) {
+            scene.getStylesheets().clear();
+            scene.getStylesheets().add(getClass().getResource("/es/alvarogrlp/marvelsimu/style.css").toExternalForm());
+        }
+        System.out.println("Estilos cargados: " + textUsuario.getScene().getStylesheets());
     }
 
     @FXML
@@ -79,7 +102,7 @@ public class LoginController extends AbstractController {
 
         if ((textFieldUsuario.getText().equals(usuarioEntity.getEmail())
                 || textFieldUsuario.getText().equals(usuarioEntity.getNombre()))
-                        && textFieldPassword.getText().equals(usuarioEntity.getContrasenia())) {
+                && textFieldPassword.getText().equals(usuarioEntity.getContrasenia())) {
             textFieldMensaje.setText("Usuario validado correctamente");
             return;
 

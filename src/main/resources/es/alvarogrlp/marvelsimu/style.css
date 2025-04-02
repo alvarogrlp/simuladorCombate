@@ -3,10 +3,10 @@
     src: url('../../../fonts/marvel.ttf');
 }
 
- .text {
+.text {
     -fx-font-family: Marvel;
- }
- 
+}
+
 
 /* Aplica la fuente a todos los textos */
 .root {
@@ -17,14 +17,13 @@
 .title {
     -fx-font-family: 'Marvel';
     -fx-font-size: 62px;
-    -fx-font-weight: bold;
     -fx-fill: white;
 }
 
 /* Contenedor del login */
 .login-window {
     -fx-background-color: rgba(0, 0, 0, 0.6);
-    -fx-background-radius: 20; 
+    -fx-background-radius: 20;
     -fx-padding: 20;
     -fx-spacing: 15;
     -fx-alignment: center;
@@ -33,6 +32,7 @@
 /* Imagen de fondo */
 StackPane {
     -fx-background-image: url("../../../images/fondo.png");
+    -fx-background-repeat: no-repeat;
     -fx-background-size: cover;
     -fx-background-position: center;
 }
@@ -54,7 +54,7 @@ StackPane {
 
 /* Caja de inputs */
 .form-container {
-    -fx-background-color: rgba(0, 0, 0, 0.5); 
+    -fx-background-color: rgba(0, 0, 0, 0.5);
     -fx-background-radius: 25;
     -fx-padding: 15;
     -fx-spacing: 10;
@@ -75,30 +75,30 @@ StackPane {
 /* Inputs */
 .input {
     -fx-font-family: 'Marvel';
-    -fx-background-color: rgba(0, 0, 0, 0.308); 
+    -fx-background-color: rgba(0, 0, 0, 0.308);
     -fx-background-radius: 30;
     -fx-text-fill: rgb(117, 117, 117);
-    -fx-prompt-text-fill: #ddd; 
+    -fx-prompt-text-fill: #ddd;
     -fx-border-color: rgb(167, 167, 167);
     -fx-border-width: 4;
     -fx-border-radius: 30;
 }
 
 .input:focused {
-    -fx-prompt-text-fill: transparent; 
-    -fx-border-color: #e8450c; 
+    -fx-prompt-text-fill: transparent;
+    -fx-border-color: red;
 }
 
 /* Olvidaste tu contraseña */
 .forgot-password {
     -fx-font-family: 'Marvel';
     -fx-font-size: 15px;
-    -fx-text-fill: #e8450c;
+    -fx-text-fill: red;
     -fx-border-color: transparent;
 }
 
 .forgot-password:focused {
-    -fx-focus-color: #e8450c;
+    -fx-focus-color: red;
 }
 
 /* Texto Marvel */
@@ -115,7 +115,7 @@ StackPane {
     -fx-font-weight: bold;
     -fx-border-color: red;
     -fx-border-width: 3;
-    -fx-border-radius: 35; 
+    -fx-border-radius: 35;
     -fx-padding: 10px 20px;
     -fx-cursor: hand;
     -fx-position: relative;
@@ -123,13 +123,86 @@ StackPane {
 }
 
 .button-marvel.large {
-    -fx-font-size: 76px; 
+    -fx-font-size: 76px;
 }
 
 .button-marvel:hover {
     -fx-text-fill: rgb(255, 255, 255);
     -fx-background-color: red;
     -fx-background-radius: 35;
-    -fx-border-radius: 35; 
+    -fx-border-radius: 35;
     -fx-transition: background-color 0.3s ease-in-out;
+}
+
+/* Estilo del ComboBox */
+.combo-box {
+    -fx-background-color: transparent;
+    -fx-background-radius: 30;
+    -fx-border-color: rgba(255, 255, 255, 0.678);
+    -fx-border-radius: 30;
+    -fx-border-width: 4;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-prompt-text-fill: white;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-alignment: center;
+}
+
+/* Cuando el ComboBox está en foco */
+.combo-box:focused {
+    -fx-border-color: red;
+    -fx-background-radius: 30;
+    -fx-prompt-text-fill: transparent;
+}
+
+.combo-box:hover {
+    -fx-border-color: red;
+    -fx-background-color: rgba(255, 0, 0, 0.2);
+    /* Sutil efecto rojo al pasar el ratón */
+}
+
+/* Estilo del botón desplegable */
+.combo-box .arrow-button {
+    -fx-background-radius: 30;
+    -fx-border-radius: 30;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: -7;
+    -fx-translate-x: -15px;
+    /* Ajusta el valor si es necesario */
+}
+
+/* Icono del botón desplegable */
+.combo-box .arrow {
+    -fx-background-color: white;
+    -fx-border-color: transparent;
+    -fx-border-radius: 30;
+    -fx-border-width: 3;
+}
+
+.combo-box .arrow-button:hover {
+    -fx-background-color: rgba(255, 0, 0, 0.5);
+}
+
+/* Estilo del menú desplegable */
+.combo-box .list-cell {
+    -fx-background-color: rgba(0, 0, 0, 0.904);
+    -fx-background-radius: 30;
+    -fx-text-fill: white;
+    -fx-font-family: 'Marvel';
+}
+
+.combo-box .list-cell:filled:selected,
+.combo-box .list-cell:filled:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-background-radius: 30;
+    -fx-text-fill: white;
+}
+
+.combo-box .list-view {
+    -fx-background-color: transparent;
+    /* Fondo del desplegable */
+    -fx-background-radius: 30;
+    -fx-border-color: transparent;
 }
