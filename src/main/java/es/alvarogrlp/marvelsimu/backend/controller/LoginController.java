@@ -53,13 +53,6 @@ public class LoginController extends AbstractController {
         idiomas.add("en");
         idiomas.add("fr");
         comboIdioma.getItems().addAll(idiomas);
-
-        Font font = Font.loadFont(getClass().getResource("/fonts/marvel.ttf").toExternalForm(), 20);
-        if (font == null) {
-            System.out.println("⚠️ No se pudo cargar la fuente Marvel.");
-        } else {
-            System.out.println("✅ Fuente Marvel cargada correctamente.");
-        }
     }
 
     @FXML
@@ -72,16 +65,6 @@ public class LoginController extends AbstractController {
         textUsuario.setText(ConfigManager.ConfigProperties.getProperty("textUsuario"));
         textContrasenia.setText(ConfigManager.ConfigProperties.getProperty("textContrasenia"));
         textPregunta.setText(ConfigManager.ConfigProperties.getProperty("textPregunta"));
-        Font.loadFont(getClass().getResource("/fonts/marvel.ttf").toExternalForm(), 14);
-        textUsuario.setStyle("-fx-font-family: 'Marvel';");
-        textContrasenia.setStyle("-fx-font-family: 'Marvel';");
-        textPregunta.setStyle("-fx-font-family: 'Marvel';");
-        Scene scene = textUsuario.getScene();
-        if (scene != null) {
-            scene.getStylesheets().clear();
-            scene.getStylesheets().add(getClass().getResource("/es/alvarogrlp/marvelsimu/style.css").toExternalForm());
-        }
-        System.out.println("Estilos cargados: " + textUsuario.getScene().getStylesheets());
     }
 
     @FXML

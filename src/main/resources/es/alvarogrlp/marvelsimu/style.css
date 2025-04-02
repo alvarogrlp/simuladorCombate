@@ -1,21 +1,5 @@
-@font-face {
-    font-family: Marvel;
-    src: url('../../../fonts/marvel.ttf');
-}
-
-.text {
-    -fx-font-family: Marvel;
-}
-
-
-/* Aplica la fuente a todos los textos */
-.root {
-    -fx-font-family: 'Marvel';
-}
-
 /* Tamaño y estilo opcional para títulos */
 .title {
-    -fx-font-family: 'Marvel';
     -fx-font-size: 62px;
     -fx-fill: white;
 }
@@ -47,7 +31,7 @@ StackPane {
 
 /* Título */
 .title {
-    -fx-font-size: 38px;
+    -fx-font-size: 28px;
     -fx-fill: white;
     -fx-font-weight: bold;
 }
@@ -66,15 +50,13 @@ StackPane {
 
 /* Etiquetas */
 .label {
-    -fx-font-family: 'Marvel';
-    -fx-font-size: 30px;
+    -fx-font-size: 20px;
     -fx-fill: white;
     -fx-font-weight: bold;
 }
 
 /* Inputs */
 .input {
-    -fx-font-family: 'Marvel';
     -fx-background-color: rgba(0, 0, 0, 0.308);
     -fx-background-radius: 30;
     -fx-text-fill: rgb(117, 117, 117);
@@ -91,7 +73,6 @@ StackPane {
 
 /* Olvidaste tu contraseña */
 .forgot-password {
-    -fx-font-family: 'Marvel';
     -fx-font-size: 15px;
     -fx-text-fill: red;
     -fx-border-color: transparent;
@@ -103,15 +84,16 @@ StackPane {
 
 /* Texto Marvel */
 .marvel-text {
-    -fx-font-size: 38px;
+    -fx-font-size: 20px;
     -fx-fill: white;
+    -fx-font-weight: bold;
 }
 
 /* Botón */
 .button-marvel {
     -fx-background-color: transparent;
     -fx-text-fill: white;
-    -fx-font-size: 34px;
+    -fx-font-size: 19px;
     -fx-font-weight: bold;
     -fx-border-color: red;
     -fx-border-width: 3;
@@ -123,7 +105,7 @@ StackPane {
 }
 
 .button-marvel.large {
-    -fx-font-size: 76px;
+    -fx-font-size: 56px;
 }
 
 .button-marvel:hover {
@@ -190,7 +172,6 @@ StackPane {
     -fx-background-color: rgba(0, 0, 0, 0.904);
     -fx-background-radius: 30;
     -fx-text-fill: white;
-    -fx-font-family: 'Marvel';
 }
 
 .combo-box .list-cell:filled:selected,
