@@ -30,7 +30,7 @@ public class RegistroController extends AbstractController {
     Text textMensaje;
 
     @FXML
-    Button buttonRegistrar;
+    Button onRegistrarButton;
 
     @FXML
     PasswordField textFieldPassword;
@@ -43,13 +43,38 @@ public class RegistroController extends AbstractController {
 
     @FXML
     private Text textContrasenia;
+    
+    @FXML
+    private Text textRepetirContrasenia;
+    
+    @FXML
+    private Text textEmail;
 
+    /**
+     * Inicializa el controlador de registro.
+     * Configura los textos y los placeholders de los campos según el idioma seleccionado.
+     */
     @FXML
     public void initialize() {
         textUsuario.setText(ConfigManager.ConfigProperties.getProperty("textUsuario"));
+        textEmail.setText(ConfigManager.ConfigProperties.getProperty("textEmail"));
         textContrasenia.setText(ConfigManager.ConfigProperties.getProperty("textContrasenia"));
+        textRepetirContrasenia.setText(ConfigManager.ConfigProperties.getProperty("textRepetirContrasenia"));
+        onRegistrarButton.setText(ConfigManager.ConfigProperties.getProperty("onRegistrarButton"));
+        onVolverButton.setText(ConfigManager.ConfigProperties.getProperty("onVolverButton"));
+        
+        textFiledUsuario.setPromptText(ConfigManager.ConfigProperties.getProperty("promptUsuario"));
+        textFieldEmail.setPromptText(ConfigManager.ConfigProperties.getProperty("promptEmail"));
+        textFieldPassword.setPromptText(ConfigManager.ConfigProperties.getProperty("promptContrasenia"));
+        textFieldPasswordRepit.setPromptText(ConfigManager.ConfigProperties.getProperty("promptRepetirContrasenia"));
+        
     }
 
+    /**
+     * Maneja el evento de clic en el botón de registro.
+     * Valida los datos ingresados por el usuario y registra un nuevo usuario si los datos son válidos.
+     * @throws SQLException Si ocurre un error al interactuar con la base de datos.
+     */
     @FXML
     protected void onClickRegistar() throws SQLException {
 
@@ -76,6 +101,10 @@ public class RegistroController extends AbstractController {
         }
     }
 
+    /**
+     * Abre la pantalla de login.
+     * Cambia la escena actual a la pantalla de login.
+     */
     @FXML
     protected void openVolverClick() {
         try {

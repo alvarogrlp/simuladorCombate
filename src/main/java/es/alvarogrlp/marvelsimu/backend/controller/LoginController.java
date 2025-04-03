@@ -2,6 +2,9 @@ package es.alvarogrlp.marvelsimu.backend.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.event.HyperlinkEvent;
+
 import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import es.alvarogrlp.marvelsimu.backend.config.ConfigManager;
 import es.alvarogrlp.marvelsimu.backend.controller.abstracts.AbstractController;
@@ -36,9 +39,12 @@ public class LoginController extends AbstractController {
 
     @FXML
     private Button onRecuperarButton;
+    
+    @FXML
+    private Button onRegistrarButton;
 
     @FXML
-    private Button onMostrarButton;
+    private Button onEntrarButton;
 
     @FXML
     private Text textContrasenia;
@@ -46,6 +52,10 @@ public class LoginController extends AbstractController {
     @FXML
     private ComboBox comboIdioma;
 
+    /**
+     * Inicializa el controlador de login.
+     * Carga los idiomas disponibles en el ComboBox y establece el idioma actual.
+     */
     @FXML
     public void initialize() {
         List<String> idiomas = new ArrayList<>();
@@ -53,23 +63,42 @@ public class LoginController extends AbstractController {
         idiomas.add("en");
         idiomas.add("fr");
         comboIdioma.getItems().addAll(idiomas);
+
+        String idiomaActual = ConfigManager.ConfigProperties.getProperty("idiomaActual", "es");
+        comboIdioma.setValue(idiomaActual); 
+
+        cambiarIdioma();
     }
 
+    /**
+     * Cambia el idioma de la aplicación según el seleccionado en el ComboBox.
+     * Actualiza los textos de la interfaz al idioma seleccionado.
+     */
     @FXML
     protected void cambiarIdioma() {
-        String path = "src/main/resources/idioma-" + comboIdioma.getValue().toString() + ".properties";
+        String idiomaSeleccionado = comboIdioma.getValue().toString();
+        String path = "src/main/resources/idioma-" + idiomaSeleccionado + ".properties";
 
         ConfigManager.ConfigProperties.setPath(path);
+        ConfigManager.ConfigProperties.setProperty("idiomaActual", idiomaSeleccionado);
 
-        // Actualizar textos
         textUsuario.setText(ConfigManager.ConfigProperties.getProperty("textUsuario"));
         textContrasenia.setText(ConfigManager.ConfigProperties.getProperty("textContrasenia"));
         textPregunta.setText(ConfigManager.ConfigProperties.getProperty("textPregunta"));
+        onRecuperarButton.setText(ConfigManager.ConfigProperties.getProperty("onRecuperarButton"));
+        onRegistrarButton.setText(ConfigManager.ConfigProperties.getProperty("onRegistrarButton"));
+        onEntrarButton.setText(ConfigManager.ConfigProperties.getProperty("onEntrarButton"));
+
+        textFieldUsuario.setPromptText(ConfigManager.ConfigProperties.getProperty("promptUsuario"));
+        textFieldPassword.setPromptText(ConfigManager.ConfigProperties.getProperty("promptContrasenia"));
     }
 
+    /**
+     * Maneja el evento de clic en el botón de login.
+     * Valida las credenciales ingresadas por el usuario.
+     */
     @FXML
     protected void onLoginButtonClick() {
-
         if (textFieldUsuario == null || textFieldUsuario.getText().isEmpty() ||
                 textFieldPassword == null || textFieldPassword.getText().isEmpty()) {
             textFieldMensaje.setText("Credenciales null o vacias");
@@ -88,19 +117,20 @@ public class LoginController extends AbstractController {
                 && textFieldPassword.getText().equals(usuarioEntity.getContrasenia())) {
             textFieldMensaje.setText("Usuario validado correctamente");
             return;
-
         }
         textFieldMensaje.setText("Credenciales invalidas");
     }
 
+    /**
+     * Abre la pantalla de registro.
+     * Cambia la escena actual a la pantalla de registro.
+     */
     @FXML
     protected void openRegistrarClick() {
-
         try {
-
             FXMLLoader fxmlLoader = new FXMLLoader(PrincipalApplication.class.getResource("registro.fxml"));
             Scene scene = new Scene(fxmlLoader.load(), 410, 810);
-            Stage stage = (Stage) onRecuperarButton.getScene().getWindow();
+            Stage stage = (Stage) onRegistrarButton.getScene().getWindow();
             stage.setTitle("Pantalla Registro");
             stage.setScene(scene);
             stage.show();
@@ -109,13 +139,16 @@ public class LoginController extends AbstractController {
         }
     }
 
+    /**
+     * Abre la pantalla de recuperación de contraseña.
+     * Cambia la escena actual a la pantalla de recuperación.
+     */
     @FXML
     protected void openRecuperarClick() {
-
         try {
             Stage stage = (Stage) onRecuperarButton.getScene().getWindow();
             FXMLLoader fxmlLoader = new FXMLLoader(PrincipalApplication.class.getResource("recuperar.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 820, 640);
+            Scene scene = new Scene(fxmlLoader.load(), 410, 810);
             stage.setTitle("Pantalla Recuperacion");
             stage.setScene(scene);
             stage.show();
@@ -124,18 +157,12 @@ public class LoginController extends AbstractController {
         }
     }
 
-    @FXML
-    protected void openMostrarClick() {
-
-        try {
-            Stage stage = (Stage) onMostrarButton.getScene().getWindow();
-            FXMLLoader fxmlLoader = new FXMLLoader(PrincipalApplication.class.getResource("mostrarUsuarios.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 820, 640);
-            stage.setTitle("Pantalla Recuperacion");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    /**
+     * Establece el idioma de la aplicación.
+     * @param idioma Código del idioma seleccionado (por ejemplo, "es", "en").
+     */
+    public void setIdioma(String idioma) {
+        ConfigManager.ConfigProperties.setPath("src/main/resources/idioma-" + idioma + ".properties");
+        cambiarIdioma();
     }
 }

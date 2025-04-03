@@ -26,6 +26,10 @@ public abstract class AbstractController {
 
     private Properties propertiesIdioma;
 
+    /**
+     * Constructor de la clase AbstractController.
+     * Inicializa el servicio de usuario con la base de datos especificada.
+     */
     public AbstractController() {
         try {
             usuarioServiceModel = new UsuarioServiceModel(PATH_DB);
@@ -34,14 +38,28 @@ public abstract class AbstractController {
         }
     }
 
+    /**
+     * Establece las propiedades del idioma.
+     * @param properties Objeto Properties con las configuraciones del idioma.
+     */
     public void setpropertiesIdioma(Properties properties) {
         propertiesIdioma = properties;
     }
 
+    /**
+     * Obtiene las propiedades del idioma configuradas.
+     * @return Objeto Properties con las configuraciones del idioma.
+     */
     public Properties getPropertiesIdioma() {
         return propertiesIdioma;
     }
 
+    /**
+     * Carga las propiedades del idioma desde un archivo.
+     * @param nombreFichero Nombre base del archivo de propiedades.
+     * @param idioma Código del idioma (por ejemplo, "es", "en").
+     * @return Objeto Properties con las configuraciones cargadas.
+     */
     public Properties loadIdioma(String nombreFichero, String idioma) {
         Properties properties = new Properties();
 
@@ -69,6 +87,10 @@ public abstract class AbstractController {
         return properties;
     }
 
+    /**
+     * Obtiene el servicio de usuario configurado.
+     * @return Objeto UsuarioServiceModel para interactuar con los usuarios.
+     */
     public UsuarioServiceModel getUsuarioServiceModel() {
         return this.usuarioServiceModel;
     }
