@@ -46,7 +46,6 @@ public class ConfigManager {
          * @param rutaPath String con la ruta del archivo de propiedades
          */
         public static void setPath(String rutaPath) {
-            System.out.println("Dentro del setPath");
             File file = new File(rutaPath);
 
             if (!file.exists() || !file.isFile()) {
@@ -54,7 +53,6 @@ public class ConfigManager {
             }
             path = rutaPath;
             try {
-                System.out.println("Dentro del ConfigProperties");
 
                 FileInputStream input = new FileInputStream(path);
                 InputStreamReader isr = new InputStreamReader(input, "UTF-8");

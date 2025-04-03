@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.event.HyperlinkEvent;
-
+import eu.iamgio.animated.Animation;
+import eu.iamgio.animated.property.ScaleProperty;
 import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import es.alvarogrlp.marvelsimu.backend.config.ConfigManager;
 import es.alvarogrlp.marvelsimu.backend.controller.abstracts.AbstractController;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioModel;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -16,9 +20,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.SkinBase;
+import javafx.scene.control.skin.ComboBoxListViewSkin;
+import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import eu.iamgio.animated.Animation;
+import eu.iamgio.animated.property.ScaleProperty;
 
 public class LoginController extends AbstractController {
 
@@ -29,7 +39,7 @@ public class LoginController extends AbstractController {
     private PasswordField textFieldPassword;
 
     @FXML
-    private Text textFieldMensaje;
+    private Text textMensaje;
 
     @FXML
     private Text textUsuario;
@@ -68,6 +78,9 @@ public class LoginController extends AbstractController {
         comboIdioma.setValue(idiomaActual); 
 
         cambiarIdioma();
+
+        // Agregar animación al ComboBox
+        addComboBoxAnimation(comboIdioma);
     }
 
     /**
@@ -94,6 +107,38 @@ public class LoginController extends AbstractController {
     }
 
     /**
+     * Agrega una animación de despliegue al ComboBox.
+     * @param comboBox El ComboBox al que se le aplicará la animación.
+     */
+    private void addComboBoxAnimation(ComboBox<String> comboBox) {
+        comboBox.setSkin(new ComboBoxListViewSkin<>(comboBox) {
+            @Override
+            public void show() { // Cambiado a public
+                super.show();
+
+                Region popupContent = (Region) getPopupContent();
+                popupContent.setScaleY(0); // Inicia con escala Y de 0 (colapsado)
+
+                // Animación de desenrollar (de escala Y 0 a 1)
+                Animation expand = Animation.of(popupContent, new ScaleProperty(ScaleProperty.Axis.Y, 0, 1))
+                                             .setDuration(300); // Duración en milisegundos
+                expand.play();
+            }
+
+            @Override
+            public void hide() { // Cambiado a public
+                Region popupContent = (Region) getPopupContent();
+
+                // Animación de enrollar (de escala Y 1 a 0)
+                Animation collapse = Animation.of(popupContent, new ScaleProperty(ScaleProperty.Axis.Y, 1, 0))
+                                               .setDuration(300); // Duración en milisegundos
+                collapse.setOnFinished(super::hide); // Llama a hide() después de la animación
+                collapse.play();
+            }
+        });
+    }
+
+    /**
      * Maneja el evento de clic en el botón de login.
      * Valida las credenciales ingresadas por el usuario.
      */
@@ -101,24 +146,29 @@ public class LoginController extends AbstractController {
     protected void onLoginButtonClick() {
         if (textFieldUsuario == null || textFieldUsuario.getText().isEmpty() ||
                 textFieldPassword == null || textFieldPassword.getText().isEmpty()) {
-            textFieldMensaje.setText("Credenciales null o vacias");
+            textMensaje.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeCredencialesVacias") + " ❌");
+            textMensaje.setStyle("-fx-fill: red;"); // Cambiar el color a rojo
             return;
         }
 
         UsuarioModel usuarioEntity = getUsuarioServiceModel().obtenerCredencialesUsuario(textFieldUsuario.getText());
 
         if (usuarioEntity == null) {
-            textFieldMensaje.setText("El usuario no existe");
+            textMensaje.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeUsuarioNoExiste") + " ❌");
+            textMensaje.setStyle("-fx-fill: red;"); // Cambiar el color a rojo
             return;
         }
 
         if ((textFieldUsuario.getText().equals(usuarioEntity.getEmail())
                 || textFieldUsuario.getText().equals(usuarioEntity.getNombre()))
                 && textFieldPassword.getText().equals(usuarioEntity.getContrasenia())) {
-            textFieldMensaje.setText("Usuario validado correctamente");
+            textMensaje.setText("✅ " + ConfigManager.ConfigProperties.getProperty("mensajeUsuarioValidado") + " ✅");
+            textMensaje.setStyle("-fx-fill: green;"); // Cambiar el color a verde para éxito
             return;
         }
-        textFieldMensaje.setText("Credenciales invalidas");
+
+        textMensaje.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeCredencialesInvalidas") + " ❌");
+        textMensaje.setStyle("-fx-fill: red;"); // Cambiar el color a rojo
     }
 
     /**

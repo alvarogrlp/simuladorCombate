@@ -77,25 +77,28 @@ public class RegistroController extends AbstractController {
      */
     @FXML
     protected void onClickRegistar() throws SQLException {
-
         if (textFieldPassword == null || textFieldPassword.getText().isEmpty()
                 || textFieldPasswordRepit == null || textFieldPasswordRepit.getText().isEmpty()) {
-            textMensaje.setText("¡El password no puede ser nulo o vacio!");
+            textMensaje.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajePasswordVacio") + " ❌");
+            textMensaje.setStyle("-fx-fill: red;"); // Cambiar el color a rojo
             return;
         }
 
         if (textFieldPassword.getText().equals(textFieldPasswordRepit.getText())) {
-            textMensaje.setText("¡El password es correcto!");
+            textMensaje.setText("✅ " + ConfigManager.ConfigProperties.getProperty("mensajePasswordCorrecto") + " ✅");
+            textMensaje.setStyle("-fx-fill: green;"); // Cambiar el color a verde
         }
 
         UsuarioModel usuarioNuevo = new UsuarioModel(textFieldEmail.getText(), textFiledUsuario.getText(),
                 textFieldPassword.getText());
 
         if (!getUsuarioServiceModel().agregarUsuario(usuarioNuevo)) {
-            textMensaje.setText("Usuario ya registrado o null");
+            textMensaje.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeUsuarioYaRegistrado") + " ❌");
+            textMensaje.setStyle("-fx-fill: red;"); // Cambiar el color a rojo
             return;
         } else {
-            textMensaje.setText("Usuario Registrado Correctamente");
+            textMensaje.setText("✅ " + ConfigManager.ConfigProperties.getProperty("mensajeUsuarioRegistrado") + " ✅");
+            textMensaje.setStyle("-fx-fill: green;"); // Cambiar el color a verde
             openVolverClick();
             return;
         }

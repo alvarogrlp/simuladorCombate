@@ -14,9 +14,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<StackPane stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1"
-   xmlns:fx="http://javafx.com/fxml/1"
-   fx:controller="es.alvarogrlp.marvelsimu.backend.controller.LoginController">
+<StackPane stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="es.alvarogrlp.marvelsimu.backend.controller.LoginController">
 
    <!-- Imagen de Fondo -->
    <ImageView fitHeight="800" fitWidth="400" preserveRatio="false">
@@ -26,8 +24,7 @@
    </ImageView>
 
    <!-- Contenedor Principal -->
-   <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0"
-      prefWidth="400.0" spacing="10.0" styleClass="container" stylesheets="@style.css">
+   <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="400.0" spacing="10.0" styleClass="container" stylesheets="@style.css">
       <ImageView fitHeight="158.0" fitWidth="319.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../../../images/logo.png" />
@@ -36,22 +33,17 @@
             <Insets bottom="10.0" top="10.0" />
          </VBox.margin>
       </ImageView>
-      <ComboBox fx:id="comboIdioma" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-         minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" onAction="#cambiarIdioma"
-         prefHeight="41.0" prefWidth="201.0" promptText="Idioma" />
+      <ComboBox fx:id="comboIdioma" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" onAction="#cambiarIdioma" prefHeight="41.0" prefWidth="201.0" promptText="Idioma" />
       <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
          <children>
 
             <!-- Caja de Inputs -->
-            <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity"
-               minHeight="-Infinity" minWidth="-Infinity" prefHeight="393.0" prefWidth="360.0"
-               spacing="10">
+            <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="414.0" prefWidth="360.0" spacing="10">
 
                <!-- Título -->
-               <Text fx:id="textPregunta" styleClass="title" text="¿YA TIENES CUENTA?"
-                  textAlignment="CENTER" wrappingWidth="328.396484375">
+               <Text fx:id="textPregunta" styleClass="title" text="¿YA TIENES CUENTA?" textAlignment="CENTER" wrappingWidth="328.396484375">
                   <font>
-                     <Font size="29.0" />
+                     <Font size="26.0" />
                   </font>
                </Text>
                <Text fx:id="textUsuario" styleClass="label" text="NOMBRE DE USUARIO">
@@ -62,9 +54,7 @@
                      <Font size="16.0" />
                   </font>
                </Text>
-               <TextField fx:id="textFieldUsuario" maxHeight="-Infinity" maxWidth="-Infinity"
-                  minHeight="-Infinity" minWidth="-Infinity" prefHeight="46.0" prefWidth="294.0"
-                  promptText="Introduce el nombre de usuario" styleClass="input">
+               <TextField fx:id="textFieldUsuario" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="46.0" prefWidth="294.0" promptText="Introduce el nombre de usuario" styleClass="input">
                   <cursor>
                      <Cursor fx:constant="TEXT" />
                   </cursor>
@@ -84,9 +74,7 @@
                      <Font size="16.0" />
                   </font>
                </Text>
-               <PasswordField fx:id="textFieldPassword" maxHeight="-Infinity" maxWidth="-Infinity"
-                  minHeight="-Infinity" minWidth="-Infinity" prefHeight="46.0" prefWidth="294.0"
-                  promptText="Introduce la contraseña" styleClass="input">
+               <PasswordField fx:id="textFieldPassword" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="46.0" prefWidth="294.0" promptText="Introduce la contraseña" styleClass="input">
                   <VBox.margin>
                      <Insets />
                   </VBox.margin>
@@ -97,18 +85,24 @@
                      <Cursor fx:constant="TEXT" />
                   </cursor>
                </PasswordField>
-               <Text fx:id="textFieldMensaje" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" />
-               <Button fx:id="onRecuperarButton" mnemonicParsing="false"
-                  text="¿Has olvidado la constraseña?">
+               <Button fx:id="onRecuperarButton" mnemonicParsing="false" prefHeight="34.0" prefWidth="254.0" styleClass="button-recuperar" text="¿Has olvidado la constraseña?">
                   <VBox.margin>
-                     <Insets top="-20.0" />
+                     <Insets top="-8.0" />
                   </VBox.margin>
+                  <font>
+                     <Font size="14.0" />
+                  </font>
                </Button>
+               <Text fx:id="textMensaje" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0">
+                  <VBox.margin>
+                     <Insets top="-8.0" />
+                  </VBox.margin>
+                  <font>
+                     <Font name="System Bold" size="13.0" />
+                  </font></Text>
 
                <!-- Botones -->
-               <Button fx:id="onRegistrarButton" maxHeight="-Infinity" maxWidth="-Infinity"
-                  minHeight="-Infinity" minWidth="-Infinity" onAction="#openRegistrarClick"
-                  prefHeight="63.0" prefWidth="189.0" styleClass="button-marvel" text="CREAR CUENTA">
+               <Button fx:id="onRegistrarButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#openRegistrarClick" prefHeight="63.0" prefWidth="189.0" styleClass="button-marvel" text="CREAR CUENTA">
                   <VBox.margin>
                      <Insets />
                   </VBox.margin>
@@ -126,8 +120,7 @@
             </VBox>
          </children>
       </VBox>
-      <Button fx:id="onEntrarButton" minWidth="-Infinity" onAction="#onLoginButtonClick"
-         prefHeight="99.0" prefWidth="269.0" styleClass="button-marvel,large" text="ENTRAR">
+      <Button fx:id="onEntrarButton" minWidth="-Infinity" onAction="#onLoginButtonClick" prefHeight="99.0" prefWidth="269.0" styleClass="button-marvel,large" text="ENTRAR">
          <VBox.margin>
             <Insets top="20.0" />
          </VBox.margin>
