@@ -1,0 +1,14 @@
+es\alvarogrlp\marvelsimu\backend\controller\RegistroController.class
+es\alvarogrlp\marvelsimu\backend\model\PersonajeModel.class
+es\alvarogrlp\marvelsimu\backend\controller\MostrarUsuariosController.class
+es\alvarogrlp\marvelsimu\backend\controller\RecuperarController.class
+es\alvarogrlp\marvelsimu\backend\controller\LoginController.class
+es\alvarogrlp\marvelsimu\backend\model\abtrastas\Conexion.class
+es\alvarogrlp\marvelsimu\backend\model\CombateModel.class
+es\alvarogrlp\marvelsimu\PrincipalApplication.class
+es\alvarogrlp\marvelsimu\backend\model\UsuarioModel.class
+es\alvarogrlp\marvelsimu\backend\model\UsuarioServiceModel.class
+es\alvarogrlp\marvelsimu\backend\controller\HelloController.class
+es\alvarogrlp\marvelsimu\backend\config\ConfigManager$ConfigProperties.class
+es\alvarogrlp\marvelsimu\backend\config\ConfigManager.class
+es\alvarogrlp\marvelsimu\backend\controller\abstracts\AbstractController.class

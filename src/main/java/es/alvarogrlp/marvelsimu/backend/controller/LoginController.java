@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.event.HyperlinkEvent;
-import eu.iamgio.animated.Animation;
-import eu.iamgio.animated.property.ScaleProperty;
+
 import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import es.alvarogrlp.marvelsimu.backend.config.ConfigManager;
 import es.alvarogrlp.marvelsimu.backend.controller.abstracts.AbstractController;
@@ -27,8 +26,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import eu.iamgio.animated.Animation;
-import eu.iamgio.animated.property.ScaleProperty;
 
 public class LoginController extends AbstractController {
 
@@ -78,9 +75,6 @@ public class LoginController extends AbstractController {
         comboIdioma.setValue(idiomaActual); 
 
         cambiarIdioma();
-
-        // Agregar animación al ComboBox
-        addComboBoxAnimation(comboIdioma);
     }
 
     /**
@@ -104,38 +98,6 @@ public class LoginController extends AbstractController {
 
         textFieldUsuario.setPromptText(ConfigManager.ConfigProperties.getProperty("promptUsuario"));
         textFieldPassword.setPromptText(ConfigManager.ConfigProperties.getProperty("promptContrasenia"));
-    }
-
-    /**
-     * Agrega una animación de despliegue al ComboBox.
-     * @param comboBox El ComboBox al que se le aplicará la animación.
-     */
-    private void addComboBoxAnimation(ComboBox<String> comboBox) {
-        comboBox.setSkin(new ComboBoxListViewSkin<>(comboBox) {
-            @Override
-            public void show() { // Cambiado a public
-                super.show();
-
-                Region popupContent = (Region) getPopupContent();
-                popupContent.setScaleY(0); // Inicia con escala Y de 0 (colapsado)
-
-                // Animación de desenrollar (de escala Y 0 a 1)
-                Animation expand = Animation.of(popupContent, new ScaleProperty(ScaleProperty.Axis.Y, 0, 1))
-                                             .setDuration(300); // Duración en milisegundos
-                expand.play();
-            }
-
-            @Override
-            public void hide() { // Cambiado a public
-                Region popupContent = (Region) getPopupContent();
-
-                // Animación de enrollar (de escala Y 1 a 0)
-                Animation collapse = Animation.of(popupContent, new ScaleProperty(ScaleProperty.Axis.Y, 1, 0))
-                                               .setDuration(300); // Duración en milisegundos
-                collapse.setOnFinished(super::hide); // Llama a hide() después de la animación
-                collapse.play();
-            }
-        });
     }
 
     /**
