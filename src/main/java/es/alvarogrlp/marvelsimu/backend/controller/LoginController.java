@@ -3,15 +3,12 @@ package es.alvarogrlp.marvelsimu.backend.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.event.HyperlinkEvent;
-
 import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import es.alvarogrlp.marvelsimu.backend.config.ConfigManager;
 import es.alvarogrlp.marvelsimu.backend.controller.abstracts.AbstractController;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioModel;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import eu.iamgio.animated.transition.AnimatedThemeSwitcher;
+import eu.iamgio.animated.transition.animations.clip.CircleClipOut;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,15 +17,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.control.SkinBase;
-import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Region;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 public class LoginController extends AbstractController {
 
@@ -188,26 +180,17 @@ public class LoginController extends AbstractController {
      */
     @FXML
     protected void cambiarModo() {
-        // Obtener la lista de hojas de estilo de la escena
-        var stylesheets = textFieldUsuario.getScene().getStylesheets();
+        var scene = textFieldUsuario.getScene();
 
-        // Verificar si la lista está vacía
-        if (stylesheets.isEmpty()) {
-            // Agregar la hoja de estilo inicial (modo oscuro por defecto)
-            stylesheets.add(getClass().getResource("/es/alvarogrlp/marvelsimu/dark-mode.css").toExternalForm());
-        }
+        AnimatedThemeSwitcher themeSwitcher = new AnimatedThemeSwitcher(scene, new CircleClipOut());
+        themeSwitcher.init();
 
-        // Obtener la hoja de estilo actual
-        String currentStylesheet = stylesheets.get(0);
-
-        // Alternar entre modo oscuro y modo claro
-        if (currentStylesheet.contains("dark-mode.css")) {
-            stylesheets.clear();
-            stylesheets.add(getClass().getResource("/es/alvarogrlp/marvelsimu/light-mode.css").toExternalForm());
+        var stylesheets = scene.getStylesheets();
+        if (stylesheets.isEmpty() || stylesheets.get(0).contains("dark-mode.css")) {
+            stylesheets.setAll(getClass().getResource("/es/alvarogrlp/marvelsimu/light-mode.css").toExternalForm());
             iconoModo.setImage(new Image(getClass().getResource("/images/luz.png").toExternalForm()));
         } else {
-            stylesheets.clear();
-            stylesheets.add(getClass().getResource("/es/alvarogrlp/marvelsimu/dark-mode.css").toExternalForm());
+            stylesheets.setAll(getClass().getResource("/es/alvarogrlp/marvelsimu/dark-mode.css").toExternalForm());
             iconoModo.setImage(new Image(getClass().getResource("/images/oscuro.png").toExternalForm()));
         }
     }
