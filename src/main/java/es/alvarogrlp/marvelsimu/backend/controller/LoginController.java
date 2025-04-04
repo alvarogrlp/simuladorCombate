@@ -188,10 +188,10 @@ public class LoginController extends AbstractController {
         var stylesheets = scene.getStylesheets();
         if (stylesheets.isEmpty() || stylesheets.get(0).contains("dark-mode.css")) {
             stylesheets.setAll(getClass().getResource("/es/alvarogrlp/marvelsimu/light-mode.css").toExternalForm());
-            iconoModo.setImage(new Image(getClass().getResource("/images/luz.png").toExternalForm()));
+            iconoModo.setImage(new Image(getClass().getResource("/images/oscuro.png").toExternalForm()));
         } else {
             stylesheets.setAll(getClass().getResource("/es/alvarogrlp/marvelsimu/dark-mode.css").toExternalForm());
-            iconoModo.setImage(new Image(getClass().getResource("/images/oscuro.png").toExternalForm()));
+            iconoModo.setImage(new Image(getClass().getResource("/images/luz.png").toExternalForm()));
         }
     }
 

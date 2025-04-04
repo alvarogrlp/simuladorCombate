@@ -135,7 +135,7 @@
             </VBox>
          </children>
       </VBox>
-      <Button fx:id="onEntrarButton" minWidth="-Infinity" onAction="#onLoginButtonClick" prefHeight="99.0" prefWidth="269.0" styleClass="button-marvel,large" text="ENTRAR">
+      <Button fx:id="onEntrarButton" minWidth="-Infinity" onAction="#onLoginButtonClick" prefHeight="78.0" prefWidth="200.0" styleClass="button-marvel,large" text="ENTRAR">
          <VBox.margin>
             <Insets top="20.0" />
          </VBox.margin>
@@ -152,6 +152,9 @@
          <VBox.margin>
             <Insets bottom="20.0" top="10.0" />
          </VBox.margin>
+         <font>
+            <Font size="18.0" />
+         </font>
       </Text>
    </VBox>
 

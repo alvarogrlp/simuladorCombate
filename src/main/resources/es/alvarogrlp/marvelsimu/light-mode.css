@@ -99,12 +99,14 @@ StackPane {
     -fx-border-radius: 0; 
     -fx-padding: 10px 20px; 
     -fx-cursor: hand; 
+    -fx-font-size: 18px;
 }
 
 .button-marvel:hover {
     -fx-background-color: red;
     -fx-text-fill: white; 
     -fx-border-radius: 0; 
+    -fx-font-size: 18px;
 }
 
 /* Botón de cambiar de modo con estilo de ComboBox */
@@ -124,6 +126,8 @@ StackPane {
 .button-modo:hover {
     -fx-background-color: rgba(255, 255, 255, 0.1); 
     -fx-border-color: white; 
+    -fx-font-size: 14px;
+
 }
 
 .button-modo:focused {
@@ -160,10 +164,6 @@ StackPane {
     -fx-background-color: transparent; 
     -fx-border-color: transparent; 
     -fx-padding: -6;
-}
-
-.combo-box .arrow-button:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Icono del botón desplegable */
