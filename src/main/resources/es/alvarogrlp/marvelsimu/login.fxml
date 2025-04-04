@@ -19,9 +19,6 @@
 
    <!-- Imagen de Fondo -->
    <ImageView fx:id="fondo" fitHeight="800" fitWidth="400" preserveRatio="false">
-      <image>
-         <Image url="@../../../images/fondoNegro.png" />
-      </image>
    </ImageView>
 
    <!-- Contenedor Principal -->
