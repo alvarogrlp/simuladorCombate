@@ -9,22 +9,23 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<StackPane stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="es.alvarogrlp.marvelsimu.backend.controller.LoginController">
+<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="es.alvarogrlp.marvelsimu.backend.controller.LoginController">
 
    <!-- Imagen de Fondo -->
-   <ImageView fitHeight="800" fitWidth="400" preserveRatio="false">
+   <ImageView fx:id="fondo" fitHeight="800" fitWidth="400" preserveRatio="false">
       <image>
-         <Image url="@../../../images/fondo.png" />
+         <Image url="@../../../images/fondoNegro.png" />
       </image>
    </ImageView>
 
    <!-- Contenedor Principal -->
-   <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="400.0" spacing="10.0" styleClass="container" stylesheets="@style.css">
+   <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="400.0" spacing="10.0" styleClass="container">
       <ImageView fitHeight="158.0" fitWidth="319.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../../../images/logo.png" />
@@ -33,7 +34,24 @@
             <Insets bottom="10.0" top="10.0" />
          </VBox.margin>
       </ImageView>
-      <ComboBox fx:id="comboIdioma" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" onAction="#cambiarIdioma" prefHeight="41.0" prefWidth="201.0" promptText="Idioma" />
+      <HBox alignment="CENTER" spacing="10">
+         <!-- ComboBox con imagen -->
+         <ComboBox fx:id="comboIdioma" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" onAction="#cambiarIdioma" prefHeight="41.0" prefWidth="44.0" promptText="es">
+            <HBox.margin>
+               <Insets right="230.0" />
+            </HBox.margin></ComboBox>
+
+         <!-- Botón de modo oscuro/luz -->
+         <Button fx:id="buttonModo" onAction="#cambiarModo" styleClass="button-modo">
+            <graphic>
+               <ImageView fx:id="iconoModo" fitHeight="24" fitWidth="24" pickOnBounds="true" preserveRatio="true">
+                  <image>
+                     <Image url="@../../../images/luz.png" />
+                  </image>
+               </ImageView>
+            </graphic>
+         </Button>
+      </HBox>
       <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
          <children>
 
@@ -87,7 +105,7 @@
                </PasswordField>
                <Button fx:id="onRecuperarButton" mnemonicParsing="false" prefHeight="34.0" prefWidth="254.0" styleClass="button-recuperar" text="¿Has olvidado la constraseña?">
                   <VBox.margin>
-                     <Insets top="-8.0" />
+                     <Insets top="-6.0" />
                   </VBox.margin>
                   <font>
                      <Font size="14.0" />

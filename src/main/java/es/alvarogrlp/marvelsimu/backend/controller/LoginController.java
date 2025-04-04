@@ -12,6 +12,7 @@ import es.alvarogrlp.marvelsimu.backend.model.UsuarioModel;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -21,6 +22,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.SkinBase;
 import javafx.scene.control.skin.ComboBoxListViewSkin;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -59,12 +62,22 @@ public class LoginController extends AbstractController {
     @FXML
     private ComboBox comboIdioma;
 
+    @FXML
+    private ImageView iconoModo;
+
     /**
      * Inicializa el controlador de login.
      * Carga los idiomas disponibles en el ComboBox y establece el idioma actual.
      */
     @FXML
     public void initialize() {
+        // Ejecutar después de que la escena esté completamente inicializada
+        Platform.runLater(() -> {
+            var stylesheets = textFieldUsuario.getScene().getStylesheets();
+            stylesheets.add(getClass().getResource("/es/alvarogrlp/marvelsimu/dark-mode.css").toExternalForm());
+        });
+
+        // Configurar idiomas en el ComboBox
         List<String> idiomas = new ArrayList<>();
         idiomas.add("es");
         idiomas.add("en");
@@ -72,7 +85,7 @@ public class LoginController extends AbstractController {
         comboIdioma.getItems().addAll(idiomas);
 
         String idiomaActual = ConfigManager.ConfigProperties.getProperty("idiomaActual", "es");
-        comboIdioma.setValue(idiomaActual); 
+        comboIdioma.setValue(idiomaActual);
 
         cambiarIdioma();
     }
@@ -166,6 +179,36 @@ public class LoginController extends AbstractController {
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Alterna entre modo oscuro y modo claro.
+     * Cambia el estilo de la aplicación y el icono según el modo seleccionado.
+     */
+    @FXML
+    protected void cambiarModo() {
+        // Obtener la lista de hojas de estilo de la escena
+        var stylesheets = textFieldUsuario.getScene().getStylesheets();
+
+        // Verificar si la lista está vacía
+        if (stylesheets.isEmpty()) {
+            // Agregar la hoja de estilo inicial (modo oscuro por defecto)
+            stylesheets.add(getClass().getResource("/es/alvarogrlp/marvelsimu/dark-mode.css").toExternalForm());
+        }
+
+        // Obtener la hoja de estilo actual
+        String currentStylesheet = stylesheets.get(0);
+
+        // Alternar entre modo oscuro y modo claro
+        if (currentStylesheet.contains("dark-mode.css")) {
+            stylesheets.clear();
+            stylesheets.add(getClass().getResource("/es/alvarogrlp/marvelsimu/light-mode.css").toExternalForm());
+            iconoModo.setImage(new Image(getClass().getResource("/images/luz.png").toExternalForm()));
+        } else {
+            stylesheets.clear();
+            stylesheets.add(getClass().getResource("/es/alvarogrlp/marvelsimu/dark-mode.css").toExternalForm());
+            iconoModo.setImage(new Image(getClass().getResource("/images/oscuro.png").toExternalForm()));
         }
     }
 

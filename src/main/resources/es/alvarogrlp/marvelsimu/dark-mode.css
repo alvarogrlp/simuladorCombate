@@ -1,0 +1,207 @@
+/* Contenedor del login */
+.login-window {
+    -fx-background-color: rgba(0, 0, 0, 0.6);
+    -fx-background-radius: 20;
+    -fx-padding: 20;
+    -fx-spacing: 15;
+    -fx-alignment: center;
+}
+
+/* Imagen de fondo */
+StackPane {
+    -fx-background-image: url("../../../images/fondoNegro.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;
+    -fx-background-position: center;
+}
+
+/* Logo */
+.logo {
+    -fx-font-weight: bold;
+    -fx-fill: white;
+    -fx-effect: dropshadow(gaussian, black, 5, 0.5, 2, 2);
+}
+
+/* Título */
+.title {
+    -fx-fill: white;
+    -fx-font-weight: bold;
+}
+
+.text-white {
+    -fx-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* Caja de inputs */
+.form-container {
+    -fx-background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro */
+    -fx-padding: 15; /* Espaciado interno */
+    -fx-spacing: 10; /* Espaciado entre elementos */
+    -fx-alignment: center; /* Centrar contenido */
+    -fx-border-color: rgba(255, 255, 255, 0.678); /* Borde blanco semitransparente */
+    -fx-border-width: 1; /* Grosor del borde */
+    -fx-border-radius: 0; /* Sin bordes redondeados */
+    -fx-background-radius: 0; /* Sin fondo redondeado */
+}
+
+/* Etiquetas */
+.label {
+    -fx-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* Inputs */
+.input {
+    -fx-background-color: rgba(0, 0, 0, 0.308); /* Fondo oscuro */
+    -fx-text-fill: white; /* Texto blanco */
+    -fx-prompt-text-fill: #ddd; /* Texto del placeholder */
+    -fx-border-color: rgb(167, 167, 167); /* Color del borde */
+    -fx-border-width: 1; /* Grosor del borde */
+    -fx-border-radius: 0; /* Sin bordes redondeados */
+    -fx-background-radius: 0; /* Sin fondo redondeado */
+}
+
+.input:focused {
+    -fx-border-color: red; /* Borde rojo al enfocar */
+    -fx-prompt-text-fill: transparent; /* Placeholder transparente */
+}
+
+/* Texto Marvel */
+.marvel-text {
+    -fx-fill: white;
+    -fx-font-weight: bold;
+}
+
+/* Botón de recuperar contraseña */
+.button-recuperar {
+    -fx-background-color: transparent; /* Fondo transparente */
+    -fx-text-fill: white; /* Texto blanco */
+    -fx-font-size: 14px; /* Tamaño de fuente */
+    -fx-font-weight: bold; /* Texto en negrita */
+    -fx-underline: true; /* Subrayado */
+    -fx-border-color: transparent; /* Sin borde */
+    -fx-border-width: 0;
+    -fx-cursor: hand; /* Cambiar el cursor al pasar el ratón */
+}
+
+.button-recuperar:hover {
+    -fx-text-fill: white; /* Texto blanco */
+    -fx-background-color: rgba(255, 255, 255, 0.1); /* Fondo semitransparente al pasar el ratón */
+}
+
+/* Botón */
+.button-marvel {
+    -fx-background-color: transparent; /* Fondo transparente */
+    -fx-text-fill: white; /* Texto blanco */
+    -fx-font-weight: bold; /* Texto en negrita */
+    -fx-border-color: red; /* Borde rojo */
+    -fx-border-width: 1; /* Grosor del borde */
+    -fx-border-radius: 0; /* Sin bordes redondeados */
+    -fx-padding: 10px 20px; /* Espaciado interno */
+    -fx-cursor: hand; /* Cambiar el cursor al pasar el ratón */
+}
+
+.button-marvel:hover {
+    -fx-background-color: red; /* Fondo rojo al pasar el ratón */
+    -fx-text-fill: white; /* Texto blanco */
+    -fx-border-radius: 0; /* Sin bordes redondeados */
+}
+
+/* Botón de cambiar de modo con estilo de ComboBox */
+.button-modo {
+    -fx-background-color: rgba(0, 0, 0, 0.3); /* Fondo ligeramente oscuro */
+    -fx-border-color: rgba(255, 255, 255, 0.5); /* Borde blanco semitransparente */
+    -fx-border-width: 1; /* Borde fino */
+    -fx-border-radius: 5; /* Bordes ligeramente redondeados */
+    -fx-background-radius: 5; /* Fondo ligeramente redondeado */
+    -fx-text-fill: white; /* Texto blanco */
+    -fx-font-size: 14px; /* Tamaño de la fuente */
+    -fx-padding: 5; /* Espaciado interno reducido */
+    -fx-alignment: center; /* Centrar contenido */
+    -fx-cursor: hand; /* Cambiar el cursor al pasar el ratón */
+}
+
+.button-modo:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1); /* Fondo más claro al pasar el ratón */
+    -fx-border-color: white; /* Borde blanco */
+}
+
+.button-modo:focused {
+    -fx-background-color: rgba(0, 0, 0, 0.5); /* Fondo más oscuro al enfocar */
+    -fx-border-color: red; /* Borde rojo al enfocar */
+}
+
+/* Estilo minimalista del ComboBox */
+.combo-box {
+    -fx-background-color: rgba(0, 0, 0, 0.3); /* Fondo ligeramente oscuro */
+    -fx-border-color: rgba(255, 255, 255, 0.5); /* Borde blanco semitransparente */
+    -fx-border-width: 1; /* Borde fino */
+    -fx-border-radius: 5; /* Bordes ligeramente redondeados */
+    -fx-background-radius: 5; /* Fondo ligeramente redondeado */
+    -fx-text-fill: white; /* Texto blanco */
+    -fx-font-size: 14px; /* Tamaño de la fuente */
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.7); /* Placeholder más claro */
+    -fx-padding: 5; /* Espaciado interno reducido */
+    -fx-alignment: center; /* Centrar contenido */
+}
+
+.combo-box:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1); /* Fondo más claro al pasar el ratón */
+    -fx-border-color: white; /* Borde blanco */
+}
+
+.combo-box:focused {
+    -fx-background-color: rgba(0, 0, 0, 0.5); /* Fondo más oscuro al enfocar */
+    -fx-border-color: red; /* Borde rojo al enfocar */
+}
+
+/* Botón desplegable del ComboBox */
+.combo-box .arrow-button {
+    -fx-background-color: transparent; /* Fondo transparente */
+    -fx-border-color: transparent; /* Sin borde */
+    -fx-padding: -6; /* Sin espaciado interno */
+}
+
+.combo-box .arrow-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1); /* Fondo más claro al pasar el ratón */
+}
+
+/* Icono del botón desplegable */
+.combo-box .arrow {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-radius: 30;
+    -fx-border-width: 3;
+}
+
+.combo-box .arrow-button:hover {
+    -fx-background-color: rgba(255, 0, 0, 0.5);
+}
+
+/* Estilo del menú desplegable */
+.combo-box .list-cell {
+    -fx-background-color: rgba(0, 0, 0, 0.904);
+    -fx-background-radius: 30;
+    -fx-text-fill: white;
+}
+
+.combo-box .list-cell:filled:hover {
+    -fx-background-color: red;
+    -fx-text-fill: white;
+}
+
+.combo-box .list-cell:filled:selected {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-border-color: red;
+    -fx-border-radius: 30;
+    -fx-border-width: 0;
+    -fx-text-fill: white; /* Texto blanco */
+}
+
+.combo-box .list-view {
+    -fx-background-color: transparent;
+    /* Fondo del desplegable */
+    -fx-background-radius: 30;
+    -fx-border-color: transparent;
+}
