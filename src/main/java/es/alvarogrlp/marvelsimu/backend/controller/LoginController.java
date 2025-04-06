@@ -7,6 +7,7 @@ import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import es.alvarogrlp.marvelsimu.backend.config.ConfigManager;
 import es.alvarogrlp.marvelsimu.backend.controller.abstracts.AbstractController;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioModel;
+import es.alvarogrlp.marvelsimu.backend.util.ThemeManager;
 import eu.iamgio.animated.transition.AnimatedThemeSwitcher;
 import eu.iamgio.animated.transition.animations.clip.CircleClipOut;
 import javafx.application.Platform;
@@ -65,8 +66,7 @@ public class LoginController extends AbstractController {
     public void initialize() {
         // Ejecutar después de que la escena esté completamente inicializada
         Platform.runLater(() -> {
-            var stylesheets = textFieldUsuario.getScene().getStylesheets();
-            stylesheets.add(getClass().getResource("/es/alvarogrlp/marvelsimu/dark-mode.css").toExternalForm());
+            ThemeManager.applyTheme(textFieldUsuario.getScene(), iconoModo);
         });
 
         // Configurar idiomas en el ComboBox
@@ -181,18 +181,9 @@ public class LoginController extends AbstractController {
     @FXML
     protected void cambiarModo() {
         var scene = textFieldUsuario.getScene();
-
         AnimatedThemeSwitcher themeSwitcher = new AnimatedThemeSwitcher(scene, new CircleClipOut());
         themeSwitcher.init();
-
-        var stylesheets = scene.getStylesheets();
-        if (stylesheets.isEmpty() || stylesheets.get(0).contains("dark-mode.css")) {
-            stylesheets.setAll(getClass().getResource("/es/alvarogrlp/marvelsimu/light-mode.css").toExternalForm());
-            iconoModo.setImage(new Image(getClass().getResource("/images/oscuro.png").toExternalForm()));
-        } else {
-            stylesheets.setAll(getClass().getResource("/es/alvarogrlp/marvelsimu/dark-mode.css").toExternalForm());
-            iconoModo.setImage(new Image(getClass().getResource("/images/luz.png").toExternalForm()));
-        }
+        ThemeManager.toggleTheme(scene, iconoModo);
     }
 
     /**

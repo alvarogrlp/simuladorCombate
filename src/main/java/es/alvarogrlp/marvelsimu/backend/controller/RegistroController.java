@@ -6,6 +6,8 @@ import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import es.alvarogrlp.marvelsimu.backend.config.ConfigManager;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioModel;
 import es.alvarogrlp.marvelsimu.backend.controller.abstracts.AbstractController;
+import es.alvarogrlp.marvelsimu.backend.config.ThemeManager;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -56,6 +58,11 @@ public class RegistroController extends AbstractController {
      */
     @FXML
     public void initialize() {
+        // Ejecutar después de que la escena esté completamente inicializada
+        Platform.runLater(() -> {
+            ThemeManager.applyTheme(textFiledUsuario.getScene(), null);
+        });
+
         textUsuario.setText(ConfigManager.ConfigProperties.getProperty("textUsuario"));
         textEmail.setText(ConfigManager.ConfigProperties.getProperty("textEmail"));
         textContrasenia.setText(ConfigManager.ConfigProperties.getProperty("textContrasenia"));

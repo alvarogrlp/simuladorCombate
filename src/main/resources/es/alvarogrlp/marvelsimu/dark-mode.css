@@ -1,9 +1,9 @@
 /* Contenedor del login */
 .login-window {
-    -fx-background-color: rgba(0, 0, 0, 0.6);
-    -fx-background-radius: 20;
-    -fx-padding: 20;
-    -fx-spacing: 15;
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-background-radius: 0;
+    -fx-padding: 30;
+    -fx-spacing: 20;
     -fx-alignment: center;
 }
 
@@ -19,188 +19,196 @@ StackPane {
 .logo {
     -fx-font-weight: bold;
     -fx-fill: white;
-    -fx-effect: dropshadow(gaussian, black, 5, 0.5, 2, 2);
+    -fx-effect: dropshadow(gaussian, black, 10, 0.2, 0, 0);
 }
 
 /* Título */
 .title {
     -fx-fill: white;
     -fx-font-weight: bold;
+    -fx-font-size: 24px;
+    -fx-effect: dropshadow(gaussian, black, 5, 0.2, 0, 0);
 }
 
 .text-white {
     -fx-fill: white;
     -fx-font-weight: bold;
+    -fx-font-size: 14px;
 }
 
 /* Caja de inputs */
 .form-container {
-    -fx-background-color: rgba(0, 0, 0, 0.5); 
-    -fx-padding: 15; 
-    -fx-spacing: 10;
+    -fx-background-color: rgba(20, 20, 20, 0.8);
+    -fx-padding: 30;
+    -fx-spacing: 15;
     -fx-alignment: center;
-    -fx-border-color: rgba(255, 255, 255, 0.678); 
-    -fx-border-width: 1; 
-    -fx-border-radius: 0; 
-    -fx-background-radius: 0;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-effect: dropshadow(gaussian, black, 10, 0.1, 0, 0);
 }
 
 /* Etiquetas */
 .label {
     -fx-fill: white;
-    -fx-font-weight: bold;
+    -fx-font-weight: normal;
+    -fx-font-size: 12px;
+    -fx-text-transform: uppercase;
+    -fx-letter-spacing: 0.1em;
 }
 
 /* Inputs */
 .input {
-    -fx-background-color: rgba(0, 0, 0, 0.308);
+    -fx-background-color: rgba(255, 255, 255, 0.05);
     -fx-text-fill: white;
-    -fx-prompt-text-fill: #ddd;
-    -fx-border-color: rgb(167, 167, 167);
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.5);
+    -fx-border-color: rgba(255, 255, 255, 0.1);
     -fx-border-width: 1;
-    -fx-border-radius: 0;
-    -fx-background-radius: 0; 
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 12;
+    -fx-font-size: 13px;
 }
 
 .input:focused {
-    -fx-border-color: red; 
-    -fx-prompt-text-fill: transparent; 
+    -fx-border-color: #ff1744;
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-prompt-text-fill: transparent;
 }
 
 /* Texto Marvel */
 .marvel-text {
     -fx-fill: white;
-    -fx-font-weight: bold;
+    -fx-font-weight: 900;
+    -fx-font-size: 16px;
+    -fx-letter-spacing: 0.2em;
 }
 
 /* Botón de recuperar contraseña */
 .button-recuperar {
     -fx-background-color: transparent;
-    -fx-text-fill: white;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold; 
-    -fx-underline: true; 
-    -fx-border-color: transparent; 
-    -fx-border-width: 0;
+    -fx-text-fill: rgba(255, 255, 255, 0.7);
+    -fx-font-size: 12px;
+    -fx-font-weight: normal;
+    -fx-underline: false;
+    -fx-border-color: transparent;
+    -fx-padding: 5;
     -fx-cursor: hand;
 }
 
 .button-recuperar:hover {
-    -fx-text-fill: white; 
-    -fx-background-color: rgba(255, 255, 255, 0.1); 
-    -fx-font-size: 14px;
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
 }
 
 /* Botón */
 .button-marvel {
     -fx-background-color: transparent;
-    -fx-text-fill: white; 
-    -fx-font-weight: bold; 
-    -fx-border-color: red; 
-    -fx-border-width: 1; 
-    -fx-border-radius: 0; 
-    -fx-padding: 10px 20px; 
-    -fx-cursor: hand; 
-    -fx-font-size: 18px;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-color: #ff1744;
+    -fx-border-width: 2;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 12 24;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-text-transform: uppercase;
+    -fx-letter-spacing: 0.1em;
 }
 
 .button-marvel:hover {
-    -fx-background-color: red;
-    -fx-text-fill: white; 
-    -fx-border-radius: 0;
-    -fx-font-size: 18px;
+    -fx-background-color: #ff1744;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, #ff174466, 10, 0.2, 0, 0);
 }
 
-/* Botón de cambiar de modo con estilo de ComboBox */
+/* Botón de cambiar de modo */
 .button-modo {
-    -fx-background-color: rgba(0, 0, 0, 0.3); 
-    -fx-border-color: rgba(255, 255, 255, 0.5); 
-    -fx-border-width: 1; 
-    -fx-border-radius: 5; 
-    -fx-background-radius: 5; 
-    -fx-text-fill: white; 
-    -fx-font-size: 14px;
-    -fx-padding: 5; 
-    -fx-alignment: center; 
+    -fx-background-color: rgba(20, 20, 20, 0.8);
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8;
+    -fx-alignment: center;
     -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, black, 10, 0.1, 0, 0);
 }
 
 .button-modo:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.1); 
-    -fx-border-color: white; 
-    -fx-font-size: 14px;
+    -fx-background-color: rgba(20, 20, 20, 0.9);
+    -fx-border-color: #ff1744;
 }
 
-.button-modo:focused {
-    -fx-background-color: rgba(0, 0, 0, 0.5); 
-    -fx-border-color: red;
-}
-
-/* Estilo minimalista del ComboBox */
+/* ComboBox */
 .combo-box {
-    -fx-background-color: rgba(0, 0, 0, 0.3); 
-    -fx-border-color: rgba(255, 255, 255, 0.5);
+    -fx-background-color: rgba(20, 20, 20, 0.8);
+    -fx-border-color: rgba(255, 255, 255, 0.1);
     -fx-border-width: 1;
-    -fx-border-radius: 5; 
-    -fx-background-radius: 5; 
-    -fx-text-fill: white; 
-    -fx-font-size: 14px; 
-    -fx-prompt-text-fill: rgba(255, 255, 255, 0.7); 
-    -fx-padding: 5; 
-    -fx-alignment: center; 
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 4;
+    -fx-font-size: 13px;
+    -fx-effect: dropshadow(gaussian, black, 10, 0.1, 0, 0);
 }
 
 .combo-box:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.1);
-    -fx-border-color: white; 
+    -fx-background-color: rgba(20, 20, 20, 0.9);
+    -fx-border-color: #ff1744;
 }
 
-.combo-box:focused {
-    -fx-background-color: rgba(0, 0, 0, 0.5); 
-    -fx-border-color: red; 
+.combo-box .list-cell {
+    -fx-background-color: rgba(20, 20, 20, 0.95);
+    -fx-text-fill: white;
+    -fx-padding: 8 12;
 }
 
-/* Botón desplegable del ComboBox */
+.combo-box .list-cell:hover {
+    -fx-background-color: rgba(255, 23, 68, 0.2);
+}
+
+.combo-box .list-cell:selected {
+    -fx-background-color: #ff1744;
+    -fx-text-fill: black;
+}
+
+.combo-box .arrow-button {
+    -fx-padding: 0;
+    -fx-background-color: null;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+    -fx-shape: null;
+}
+
+.combo-box .arrow {
+    -fx-padding: 0;
+    -fx-background-color: null;
+    -fx-shape: null;
+}
+
+/* Eliminar espacio reservado para la flecha */
+.combo-box > .list-cell {
+    -fx-padding: 4 8;
+    -fx-alignment: center;
+}
+
 .combo-box .arrow-button {
     -fx-background-color: transparent;
-    -fx-border-color: transparent; 
-    -fx-padding: -6;
 }
 
-/* Icono del botón desplegable */
 .combo-box .arrow {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-border-radius: 30;
-    -fx-border-width: 3;
+    -fx-background-color: white;
+    -fx-opacity: 0.7;
 }
 
-.combo-box .arrow-button:hover {
-    -fx-background-color: rgba(255, 0, 0, 0.5);
-}
-
-/* Estilo del menú desplegable */
-.combo-box .list-cell {
-    -fx-background-color: rgba(0, 0, 0, 0.904);
-    -fx-background-radius: 30;
-    -fx-text-fill: white;
-}
-
-.combo-box .list-cell:filled:hover {
-    -fx-background-color: red;
-    -fx-text-fill: white;
-}
-
-.combo-box .list-cell:filled:selected {
-    -fx-background-color: rgba(0, 0, 0, 0.5);
-    -fx-border-color: red;
-    -fx-border-radius: 30;
-    -fx-border-width: 0;
-    -fx-text-fill: white; 
-}
-
+/* Lista desplegable */
 .combo-box .list-view {
-    -fx-background-color: transparent;
-    -fx-background-radius: 30;
-    -fx-border-color: transparent;
+    -fx-background-color: rgba(20, 20, 20, 0.95);
+    -fx-background-radius: 4;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-radius: 4;
+    -fx-effect: dropshadow(gaussian, black, 15, 0.2, 0, 0);
+    -fx-padding: 4;
 }

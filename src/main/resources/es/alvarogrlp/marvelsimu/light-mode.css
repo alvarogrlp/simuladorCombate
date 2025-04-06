@@ -1,9 +1,9 @@
 /* Contenedor del login */
 .login-window {
-    -fx-background-color: rgba(0, 0, 0, 0.6);
-    -fx-background-radius: 20;
-    -fx-padding: 20;
-    -fx-spacing: 15;
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-background-radius: 0;
+    -fx-padding: 30;
+    -fx-spacing: 20;
     -fx-alignment: center;
 }
 
@@ -18,188 +18,189 @@ StackPane {
 /* Logo */
 .logo {
     -fx-font-weight: bold;
-    -fx-fill: rgb(0, 0, 0);
-    -fx-effect: dropshadow(gaussian, black, 5, 0.5, 2, 2);
+    -fx-fill: #1A1A1A;
+    -fx-effect: dropshadow(gaussian, #E0E0E0, 10, 0.2, 0, 0);
 }
 
 /* Título */
 .title {
-    -fx-fill: rgb(0, 0, 0);
+    -fx-fill: #1A1A1A;
     -fx-font-weight: bold;
+    -fx-font-size: 24px;
+    -fx-effect: dropshadow(gaussian, #E0E0E0, 5, 0.2, 0, 0);
 }
 
 .text-white {
-    -fx-fill: rgb(0, 0, 0);
+    -fx-fill: #1A1A1A;
     -fx-font-weight: bold;
+    -fx-font-size: 14px;
 }
 
 /* Caja de inputs */
 .form-container {
-    -fx-background-color: rgba(156, 155, 155, 0.5); 
-    -fx-padding: 15;
-    -fx-spacing: 10; 
+    -fx-background-color: #FFFFFF;
+    -fx-padding: 30;
+    -fx-spacing: 15;
     -fx-alignment: center;
-    -fx-border-color: rgba(19, 19, 19, 0.678);
+    -fx-border-color: #E0E0E0;
     -fx-border-width: 1;
-    -fx-border-radius: 0; 
-    -fx-background-radius: 0;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-effect: dropshadow(gaussian, #00000022, 10, 0.1, 0, 0);
 }
 
 /* Etiquetas */
 .label {
-    -fx-fill: rgb(0, 0, 0);
-    -fx-font-weight: bold;
+    -fx-fill: #1A1A1A;
+    -fx-font-weight: normal;
+    -fx-font-size: 12px;
+    -fx-text-transform: uppercase;
+    -fx-letter-spacing: 0.1em;
 }
 
 /* Inputs */
 .input {
-    -fx-background-color: rgba(59, 59, 59, 0.308);
-    -fx-text-fill: rgb(0, 0, 0);
-    -fx-prompt-text-fill: #464646; 
-    -fx-border-color: rgb(54, 54, 54); 
+    -fx-background-color: #F5F5F5;
+    -fx-text-fill: #1A1A1A;
+    -fx-prompt-text-fill: #757575;
+    -fx-border-color: #E0E0E0;
     -fx-border-width: 1;
-    -fx-border-radius: 0; 
-    -fx-background-radius: 0; 
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 12;
+    -fx-font-size: 13px;
 }
 
 .input:focused {
-    -fx-border-color: red;
-    -fx-prompt-text-fill: transparent; 
+    -fx-border-color: #ff1744;
+    -fx-background-color: #FFFFFF;
+    -fx-prompt-text-fill: transparent;
 }
 
 /* Texto Marvel */
 .marvel-text {
-    -fx-fill: red;
-    -fx-font-weight: bold;
+    -fx-fill: #1A1A1A;
+    -fx-font-weight: 900;
+    -fx-font-size: 16px;
+    -fx-letter-spacing: 0.2em;
 }
 
 /* Botón de recuperar contraseña */
 .button-recuperar {
-    -fx-background-color: transparent; 
-    -fx-text-fill: rgb(0, 0, 0); 
-    -fx-font-weight: bold; 
-    -fx-underline: true; 
+    -fx-background-color: transparent;
+    -fx-text-fill: #757575;
+    -fx-font-size: 12px;
+    -fx-font-weight: normal;
+    -fx-underline: false;
     -fx-border-color: transparent;
-    -fx-border-width: 0;
+    -fx-padding: 5;
     -fx-cursor: hand;
 }
 
 .button-recuperar:hover {
-    -fx-text-fill: white; 
-    -fx-background-color: rgba(255, 255, 255, 0.1); 
+    -fx-text-fill: #1A1A1A;
+    -fx-background-color: transparent;
 }
 
 /* Botón */
 .button-marvel {
-    -fx-background-color: transparent; 
-    -fx-text-fill: rgb(0, 0, 0); 
-    -fx-font-weight: bold; 
-    -fx-border-color: red;
-    -fx-border-width: 1; 
-    -fx-border-radius: 0; 
-    -fx-padding: 10px 20px; 
-    -fx-cursor: hand; 
-    -fx-font-size: 18px;
+    -fx-background-color: transparent;
+    -fx-text-fill: #1A1A1A;
+    -fx-font-weight: bold;
+    -fx-border-color: #ff1744;
+    -fx-border-width: 2;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 12 24;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-text-transform: uppercase;
+    -fx-letter-spacing: 0.1em;
 }
 
 .button-marvel:hover {
-    -fx-background-color: red;
-    -fx-text-fill: white; 
-    -fx-border-radius: 0; 
-    -fx-font-size: 18px;
+    -fx-background-color: #ff1744;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, #ff174466, 10, 0.2, 0, 0);
 }
 
-/* Botón de cambiar de modo con estilo de ComboBox */
+/* Botón de cambiar de modo */
 .button-modo {
-    -fx-background-color: rgba(0, 0, 0, 0.3); 
-    -fx-border-color: rgba(255, 255, 255, 0.5);
-    -fx-border-width: 1; 
-    -fx-border-radius: 5; 
-    -fx-background-radius: 5; 
-    -fx-text-fill: white; 
-    -fx-font-size: 14px;
-    -fx-padding: 5; 
-    -fx-alignment: center; 
-    -fx-cursor: hand; 
+    -fx-background-color: #F5F5F5;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8;
+    -fx-alignment: center;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, #00000022, 10, 0.1, 0, 0);
 }
 
 .button-modo:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.1); 
-    -fx-border-color: white; 
-    -fx-font-size: 14px;
-
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #ff1744;
 }
 
-.button-modo:focused {
-    -fx-background-color: rgba(0, 0, 0, 0.5); 
-    -fx-border-color: red; 
-}
-
-/* Estilo minimalista del ComboBox */
+/* ComboBox */
 .combo-box {
-    -fx-background-color: rgba(0, 0, 0, 0.3); 
-    -fx-border-color: rgba(255, 255, 255, 0.5); 
-    -fx-border-width: 1; 
-    -fx-border-radius: 5; 
-    -fx-background-radius: 5; 
-    -fx-text-fill: white;
-    -fx-font-size: 14px; 
-    -fx-prompt-text-fill: rgba(255, 255, 255, 0.7); 
-    -fx-padding: 5; 
-    -fx-alignment: center; 
+    -fx-background-color: #F5F5F5;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 4;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1A1A1A;
+    -fx-effect: dropshadow(gaussian, #00000022, 10, 0.1, 0, 0);
 }
 
 .combo-box:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.1);
-    -fx-border-color: white;
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #ff1744;
 }
 
-.combo-box:focused {
-    -fx-background-color: rgba(0, 0, 0, 0.5); 
-    -fx-border-color: red; 
-}
-
-/* Botón desplegable del ComboBox */
-.combo-box .arrow-button {
-    -fx-background-color: transparent; 
-    -fx-border-color: transparent; 
-    -fx-padding: -6;
-}
-
-/* Icono del botón desplegable */
-.combo-box .arrow {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-border-radius: 30;
-    -fx-border-width: 3;
-}
-
-.combo-box .arrow-button:hover {
-    -fx-background-color: rgba(255, 0, 0, 0.5);
-}
-
-/* Estilo del menú desplegable */
 .combo-box .list-cell {
-    -fx-background-color: rgba(0, 0, 0, 0.904);
-    -fx-background-radius: 30;
+    -fx-background-color: #F5F5F5;
+    -fx-text-fill: #1A1A1A;
+    -fx-padding: 8 12;
+}
+
+.combo-box .list-cell:hover {
+    -fx-background-color: #FFE5E9;
+}
+
+.combo-box .list-cell:selected {
+    -fx-background-color: #ff1744;
     -fx-text-fill: white;
 }
 
-.combo-box .list-cell:filled:hover {
-    -fx-background-color: red;
-    -fx-text-fill: white;
-}
-
-.combo-box .list-cell:filled:selected {
-    -fx-background-color: rgba(0, 0, 0, 0.5);
-    -fx-border-color: red;
-    -fx-border-radius: 30;
+.combo-box .arrow-button {
+    -fx-padding: 0;
+    -fx-background-color: null;
     -fx-border-width: 0;
-    -fx-text-fill: white; 
+    -fx-background-insets: 0;
+    -fx-shape: null;
 }
 
+.combo-box .arrow {
+    -fx-padding: 0;
+    -fx-background-color: null;
+    -fx-shape: null;
+}
+
+/* Eliminar espacio reservado para la flecha */
+.combo-box > .list-cell {
+    -fx-padding: 4 8;
+    -fx-alignment: center;
+}
+
+/* Lista desplegable */
 .combo-box .list-view {
-    -fx-background-color: transparent;
-    -fx-background-radius: 30;
-    -fx-border-color: transparent;
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 4;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 4;
+    -fx-effect: dropshadow(gaussian, #00000033, 15, 0.2, 0, 0);
+    -fx-padding: 4;
 }
