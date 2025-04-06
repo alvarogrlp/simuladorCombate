@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import es.alvarogrlp.marvelsimu.backend.config.ConfigManager;
 
 import java.io.IOException;
 

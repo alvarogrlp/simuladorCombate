@@ -11,10 +11,14 @@ import java.util.Properties;
 import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioModel;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioServiceModel;
+import es.alvarogrlp.marvelsimu.backend.config.ThemeManager;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Control;
+import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -93,5 +97,31 @@ public abstract class AbstractController {
      */
     public UsuarioServiceModel getUsuarioServiceModel() {
         return this.usuarioServiceModel;
+    }
+
+    /**
+     * Inicializa el tema en el control especificado.
+     * @param anyControl Control en el que se aplicará el tema.
+     * @param themeIcon Icono del tema.
+     */
+    protected void initializeTheme(Control anyControl, ImageView themeIcon) {
+        Platform.runLater(() -> {
+            Scene scene = anyControl.getScene();
+            if (scene != null) {
+                ThemeManager.applyTheme(scene, themeIcon);
+            }
+        });
+    }
+
+    /**
+     * Alterna el tema en el control especificado.
+     * @param anyControl Control en el que se alternará el tema.
+     * @param themeIcon Icono del tema.
+     */
+    protected void toggleTheme(Control anyControl, ImageView themeIcon) {
+        Scene scene = anyControl.getScene();
+        if (scene != null) {
+            ThemeManager.toggleTheme(scene, themeIcon);
+        }
     }
 }

@@ -7,7 +7,7 @@ import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import es.alvarogrlp.marvelsimu.backend.config.ConfigManager;
 import es.alvarogrlp.marvelsimu.backend.controller.abstracts.AbstractController;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioModel;
-import es.alvarogrlp.marvelsimu.backend.util.ThemeManager;
+import es.alvarogrlp.marvelsimu.backend.config.ThemeManager;
 import eu.iamgio.animated.transition.AnimatedThemeSwitcher;
 import eu.iamgio.animated.transition.animations.clip.CircleClipOut;
 import javafx.application.Platform;
@@ -58,15 +58,20 @@ public class LoginController extends AbstractController {
     @FXML
     private ImageView iconoModo;
 
+    private AnimatedThemeSwitcher themeSwitcher;
+
     /**
      * Inicializa el controlador de login.
      * Carga los idiomas disponibles en el ComboBox y establece el idioma actual.
      */
     @FXML
     public void initialize() {
-        // Ejecutar después de que la escena esté completamente inicializada
+        initializeTheme(textFieldUsuario, iconoModo);
+
+        // Inicializar el AnimatedThemeSwitcher una sola vez
         Platform.runLater(() -> {
-            ThemeManager.applyTheme(textFieldUsuario.getScene(), iconoModo);
+            themeSwitcher = new AnimatedThemeSwitcher(textFieldUsuario.getScene(), new CircleClipOut());
+            themeSwitcher.init();
         });
 
         // Configurar idiomas en el ComboBox
@@ -181,9 +186,8 @@ public class LoginController extends AbstractController {
     @FXML
     protected void cambiarModo() {
         var scene = textFieldUsuario.getScene();
-        AnimatedThemeSwitcher themeSwitcher = new AnimatedThemeSwitcher(scene, new CircleClipOut());
-        themeSwitcher.init();
-        ThemeManager.toggleTheme(scene, iconoModo);
+        // Usar la instancia existente de themeSwitcher
+        toggleTheme(textFieldUsuario, iconoModo);
     }
 
     /**
