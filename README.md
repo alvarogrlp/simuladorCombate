@@ -1,7 +1,7 @@
 # Simulador de Combates Marvel 🦸‍♂️
 
 <div align="center">
-   <img src="/docs/images/logo.png" width="400px"/>
+   <img src="docs/images/logo.png" width="400px"/>
 </div>
 
 ## Descripción General
@@ -25,12 +25,12 @@ Una aplicación JavaFX que te permite simular batallas épicas entre tus persona
   <table>
     <tr>
       <td align="center">
-        <img src="/docs/images/inicio-oscuro.png" width="300px" alt="Modo Oscuro"/>
+        <img src="docs/images/inicio-oscuro.png" width="300px" alt="Modo Oscuro"/>
         <br/>
         <i>Modo Oscuro</i>
       </td>
       <td align="center">
-        <img src="/docs/images/inicio-claro.png" width="300px" alt="Modo Claro"/>
+        <img src="docs/images/inicio-claro.png" width="300px" alt="Modo Claro"/>
         <br/>
         <i>Modo Claro</i>
       </td>
