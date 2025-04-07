@@ -60,6 +60,9 @@
                   <font>
                      <Font size="26.0" />
                   </font>
+                  <VBox.margin>
+                     <Insets top="30.0" />
+                  </VBox.margin>
                </Text>
                <Text fx:id="textUsuario" styleClass="label" text="NOMBRE DE USUARIO">
                   <VBox.margin>
@@ -100,7 +103,7 @@
                      <Cursor fx:constant="TEXT" />
                   </cursor>
                </PasswordField>
-               <Button fx:id="onRecuperarButton" mnemonicParsing="false" prefHeight="34.0" prefWidth="254.0" styleClass="button-recuperar" text="¿Has olvidado la constraseña?">
+               <Button fx:id="onRecuperarButton" mnemonicParsing="false" onAction="#openRecuperarClick" prefHeight="34.0" prefWidth="254.0" styleClass="button-recuperar" text="¿Has olvidado la constraseña?">
                   <VBox.margin>
                      <Insets top="-6.0" />
                   </VBox.margin>

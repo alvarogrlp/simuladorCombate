@@ -58,7 +58,6 @@ public class RegistroController extends AbstractController {
      */
     @FXML
     public void initialize() {
-        // Ejecutar después de que la escena esté completamente inicializada
         Platform.runLater(() -> {
             ThemeManager.applyTheme(textFiledUsuario.getScene(), null);
         });

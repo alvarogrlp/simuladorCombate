@@ -26,7 +26,7 @@ public class MostrarUsuariosController extends AbstractController {
         try {
             Stage stage = (Stage) onVolverButton.getScene().getWindow();
             FXMLLoader fxmlLoader = new FXMLLoader(PrincipalApplication.class.getResource("login.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 820, 640);
+            Scene scene = new Scene(fxmlLoader.load(), 410, 810);
             stage.setTitle("Pantalla Inicio");
             stage.setScene(scene);
             stage.show();

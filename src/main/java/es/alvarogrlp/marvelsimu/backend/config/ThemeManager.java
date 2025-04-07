@@ -5,28 +5,44 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class ThemeManager {
-    private static final String THEME_PROPERTY = "theme";
-    private static final String DARK_MODE = "dark";
-    private static final String LIGHT_MODE = "light";
+    private static final String propiedadTema = "theme";
+    private static final String darkMode = "dark";
+    private static final String lightMode = "light";
 
+    /**
+     * * Aplica el tema actual a la escena y al icono de modo.
+     * @param scene 
+     * @param iconoModo 
+     */
     public static void applyTheme(Scene scene, ImageView iconoModo) {
-        String currentTheme = ConfigManager.ConfigProperties.getProperty(THEME_PROPERTY, DARK_MODE);
+        String currentTheme = ConfigManager.ConfigProperties.getProperty(propiedadTema, darkMode);
         setTheme(scene, iconoModo, currentTheme);
     }
 
+    /**
+     * * Cambia el tema de la escena y actualiza el icono de modo.
+     * @param scene
+     * @param iconoModo
+     */
     public static void toggleTheme(Scene scene, ImageView iconoModo) {
-        String currentTheme = ConfigManager.ConfigProperties.getProperty(THEME_PROPERTY, DARK_MODE);
-        String newTheme = DARK_MODE.equals(currentTheme) ? LIGHT_MODE : DARK_MODE;
+        String currentTheme = ConfigManager.ConfigProperties.getProperty(propiedadTema, darkMode);
+        String newTheme = darkMode.equals(currentTheme) ? lightMode : darkMode;
         
         setTheme(scene, iconoModo, newTheme);
-        ConfigManager.ConfigProperties.setProperty(THEME_PROPERTY, newTheme);
+        ConfigManager.ConfigProperties.setProperty(propiedadTema, newTheme);
     }
 
+    /**
+     * * Establece el tema de la escena y actualiza el icono de modo.
+     * @param scene
+     * @param iconoModo
+     * @param theme
+     */
     private static void setTheme(Scene scene, ImageView iconoModo, String theme) {
         var stylesheets = scene.getStylesheets();
         stylesheets.clear();
         
-        if (LIGHT_MODE.equals(theme)) {
+        if (lightMode.equals(theme)) {
             stylesheets.add(ThemeManager.class.getResource("/es/alvarogrlp/marvelsimu/light-mode.css").toExternalForm());
             if (iconoModo != null) {
                 iconoModo.setImage(new Image(ThemeManager.class.getResource("/images/oscuro.png").toExternalForm()));

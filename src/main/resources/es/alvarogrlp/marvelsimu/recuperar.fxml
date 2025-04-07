@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="es.alvarogrlp.marvelsimu.backend.controller.RecuperarController">
+
+   <!-- Imagen de Fondo -->
+   <ImageView fx:id="fondo" fitHeight="800" fitWidth="400" preserveRatio="false">
+   </ImageView>
+
+   <!-- Contenedor Principal -->
+   <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="400.0" spacing="10.0" styleClass="container">
+      <ImageView fitHeight="158.0" fitWidth="319.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../../../images/logo.png" />
+         </image>
+         <VBox.margin>
+            <Insets bottom="10.0" top="10.0" />
+         </VBox.margin>
+      </ImageView>
+      <HBox alignment="CENTER" spacing="10" />
+      <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
+         <children>
+
+            <!-- Caja de Inputs -->
+            <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="414.0" prefWidth="360.0" spacing="10">
+
+               <!-- Título -->
+               <Text fx:id="textPreguntaContrasenia" styleClass="title" text="¿NO RECUERDAS TU CONTRASEÑA?" textAlignment="CENTER" wrappingWidth="328.396484375">
+                  <font>
+                     <Font size="26.0" />
+                  </font>
+               </Text>
+               <Text fx:id="textEmail" styleClass="label" text="EMAIL">
+                  <VBox.margin>
+                     <Insets />
+                  </VBox.margin>
+                  <font>
+                     <Font size="16.0" />
+                  </font>
+               </Text>
+               <TextField fx:id="textFieldEmail" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="46.0" prefWidth="294.0" promptText="Introduce tu email" styleClass="input">
+                  <cursor>
+                     <Cursor fx:constant="TEXT" />
+                  </cursor>
+                  <VBox.margin>
+                     <Insets />
+                  </VBox.margin>
+                  <font>
+                     <Font name="System Bold" size="12.0" />
+                  </font>
+               </TextField>
+               <Text fx:id="textAviso" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0">
+                  <VBox.margin>
+                     <Insets top="-8.0" />
+                  </VBox.margin>
+                  <font>
+                     <Font name="System Bold" size="13.0" />
+                  </font></Text>
+
+               <!-- Botones -->
+               <Button fx:id="onEnviarButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#onClickRecuperar" prefHeight="63.0" prefWidth="189.0" styleClass="button-marvel" text="ENVIAR">
+                  <VBox.margin>
+                     <Insets />
+                  </VBox.margin>
+                  <font>
+                     <Font size="18.0" />
+                  </font>
+                  <cursor>
+                     <Cursor fx:constant="HAND" />
+                  </cursor>
+               </Button>
+               <Button fx:id="onVolverButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#openVolverClick" prefHeight="51.0" prefWidth="110.0" styleClass="button-marvel" text="VOLVER">
+                  <font>
+                     <Font size="18.0" />
+                  </font>
+                  <cursor>
+                     <Cursor fx:constant="HAND" />
+                  </cursor>
+                  <VBox.margin>
+                     <Insets bottom="30.0" top="60.0" />
+                  </VBox.margin>
+               </Button>
+               <styleClass>
+                  <String fx:value="form-container" />
+                  <String fx:value="text" />
+               </styleClass>
+            </VBox>
+         </children>
+      </VBox>
+
+      <!-- Texto de Marvel -->
+      <Text styleClass="marvel-text" text="MARVEL">
+         <VBox.margin>
+            <Insets bottom="20.0" top="10.0" />
+         </VBox.margin>
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Text>
+   </VBox>
+
+</StackPane>
