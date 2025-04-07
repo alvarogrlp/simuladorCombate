@@ -44,6 +44,7 @@ public abstract class AbstractController {
 
     /**
      * Establece las propiedades del idioma.
+     * 
      * @param properties Objeto Properties con las configuraciones del idioma.
      */
     public void setpropertiesIdioma(Properties properties) {
@@ -52,6 +53,7 @@ public abstract class AbstractController {
 
     /**
      * Obtiene las propiedades del idioma configuradas.
+     * 
      * @return Objeto Properties con las configuraciones del idioma.
      */
     public Properties getPropertiesIdioma() {
@@ -60,8 +62,9 @@ public abstract class AbstractController {
 
     /**
      * Carga las propiedades del idioma desde un archivo.
+     * 
      * @param nombreFichero Nombre base del archivo de propiedades.
-     * @param idioma Código del idioma (por ejemplo, "es", "en").
+     * @param idioma        Código del idioma (por ejemplo, "es", "en").
      * @return Objeto Properties con las configuraciones cargadas.
      */
     public Properties loadIdioma(String nombreFichero, String idioma) {
@@ -93,6 +96,7 @@ public abstract class AbstractController {
 
     /**
      * Obtiene el servicio de usuario configurado.
+     * 
      * @return Objeto UsuarioServiceModel para interactuar con los usuarios.
      */
     public UsuarioServiceModel getUsuarioServiceModel() {
@@ -101,8 +105,9 @@ public abstract class AbstractController {
 
     /**
      * Inicializa el tema en el control especificado.
+     * 
      * @param anyControl Control en el que se aplicará el tema.
-     * @param themeIcon Icono del tema.
+     * @param themeIcon  Icono del tema.
      */
     protected void initializeTheme(Control anyControl, ImageView themeIcon) {
         Platform.runLater(() -> {
@@ -115,13 +120,27 @@ public abstract class AbstractController {
 
     /**
      * Alterna el tema en el control especificado.
+     * 
      * @param anyControl Control en el que se alternará el tema.
-     * @param themeIcon Icono del tema.
+     * @param themeIcon  Icono del tema.
      */
     protected void toggleTheme(Control anyControl, ImageView themeIcon) {
         Scene scene = anyControl.getScene();
         if (scene != null) {
             ThemeManager.toggleTheme(scene, themeIcon);
+        }
+    }
+
+    public void abrirVentana(Button boton, String fxml) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(PrincipalApplication.class.getResource(fxml));
+            Scene scene = new Scene(fxmlLoader.load(), 410, 810);
+            Stage stage = (Stage) boton.getScene().getWindow();
+            stage.setTitle("Pantalla " + fxml.replace(".fxml", ""));
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

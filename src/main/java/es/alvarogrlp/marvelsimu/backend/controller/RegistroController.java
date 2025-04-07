@@ -61,19 +61,7 @@ public class RegistroController extends AbstractController {
         Platform.runLater(() -> {
             ThemeManager.applyTheme(textFiledUsuario.getScene(), null);
         });
-
-        textUsuario.setText(ConfigManager.ConfigProperties.getProperty("textUsuario"));
-        textEmail.setText(ConfigManager.ConfigProperties.getProperty("textEmail"));
-        textContrasenia.setText(ConfigManager.ConfigProperties.getProperty("textContrasenia"));
-        textRepetirContrasenia.setText(ConfigManager.ConfigProperties.getProperty("textRepetirContrasenia"));
-        onRegistrarButton.setText(ConfigManager.ConfigProperties.getProperty("onRegistrarButton"));
-        onVolverButton.setText(ConfigManager.ConfigProperties.getProperty("onVolverButton"));
-        
-        textFiledUsuario.setPromptText(ConfigManager.ConfigProperties.getProperty("promptUsuario"));
-        textFieldEmail.setPromptText(ConfigManager.ConfigProperties.getProperty("promptEmail"));
-        textFieldPassword.setPromptText(ConfigManager.ConfigProperties.getProperty("promptContrasenia"));
-        textFieldPasswordRepit.setPromptText(ConfigManager.ConfigProperties.getProperty("promptRepetirContrasenia"));
-        
+        setIdioma();
     }
 
     /**
@@ -116,15 +104,21 @@ public class RegistroController extends AbstractController {
      */
     @FXML
     protected void openVolverClick() {
-        try {
-            Stage stage = (Stage) onVolverButton.getScene().getWindow();
-            FXMLLoader fxmlLoader = new FXMLLoader(PrincipalApplication.class.getResource("login.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 410, 810);
-            stage.setTitle("Pantalla Inicio");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        abrirVentana(onVolverButton, "login.fxml");
+    }
+
+    @FXML
+    protected void setIdioma() {
+        textUsuario.setText(ConfigManager.ConfigProperties.getProperty("textUsuario"));
+        textEmail.setText(ConfigManager.ConfigProperties.getProperty("textEmail"));
+        textContrasenia.setText(ConfigManager.ConfigProperties.getProperty("textContrasenia"));
+        textRepetirContrasenia.setText(ConfigManager.ConfigProperties.getProperty("textRepetirContrasenia"));
+        onRegistrarButton.setText(ConfigManager.ConfigProperties.getProperty("onRegistrarButton"));
+        onVolverButton.setText(ConfigManager.ConfigProperties.getProperty("onVolverButton"));
+        
+        textFiledUsuario.setPromptText(ConfigManager.ConfigProperties.getProperty("promptUsuario"));
+        textFieldEmail.setPromptText(ConfigManager.ConfigProperties.getProperty("promptEmail"));
+        textFieldPassword.setPromptText(ConfigManager.ConfigProperties.getProperty("promptContrasenia"));
+        textFieldPasswordRepit.setPromptText(ConfigManager.ConfigProperties.getProperty("promptRepetirContrasenia"));
     }
 }

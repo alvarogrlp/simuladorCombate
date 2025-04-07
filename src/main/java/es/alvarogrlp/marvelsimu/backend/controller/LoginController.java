@@ -136,6 +136,7 @@ public class LoginController extends AbstractController {
                 && textFieldPassword.getText().equals(usuarioEntity.getContrasenia())) {
             textMensaje.setText("✅ " + ConfigManager.ConfigProperties.getProperty("mensajeUsuarioValidado") + " ✅");
             textMensaje.setStyle("-fx-fill: green;"); // Cambiar el color a verde para éxito
+            abrirVentana(onEntrarButton, "principal.fxml");
             return;
         }
 
@@ -149,34 +150,16 @@ public class LoginController extends AbstractController {
      */
     @FXML
     protected void openRegistrarClick() {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(PrincipalApplication.class.getResource("registro.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 410, 810);
-            Stage stage = (Stage) onRegistrarButton.getScene().getWindow();
-            stage.setTitle("Pantalla Registro");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        abrirVentana(onRegistrarButton, "registro.fxml");
     }
-
+    
     /**
      * Abre la pantalla de recuperación de contraseña.
      * Cambia la escena actual a la pantalla de recuperación.
      */
     @FXML
     protected void openRecuperarClick() {
-        try {
-            Stage stage = (Stage) onRecuperarButton.getScene().getWindow();
-            FXMLLoader fxmlLoader = new FXMLLoader(PrincipalApplication.class.getResource("recuperar.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 410, 810);
-            stage.setTitle("Pantalla Recuperacion");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        abrirVentana(onRecuperarButton, "recuperar.fxml");
     }
 
     /**

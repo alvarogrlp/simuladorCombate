@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SplitMenuButton?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
 <StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="es.alvarogrlp.marvelsimu.backend.controller.PrincipalController">
 
@@ -19,20 +15,20 @@
    </ImageView>
 
    <!-- Contenedor Principal -->
-   <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="400.0" spacing="10.0" styleClass="container">
-      <Button mnemonicParsing="false" prefHeight="100.0" prefWidth="101.0">
+   <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="400.0" spacing="10.0" stylesheets="@dark-mode.css">
+      <Button mnemonicParsing="false" prefHeight="180.0" prefWidth="180.0" styleClass="profile-image">
          <VBox.margin>
-            <Insets bottom="70.0" />
+            <Insets bottom="50.0" top="-60.0" />
          </VBox.margin>
          <graphic>
-            <ImageView fitHeight="126.0" fitWidth="148.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="imagenPerfil" fitHeight="180.0" fitWidth="180.0" preserveRatio="true" smooth="true" styleClass="profile-pic">
                <image>
                   <Image url="@../../../images/ejemplo_perfil.jpg" />
                </image>
             </ImageView>
          </graphic>
       </Button>
-      <HBox alignment="CENTER" spacing="10" />
+
       <VBox alignment="TOP_CENTER" prefHeight="318.0" prefWidth="400.0">
          <VBox.margin>
             <Insets />
@@ -42,24 +38,17 @@
                <image>
                   <Image url="@../../../images/personajes.png" />
                </image>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
             </ImageView>
+            <SplitMenuButton fx:id="onBatallaButton" popupSide="TOP" styleClass="split-menu-button">
+               <VBox.margin>
+                  <Insets top="100.0" />
+               </VBox.margin>
+            </SplitMenuButton>
          </children>
       </VBox>
-      <SplitMenuButton fx:id="onBatallaButton" contentDisplay="CENTER" mnemonicParsing="false" popupSide="TOP" prefHeight="97.0" prefWidth="203.0" text="Batalla">
-        <items>
-          <MenuItem mnemonicParsing="false" text="Action 1" />
-          <MenuItem mnemonicParsing="false" text="Action 2" />
-        </items>
-         <font>
-            <Font size="32.0" />
-         </font>
-         <cursor>
-            <Cursor fx:constant="HAND" />
-         </cursor>
-         <VBox.margin>
-            <Insets top="60.0" />
-         </VBox.margin>
-      </SplitMenuButton>
    </VBox>
 
 </StackPane>

@@ -57,15 +57,6 @@ public class RecuperarController extends AbstractController {
 
     @FXML
     protected void openVolverClick() {
-        try {
-            Stage stage = (Stage) onVolverButton.getScene().getWindow();
-            FXMLLoader fxmlLoader = new FXMLLoader(PrincipalApplication.class.getResource("login.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 410, 810);
-            stage.setTitle("Pantalla Inicio");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        abrirVentana(onVolverButton, "login.fxml");
     }
 }
