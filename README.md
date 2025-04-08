@@ -18,22 +18,32 @@ Lo que hace a esta app única es su interfaz limpia y adaptable, su soporte para
 
 ## 🎨 Diseño
 
+## 🎨 Diseño
+
 <div align="center">
   <table>
     <tr>
       <td align="center">
-        <img src="docs/images/prototipo-inicial.png" width="300px" high="600px" alt="Wireframe inicial"/>
+        <img src="docs/images/prototipo-inicial.png" width="300px" height="600px" alt="Wireframe inicial"/>
         <br/>
         <i>Wireframe inicial en Figma</i>
       </td>
       <td align="center">
-        <img src="docs/images/inicio-oscuro.png" width="300px" high="600px" alt="Diseño final implementado"/>
+        <img src="docs/images/inicio-oscuro.png" width="300px" height="600px" alt="Diseño final modo oscuro"/>
         <br/>
-        <i>Interfaz final implementada en JavaFX</i>
+        <i>Diseño final en JavaFX - Modo Oscuro</i>
+      </td>
+      <td align="center">
+        <img src="docs/images/inicio-claro.png" width="300px" height="600px" alt="Diseño final modo claro"/>
+        <br/>
+        <i>Diseño final en JavaFX - Modo Claro</i>
       </td>
     </tr>
   </table>
 </div>
+
+> 📌 *Comparando el wireframe con el diseño final se pueden apreciar los cambios visuales, como la incorporación de tipografía más moderna, estructura visual más clara, compatibilidad con temas claro/oscuro y refinamiento general de los elementos gráficos.*
+
 
 > **Cambios clave**: se simplificó la navegación, se reorganizó el menú para mejorar la experiencia de usuario y se adaptó la interfaz a modo oscuro/claro dinámico, cosa que no se contempló en el prototipo inicial.
 
@@ -41,11 +51,14 @@ Lo que hace a esta app única es su interfaz limpia y adaptable, su soporte para
 
 ## 🧪 Tecnologías Usadas
 
-- Java 17  
-- JavaFX 21  
-- SQLite  
-- Maven  
-- CSS (estilos personalizados)
+| Tecnología    | Descripción            |
+|---------------|------------------------|
+| ☕ Java 17     | Lenguaje principal     |
+| 🎨 JavaFX 21  | Interfaz gráfica       |
+| 🗃️ SQLite     | Base de datos local    |
+| ⚙️ Maven      | Gestión de dependencias |
+| 🎨🧵 CSS       | Estilos personalizados |
+
 
 ---
 
