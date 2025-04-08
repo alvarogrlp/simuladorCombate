@@ -1,7 +1,6 @@
 # 🦸‍♂️ Simulador de Combates Marvel  
 *¡Elige, combate y domina!*
 
-![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)
 ![Versión](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Licencia](https://img.shields.io/badge/licencia-MIT-yellow.svg)
 
@@ -9,7 +8,7 @@
 
 ## 🧩 Descripción del Propósito
 
-**Simulador de Combates Marvel** es una aplicación interactiva construida con JavaFX que permite a los usuarios revivir combates entre héroes y villanos del universo Marvel. El usuario puede elegir sus personajes favoritos, configurar el entorno del combate y ver cómo se desarrolla la batalla a través de un sistema que evalúa las estadísticas y habilidades de cada combatiente.
+**Simulador de Combates Marvel** es una aplicación interactiva construida con JavaFX que permite a los usuarios revivir combates entre héroes y villanos del universo Marvel. El usuario puede elegir sus personajes favoritos, configurar el entorno del combate y ver el resultado de la batalla a través de un sistema que evalúa las estadísticas y habilidades de cada combatiente.
 
 Está orientada tanto a fans del universo Marvel como a estudiantes de desarrollo que buscan aprender sobre estructuras de datos, interfaces gráficas y diseño orientado a objetos a través de un proyecto entretenido. Su enfoque modular y visual la hace ideal para personas que recién comienzan a programar y quieren algo más dinámico que los típicos ejercicios de consola.
 
@@ -23,12 +22,12 @@ Lo que hace a esta app única es su interfaz limpia y adaptable, su soporte para
   <table>
     <tr>
       <td align="center">
-        <img src="docs/images/wireframe-inicial.png" width="300px" alt="Wireframe inicial"/>
+        <img src="docs/images/prototipo-inicial.png" width="300px" alt="Wireframe inicial"/>
         <br/>
         <i>Wireframe inicial en Figma</i>
       </td>
       <td align="center">
-        <img src="docs/images/interfaz-final.png" width="300px" alt="Diseño final implementado"/>
+        <img src="docs/images/inicio-oscuro.png" width="300px" alt="Diseño final implementado"/>
         <br/>
         <i>Interfaz final implementada en JavaFX</i>
       </td>
