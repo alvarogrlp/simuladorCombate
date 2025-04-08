@@ -18,8 +18,6 @@ Lo que hace a esta app única es su interfaz limpia y adaptable, su soporte para
 
 ## 🎨 Diseño
 
-## 🎨 Diseño
-
 <div align="center">
   <table>
     <tr>
