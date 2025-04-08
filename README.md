@@ -22,12 +22,12 @@ Lo que hace a esta app única es su interfaz limpia y adaptable, su soporte para
   <table>
     <tr>
       <td align="center">
-        <img src="docs/images/prototipo-inicial.png" width="300px" alt="Wireframe inicial"/>
+        <img src="docs/images/prototipo-inicial.png" width="300px" high="600px" alt="Wireframe inicial"/>
         <br/>
         <i>Wireframe inicial en Figma</i>
       </td>
       <td align="center">
-        <img src="docs/images/inicio-oscuro.png" width="300px" alt="Diseño final implementado"/>
+        <img src="docs/images/inicio-oscuro.png" width="300px" high="600px" alt="Diseño final implementado"/>
         <br/>
         <i>Interfaz final implementada en JavaFX</i>
       </td>
