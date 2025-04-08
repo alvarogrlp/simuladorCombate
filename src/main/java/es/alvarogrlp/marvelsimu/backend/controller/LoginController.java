@@ -45,7 +45,7 @@ public class LoginController extends AbstractController {
     
     @FXML
     private Button onRegistrarButton;
-
+ 
     @FXML
     private Button onEntrarButton;
 
