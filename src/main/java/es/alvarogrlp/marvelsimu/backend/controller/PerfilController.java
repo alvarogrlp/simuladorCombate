@@ -59,36 +59,19 @@ public class PerfilController extends AbstractController {
         });
     }
 
+    /**
+     * Método que hace que la imagen se vea circular
+     */
     private void hacerImagenCircular() {
         double radio = Math.min(fotoPerfil.getFitWidth(), fotoPerfil.getFitHeight()) / 2;
         Circle clip = new Circle(radio, radio, radio);
         fotoPerfil.setClip(clip);
     }
 
-    private void cargarDatosUsuarioReal() {
-        try {
-            usuarioActual = SessionManager.getUsuarioActual();
-            
-            if (usuarioActual != null) {
-                textFieldUsuario.setText(usuarioActual.getNombre());
-                textFieldEmail.setText(usuarioActual.getEmail());
-                textFieldPassword.setText("••••••••");
-            } else {
-                UsuarioServiceModel service = getUsuarioServiceModel();
-                if (service != null) {
-                    AlertUtils.mostrarError("Error", "No hay sesión activa. Por favor vuelve a iniciar sesión.");
-                    volverAlLogin();
-                } else {
-                    AlertUtils.mostrarError("Error", "No se pudo inicializar el servicio de usuario.");
-                    volverAlLogin();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            AlertUtils.mostrarError("Error", "Error al cargar datos: " + e.getMessage());
-        }
-    }
-
+    /**
+     * Metodo que carga la alerta al intentar
+     * eliminar la cuenta 
+     */
     @FXML
     protected void onEliminarCuentaClick() {
         Alert alert = AlertUtils.mostrarAlerta(
@@ -119,33 +102,16 @@ public class PerfilController extends AbstractController {
         });
     }
 
+    /**
+     * 
+     */
     @FXML
     protected void onVolverClick() {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(PrincipalApplication.class.getResource("principal.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 410, 810);
-            Stage stage = (Stage) onVolverButton.getScene().getWindow();
-            stage.setTitle("Pantalla Principal");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-            AlertUtils.mostrarError("Error", "No se pudo volver a la pantalla principal: " + e.getMessage());
-        }
+        abrirVentana(onVolverButton, "principal.fxml");
     }
 
     private void volverAlLogin() {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(PrincipalApplication.class.getResource("login.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 410, 810);
-            Stage stage = (Stage) (onEliminarButton != null ? onEliminarButton.getScene() : textFieldUsuario.getScene()).getWindow();
-            stage.setTitle("Iniciar Sesión");
-            stage.setScene(scene);
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-            AlertUtils.mostrarError("Error", "No se pudo redirigir al login: " + e.getMessage());
-        }
+        abrirVentana(onEliminarButton, "login.fxml");
     }
 
     /**

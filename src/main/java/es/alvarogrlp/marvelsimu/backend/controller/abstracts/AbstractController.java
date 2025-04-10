@@ -11,6 +11,8 @@ import java.util.Properties;
 import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioModel;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioServiceModel;
+import es.alvarogrlp.marvelsimu.backend.util.AlertUtils;
+import es.alvarogrlp.marvelsimu.backend.util.SessionManager;
 import es.alvarogrlp.marvelsimu.backend.config.ThemeManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -18,17 +20,27 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Control;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public abstract class AbstractController {
 
+    @FXML
+    private TextField textFieldUsuario;
+    @FXML
+    private TextField textFieldEmail;
+    @FXML
+    private TextField textFieldPassword;
+
     static final String PATH_DB = "src/main/resources/usuarios.db";
 
     private UsuarioServiceModel usuarioServiceModel;
 
     private Properties propertiesIdioma;
+
+    private UsuarioModel usuarioActual;
 
     /**
      * Constructor de la clase AbstractController.
@@ -141,6 +153,31 @@ public abstract class AbstractController {
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Carga los datos del usuario que está logeado
+     */
+    public void cargarDatosUsuarioReal() {
+        try {
+            usuarioActual = SessionManager.getUsuarioActual();
+            
+            if (usuarioActual != null) {
+                textFieldUsuario.setText(usuarioActual.getNombre());
+                textFieldEmail.setText(usuarioActual.getEmail());
+                textFieldPassword.setText("••••••••");
+            } else {
+                UsuarioServiceModel service = getUsuarioServiceModel();
+                if (service != null) {
+                    System.out.println("No hay sesión activa. Por favor vuelve a iniciar sesión.");
+                } else {
+                    System.out.println("No se pudo inicializar el servicio de usuario.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error al cargar datos: " + e.getMessage());
         }
     }
 }

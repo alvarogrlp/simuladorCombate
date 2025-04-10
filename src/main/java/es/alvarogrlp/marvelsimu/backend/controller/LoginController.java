@@ -59,13 +59,11 @@ public class LoginController extends AbstractController {
     public void initialize() {
         initializeTheme(textFieldUsuario, iconoModo);
 
-        // Inicializar el AnimatedThemeSwitcher una sola vez
         Platform.runLater(() -> {
             themeSwitcher = new AnimatedThemeSwitcher(textFieldUsuario.getScene(), new CircleClipOut());
             themeSwitcher.init();
         });
 
-        // Configurar idiomas en el ComboBox
         List<String> idiomas = new ArrayList<>();
         idiomas.add("es");
         idiomas.add("en");
