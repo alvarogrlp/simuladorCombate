@@ -5,6 +5,7 @@ import es.alvarogrlp.marvelsimu.backend.model.UsuarioModel;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioServiceModel;
 import es.alvarogrlp.marvelsimu.backend.util.AlertUtils;
 import eu.iamgio.animated.transition.AnimatedThemeSwitcher;
+import eu.iamgio.animated.transition.animations.clip.CircleClipOut;
 import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -43,8 +44,10 @@ public class PerfilController extends AbstractController {
     @FXML
     public void initialize() {
         initializeTheme(textFieldUsuario, iconoModo);
-
+        
         Platform.runLater(() -> {
+            themeSwitcher = new AnimatedThemeSwitcher(textFieldUsuario.getScene(), new CircleClipOut());
+            themeSwitcher.init();
             try {
                 hacerImagenCircular();
                 cargarDatosUsuarioReal();
