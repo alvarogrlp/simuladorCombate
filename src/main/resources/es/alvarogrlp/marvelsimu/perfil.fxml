@@ -29,7 +29,7 @@
             <!-- Foto de perfil -->
             <ImageView fx:id="fotoPerfil" fitHeight="120.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true" styleClass="profile-pic">
                <image>
-                  <Image url="@../../../images/ejemplo_perfil.jpg" />
+                  <Image url="@../../../images/ejemplo-perfil.jpg" />
                </image>
                <VBox.margin>
                   <Insets bottom="20.0" />

@@ -24,7 +24,7 @@
          <graphic>
             <ImageView fx:id="imagenPerfil" fitHeight="180.0" fitWidth="180.0" preserveRatio="true" smooth="true" styleClass="profile-pic">
                <image>
-                  <Image url="@../../../images/ejemplo_perfil.jpg" />
+                  <Image url="@../../../images/ejemplo-perfil.jpg" />
                </image>
             </ImageView>
          </graphic>
