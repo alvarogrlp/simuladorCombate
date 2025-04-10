@@ -223,8 +223,8 @@ StackPane {
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.2, 0, 0);
     -fx-alignment: center;
-    -fx-padding: 0; /* <--- esto es lo nuevo */
-    -fx-content-display: graphic-only; /* asegura que solo muestre la imagen */
+    -fx-padding: 0;
+    -fx-content-display: graphic-only;
 }
 
 /* Efecto al pasar el ratón por encima del botón */
@@ -239,7 +239,7 @@ StackPane {
     -fx-background-radius: 100;
     -fx-border-radius: 100;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0.5, 0.0, 0.0);
-    -fx-clip-shape: "circle"; /* opcional si usas clipping */
+    -fx-clip-shape: "circle";
 }
 
 .image-view {
@@ -253,13 +253,41 @@ StackPane {
     -fx-font-weight: bold;
     -fx-border-color: #ff1744;
     -fx-border-width: 2;
-    -fx-border-radius: 4;
-    -fx-background-radius: 4;
-    -fx-padding: 16 32; /* Padding aumentado para hacer el botón más grande */
+    -fx-border-radius: 30;
+    -fx-background-radius: 30;
+    -fx-padding: 16 16;
     -fx-text-transform: uppercase;
     -fx-letter-spacing: 0.1em;
-    -fx-min-width: 250px; /* Ancho mínimo del botón */
-    -fx-min-height: 60px; /* Alto mínimo del botón */
+    -fx-min-width: 184px; /* Reducido de 250px a 200px */
+    -fx-max-width: 184px; /* Añadido para fijar el ancho máximo */
+    -fx-min-height: 60px;
+    -fx-font-size: 16px;
+    -fx-alignment: center; /* Asegurar que el texto está centrado */
+}
+
+/* SplitMenuButton redondo (para la foto de perfil) */
+.round-split-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #ff1744;
+    -fx-border-width: 2;
+    -fx-border-radius: 100;
+    -fx-background-radius: 100;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.2, 0, 0);
+    -fx-alignment: center;
+    -fx-padding: 0;
+    -fx-content-display: graphic-only;
+}
+
+.round-split-button:hover {
+    -fx-border-color: white;
+    -fx-effect: dropshadow(gaussian, #ff1744, 10, 0.4, 0, 0);
+}
+
+/* Estilo específico para el menú contextual del botón redondo */
+.round-split-button .context-menu {
+    -fx-translate-x: 30px; /* Ajusta este valor para centrar el menú */
+    -fx-translate-y: 5px;   /* Espacio pequeño debajo del botón */
 }
 
 /* Hover effect para el SplitMenuButton */
@@ -274,14 +302,16 @@ StackPane {
 }
 
 /* Eliminar completamente la flecha y su espacio */
-.split-menu-button > .arrow-button {
+.split-menu-button > .arrow-button,
+.round-split-button > .arrow-button {
     -fx-max-width: 0;
     -fx-min-width: 0;
     -fx-pref-width: 0;
     -fx-padding: 0;
 }
 
-.split-menu-button > .arrow-button > .arrow {
+.split-menu-button > .arrow-button > .arrow,
+.round-split-button > .arrow-button > .arrow {
     -fx-max-width: 0;
     -fx-min-width: 0;
     -fx-pref-width: 0;
@@ -290,7 +320,8 @@ StackPane {
 }
 
 /* Ajustar el label para que ocupe todo el espacio */
-.split-menu-button > .label {
+.split-menu-button > .label,
+.round-split-button > .label {
     -fx-text-fill: white;
     -fx-background-color: transparent;
     -fx-alignment: center;
@@ -299,23 +330,172 @@ StackPane {
 }
 
 /* Menú desplegable del SplitMenuButton */
-.split-menu-button .menu-item {
+.split-menu-button .menu-item,
+.round-split-button .menu-item {
     -fx-background-color: rgba(20, 20, 20, 0.95);
     -fx-text-fill: white;
     -fx-padding: 8 16;
     -fx-font-size: 13px;
 }
 
-.split-menu-button .menu-item:hover {
+.split-menu-button .menu-item:hover,
+.round-split-button .menu-item:hover {
     -fx-background-color: #ff1744;
 }
 
-.split-menu-button .context-menu {
+.split-menu-button .context-menu,
+.round-split-button .context-menu {
     -fx-background-color: rgba(20, 20, 20, 0.95);
     -fx-background-radius: 4;
     -fx-border-color: rgba(255, 255, 255, 0.1);
     -fx-border-radius: 4;
     -fx-effect: dropshadow(gaussian, black, 15, 0.2, 0, 0);
     -fx-padding: 4;
-    -fx-translate-y: -5; /* Ajusta la posición del menú hacia arriba */
+}
+
+/* Estilo para el menú contextual del perfil */
+.profile-image .context-menu {
+    -fx-background-color: rgba(20, 20, 20, 0.95);
+    -fx-background-radius: 4;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-radius: 4;
+    -fx-effect: dropshadow(gaussian, black, 15, 0.2, 0, 0);
+    -fx-padding: 4;
+}
+
+/* Estilos para los items del menú de perfil */
+.profile-image .menu-item {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-padding: 8 16;
+    -fx-font-size: 14px;
+}
+
+.profile-image .menu-item:hover {
+    -fx-background-color: #ff1744;
+}
+
+/* Ocultar flecha en SplitMenuButton de perfil */
+.no-arrow > .arrow-button {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.no-arrow > .arrow-button > .arrow {
+    -fx-shape: null;
+}
+
+.menu-item {
+    -fx-cursor: hand;
+}
+
+/* =============== Estilos para los diálogos y alertas =============== */
+
+/* Fondo general del diálogo */
+.dialog-pane {
+    -fx-background-color: rgb(20, 20, 20);
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-effect: dropshadow(gaussian, black, 10, 0.1, 0, 0);
+    -fx-padding: 15;
+}
+
+/* Título del diálogo (cabecera) */
+.dialog-pane .header-panel {
+    -fx-background-color: rgba(20, 20, 20, 0.9);
+    -fx-background-radius: 4 4 0 0;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-width: 0 0 1 0;
+}
+
+.dialog-pane .header-panel .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 10;
+}
+
+/* Texto del contenido */
+.dialog-pane .content {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 15;
+    -fx-fill: white;
+}
+
+/* Contenedor de botones */
+.dialog-pane .button-bar {
+    -fx-padding: 10;
+    -fx-background-color: transparent;
+}
+
+/* Estilo de los botones */
+.dialog-pane .button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-color: #ff1744;
+    -fx-border-width: 2;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-text-transform: uppercase;
+    -fx-letter-spacing: 0.05em;
+}
+
+.dialog-pane .button:hover {
+    -fx-background-color: #ff1744;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, #ff174466, 10, 0.2, 0, 0);
+}
+
+/* Botón OK y Apply */
+.dialog-pane .button:default {
+    -fx-background-color: #ff1744;
+    -fx-text-fill: white;
+}
+
+.dialog-pane .button:default:hover {
+    -fx-background-color: derive(#ff1744, 20%);
+    -fx-effect: dropshadow(gaussian, #ff174466, 10, 0.3, 0, 0);
+}
+
+/* Eliminar gráficos predeterminados */
+.dialog-pane > .graphic-container {
+    -fx-padding: 10;
+}
+
+/* Estilo específico para el ícono de información */
+.dialog-pane:information .graphic-container {
+    -fx-padding: 10;
+}
+
+/* Estilo específico para el ícono de advertencia */
+.dialog-pane:warning .graphic-container {
+    -fx-padding: 10;
+}
+
+/* Estilo específico para el ícono de error */
+.dialog-pane:error .graphic-container {
+    -fx-padding: 10;
+}
+
+/* Estilo específico para el ícono de confirmación */
+.dialog-pane:confirmation .graphic-container {
+    -fx-padding: 10;
+}
+
+/* Estilos para los íconos de las alertas */
+.dialog-pane .graphic {
+    -fx-opacity: 0.9;
+}
+
+/* Color del texto de todas las etiquetas dentro del diálogo */
+.dialog-pane .label {
+    -fx-text-fill: white;
 }

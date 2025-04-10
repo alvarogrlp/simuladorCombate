@@ -18,39 +18,29 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class RegistroController extends AbstractController {
-
-    @FXML
-    Button onVolverButton;
-
-    @FXML
-    TextField textFiledUsuario;
-
-    @FXML
-    TextField textFieldEmail;
-
-    @FXML
-    Text textMensaje;
-
-    @FXML
-    Button onRegistrarButton;
-
-    @FXML
-    PasswordField textFieldPassword;
-
-    @FXML
-    PasswordField textFieldPasswordRepit;
-
+    
     @FXML
     private Text textUsuario;
-
     @FXML
-    private Text textContrasenia;
-    
-    @FXML
-    private Text textRepetirContrasenia;
-    
+    private TextField textFiledUsuario;
     @FXML
     private Text textEmail;
+    @FXML
+    private TextField textFieldEmail;
+    @FXML
+    private Text textContrasenia;
+    @FXML
+    PasswordField textFieldPassword;
+    @FXML
+    private Text textRepetirContrasenia;
+    @FXML
+    private PasswordField textFieldPasswordRepit;
+    @FXML
+    private Text textMensaje;
+    @FXML
+    private Button onRegistrarButton;
+    @FXML
+    private Button onVolverButton;
 
     /**
      * Inicializa el controlador de registro.

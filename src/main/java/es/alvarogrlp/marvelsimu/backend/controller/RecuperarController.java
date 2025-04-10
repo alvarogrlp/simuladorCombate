@@ -17,14 +17,15 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class RecuperarController extends AbstractController {
+    
     @FXML
-    Button onVolverButton;
+    private TextField textFieldEmail;
     @FXML
-    Text textAviso;
+    private Button onEnviarButton;
     @FXML
-    TextField textFieldEmail;
+    private Text textAviso;
     @FXML
-    Button onEnviarButton;
+    private Button onVolverButton;
 
     @FXML
     public void initialize() {

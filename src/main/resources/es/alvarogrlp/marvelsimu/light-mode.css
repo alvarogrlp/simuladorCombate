@@ -223,17 +223,45 @@ StackPane {
 /* SplitMenuButton personalizado */
 .split-menu-button {
     -fx-background-color: transparent;
-    -fx-text-fill: white;
+    -fx-text-fill: #1A1A1A;
     -fx-font-weight: bold;
     -fx-border-color: #ff1744;
     -fx-border-width: 2;
-    -fx-border-radius: 4;
-    -fx-background-radius: 4;
-    -fx-padding: 16 32; /* Padding aumentado para hacer el botón más grande */
+    -fx-border-radius: 30;
+    -fx-background-radius: 30;
+    -fx-padding: 16 16;
     -fx-text-transform: uppercase;
     -fx-letter-spacing: 0.1em;
-    -fx-min-width: 250px; /* Ancho mínimo del botón */
-    -fx-min-height: 60px; /* Alto mínimo del botón */
+    -fx-min-width: 184px;
+    -fx-max-width: 184px;
+    -fx-min-height: 60px;
+    -fx-font-size: 16px;
+    -fx-alignment: center;
+}
+
+/* SplitMenuButton redondo (para la foto de perfil) */
+.round-split-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #ff1744;
+    -fx-border-width: 2;
+    -fx-border-radius: 100;
+    -fx-background-radius: 100;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.2, 0, 0);
+    -fx-alignment: center;
+    -fx-padding: 0;
+    -fx-content-display: graphic-only;
+}
+
+.round-split-button:hover {
+    -fx-border-color: white;
+    -fx-effect: dropshadow(gaussian, #ff1744, 10, 0.4, 0, 0);
+}
+
+/* Estilo específico para el menú contextual del botón redondo */
+.round-split-button .context-menu {
+    -fx-translate-x: 30px; /* Ajusta este valor para centrar el menú */
+    -fx-translate-y: 5px;   /* Espacio pequeño debajo del botón */
 }
 
 /* Hover effect para el SplitMenuButton */
@@ -247,15 +275,17 @@ StackPane {
     -fx-text-fill: white;
 }
 
-/* Eliminar completamente la flecha y su espacio */
-.split-menu-button > .arrow-button {
+/* Ocultar completamente la flecha y su espacio */
+.split-menu-button > .arrow-button,
+.round-split-button > .arrow-button {
     -fx-max-width: 0;
     -fx-min-width: 0;
     -fx-pref-width: 0;
     -fx-padding: 0;
 }
 
-.split-menu-button > .arrow-button > .arrow {
+.split-menu-button > .arrow-button > .arrow,
+.round-split-button > .arrow-button > .arrow {
     -fx-max-width: 0;
     -fx-min-width: 0;
     -fx-pref-width: 0;
@@ -264,8 +294,9 @@ StackPane {
 }
 
 /* Ajustar el label para que ocupe todo el espacio */
-.split-menu-button > .label {
-    -fx-text-fill: white;
+.split-menu-button > .label,
+.round-split-button > .label {
+    -fx-text-fill: #1A1A1A;
     -fx-background-color: transparent;
     -fx-alignment: center;
     -fx-padding: 0;
@@ -273,23 +304,21 @@ StackPane {
 }
 
 /* Menú desplegable del SplitMenuButton */
-.split-menu-button .menu-item {
-    -fx-background-color: rgba(20, 20, 20, 0.95);
-    -fx-text-fill: white;
+.split-menu-button .menu-item,
+.round-split-button .menu-item {
+    -fx-background-color: rgba(245,245,245,0.95);
+    -fx-text-fill: #1A1A1A;
     -fx-padding: 8 16;
     -fx-font-size: 13px;
 }
 
-.split-menu-button .menu-item:hover {
+.split-menu-button .menu-item:hover,
+.round-split-button .menu-item:hover {
     -fx-background-color: #ff1744;
+    -fx-text-fill: white;
 }
 
-.split-menu-button .context-menu {
-    -fx-background-color: rgba(20, 20, 20, 0.95);
-    -fx-background-radius: 4;
-    -fx-border-color: rgba(255, 255, 255, 0.1);
-    -fx-border-radius: 4;
-    -fx-effect: dropshadow(gaussian, black, 15, 0.2, 0, 0);
-    -fx-padding: 4;
-    -fx-translate-y: -5; /* Ajusta la posición del menú hacia arriba */
+/* Y para que todos los items muestren el cursor de la manita */
+.menu-item {
+    -fx-cursor: hand;
 }

@@ -7,6 +7,7 @@ import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import es.alvarogrlp.marvelsimu.backend.config.ConfigManager;
 import es.alvarogrlp.marvelsimu.backend.controller.abstracts.AbstractController;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioModel;
+import es.alvarogrlp.marvelsimu.backend.util.SessionManager;
 import es.alvarogrlp.marvelsimu.backend.config.ThemeManager;
 import eu.iamgio.animated.transition.AnimatedThemeSwitcher;
 import eu.iamgio.animated.transition.animations.clip.CircleClipOut;
@@ -24,39 +25,29 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class LoginController extends AbstractController {
-
-    @FXML
-    private TextField textFieldUsuario;
-
-    @FXML
-    private PasswordField textFieldPassword;
-
-    @FXML
-    private Text textMensaje;
-
-    @FXML
-    private Text textUsuario;
-
-    @FXML
-    private Text textPregunta;
-
-    @FXML
-    private Button onRecuperarButton;
     
     @FXML
-    private Button onRegistrarButton;
- 
-    @FXML
-    private Button onEntrarButton;
-
-    @FXML
-    private Text textContrasenia;
-
-    @FXML
     private ComboBox comboIdioma;
-
     @FXML
     private ImageView iconoModo;
+    @FXML
+    private Text textPregunta;
+    @FXML
+    private Text textUsuario;
+    @FXML
+    private TextField textFieldUsuario;
+    @FXML
+    private Text textContrasenia;
+    @FXML
+    private PasswordField textFieldPassword;
+    @FXML
+    private Text textMensaje;
+    @FXML
+    private Button onRecuperarButton;
+    @FXML
+    private Button onRegistrarButton;
+    @FXML
+    private Button onEntrarButton;
 
     private AnimatedThemeSwitcher themeSwitcher;
 
@@ -134,6 +125,10 @@ public class LoginController extends AbstractController {
         if ((textFieldUsuario.getText().equals(usuarioEntity.getEmail())
                 || textFieldUsuario.getText().equals(usuarioEntity.getNombre()))
                 && textFieldPassword.getText().equals(usuarioEntity.getContrasenia())) {
+            
+            // Guardar el usuario en la sesión
+            SessionManager.setUsuarioActual(usuarioEntity);
+            
             textMensaje.setText("✅ " + ConfigManager.ConfigProperties.getProperty("mensajeUsuarioValidado") + " ✅");
             textMensaje.setStyle("-fx-fill: green;"); // Cambiar el color a verde para éxito
             abrirVentana(onEntrarButton, "principal.fxml");

@@ -84,4 +84,51 @@ public class UsuarioServiceModel extends Conexion {
         }
         return true;
     }
+    
+    /**
+     * Elimina de la base de datos el registro correspondiente al usuario.
+     * @param usuario El usuario a eliminar.
+     * @return true si la eliminación fue exitosa, false en caso contrario.
+     */
+    public boolean eliminarUsuario(UsuarioModel usuario) throws SQLException {
+        if (usuario == null) {
+            return false;
+        }
+        String sql = "DELETE FROM Usuario WHERE email = '" + usuario.getEmail() + "'";
+        try {
+            PreparedStatement sentencia = getConnection().prepareStatement(sql);
+            int filasAfectadas = sentencia.executeUpdate();
+            return filasAfectadas > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            cerrar();
+        }
+    }
+    
+    /**
+     * Actualiza los datos de un usuario en la base de datos.
+     * @param usuario El usuario con los datos actualizados.
+     * @return true si la actualización fue exitosa, false en caso contrario.
+     */
+    public boolean actualizarUsuario(UsuarioModel usuario) throws SQLException {
+        if (usuario == null) {
+            return false;
+        }
+        String sql = "UPDATE Usuario SET nombre = ?, contrasenia = ? WHERE email = ?";
+        try {
+            PreparedStatement sentencia = getConnection().prepareStatement(sql);
+            sentencia.setString(1, usuario.getNombre());
+            sentencia.setString(2, usuario.getContrasenia());
+            sentencia.setString(3, usuario.getEmail());
+            int filasAfectadas = sentencia.executeUpdate();
+            return filasAfectadas > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            cerrar();
+        }
+    }
 }
