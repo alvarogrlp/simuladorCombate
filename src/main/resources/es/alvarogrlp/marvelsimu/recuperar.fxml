@@ -15,11 +15,9 @@
 
 <StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="es.alvarogrlp.marvelsimu.backend.controller.RecuperarController">
 
-   <!-- Imagen de Fondo -->
    <ImageView fx:id="fondo" fitHeight="800" fitWidth="400" preserveRatio="false">
    </ImageView>
 
-   <!-- Contenedor Principal -->
    <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="400.0" spacing="10.0" styleClass="container">
       <ImageView fitHeight="158.0" fitWidth="319.0" pickOnBounds="true" preserveRatio="true">
          <image>
@@ -33,10 +31,8 @@
       <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
          <children>
 
-            <!-- Caja de Inputs -->
             <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="414.0" prefWidth="360.0" spacing="10">
 
-               <!-- Título -->
                <Text fx:id="textPreguntaContrasenia" styleClass="title" text="¿NO RECUERDAS TU CONTRASEÑA?" textAlignment="CENTER" wrappingWidth="328.396484375">
                   <font>
                      <Font size="26.0" />
@@ -69,7 +65,6 @@
                      <Font name="System Bold" size="13.0" />
                   </font></Text>
 
-               <!-- Botones -->
                <Button fx:id="onEnviarButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#onClickRecuperar" prefHeight="63.0" prefWidth="189.0" styleClass="button-marvel" text="ENVIAR">
                   <VBox.margin>
                      <Insets />
@@ -100,7 +95,6 @@
          </children>
       </VBox>
 
-      <!-- Texto de Marvel -->
       <Text styleClass="marvel-text" text="MARVEL">
          <VBox.margin>
             <Insets bottom="20.0" top="10.0" />

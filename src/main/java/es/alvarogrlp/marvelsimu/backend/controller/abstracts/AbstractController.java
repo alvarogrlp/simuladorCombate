@@ -21,6 +21,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -141,6 +142,43 @@ public abstract class AbstractController {
         if (scene != null) {
             ThemeManager.toggleTheme(scene, themeIcon);
         }
+    }
+
+    /**
+     * Aplica el tema seleccionado por el usuario a la escena actual.
+     * Este método debe llamarse en el initialize() de cada controlador
+     * para mantener la coherencia del tema en toda la aplicación.
+     * 
+     * @param anyControl Cualquier control de la escena actual
+     * @param fondo ImageView de fondo que se actualizará según el tema (puede ser null)
+     * @param iconoModo Icono para cambiar de tema (puede ser null si la ventana no permite cambiar el tema)
+     */
+    protected void applyCurrentTheme(Control anyControl, ImageView fondo, ImageView iconoModo) {
+        Platform.runLater(() -> {
+            try {
+                Scene scene = anyControl.getScene();
+                if (scene != null) {
+                    // Aplicar el tema actual sin animación
+                    ThemeManager.applyTheme(scene, iconoModo);
+                    
+                    // Si hay un fondo, actualizarlo según el tema
+                    if (fondo != null) {
+                        String imagePath = ThemeManager.isDarkMode() ? 
+                            "/images/fondoNegro.png" : 
+                            "/images/fondoBlanco.png";
+                        
+                        try {
+                            Image image = new Image(getClass().getResourceAsStream(imagePath));
+                            fondo.setImage(image);
+                        } catch (Exception e) {
+                            System.err.println("Error cargando la imagen de fondo: " + e.getMessage());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void abrirVentana(Button boton, String fxml) {

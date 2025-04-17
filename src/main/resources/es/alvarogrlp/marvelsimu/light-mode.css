@@ -49,6 +49,19 @@ StackPane {
     -fx-effect: dropshadow(gaussian, #00000022, 10, 0.1, 0, 0);
 }
 
+/* Caja de inputs */
+.container-seleccion {
+    -fx-background-color: rgba(185, 185, 185, 0.432);
+    -fx-padding: 30;
+    -fx-spacing: 15;
+    -fx-alignment: center;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-effect: dropshadow(gaussian, black, 10, 0.1, 0, 0);
+}
+
 /* Etiquetas */
 .label {
     -fx-fill: #1A1A1A;
@@ -105,7 +118,7 @@ StackPane {
 /* Botón */
 .button-marvel {
     -fx-background-color: transparent;
-    -fx-text-fill: #1A1A1A;
+    -fx-text-fill: #1A1A1A; 
     -fx-font-weight: bold;
     -fx-border-color: #ff1744;
     -fx-border-width: 2;
@@ -168,11 +181,13 @@ StackPane {
 
 .combo-box .list-cell:hover {
     -fx-background-color: #FFE5E9;
+    -fx-text-fill: black;
 }
 
-.combo-box .list-cell:selected {
+.combo-box .list-cell:selected,
+.combo-box .list-cell:focused {
     -fx-background-color: #ff1744;
-    -fx-text-fill: white;
+    -fx-text-fill: black;
 }
 
 .combo-box .arrow-button {
@@ -217,7 +232,7 @@ StackPane {
 
 .profile-image:hover {
     -fx-border-color: white;
-    -fx-effect: dropshadow(gaussian, rgba(255,23,68,0.4), 15, 0.3, 0, 0);
+    -fx-effect: dropshadow(gaussian, #ff1744, 10, 0.4, 0, 0);
 }
 
 /* SplitMenuButton personalizado */
@@ -247,32 +262,32 @@ StackPane {
     -fx-border-radius: 100;
     -fx-background-radius: 100;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.2, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.2, 0, 0);
     -fx-alignment: center;
     -fx-padding: 0;
     -fx-content-display: graphic-only;
 }
 
 .round-split-button:hover {
-    -fx-border-color: white;
+    -fx-border-color: #1A1A1A;
     -fx-effect: dropshadow(gaussian, #ff1744, 10, 0.4, 0, 0);
 }
 
 /* Estilo específico para el menú contextual del botón redondo */
 .round-split-button .context-menu {
-    -fx-translate-x: 30px; /* Ajusta este valor para centrar el menú */
-    -fx-translate-y: 5px;   /* Espacio pequeño debajo del botón */
+    -fx-translate-x: 30px;
+    -fx-translate-y: 5px;
 }
 
 /* Hover effect para el SplitMenuButton */
 .split-menu-button:hover {
     -fx-background-color: #ff1744;
-    -fx-text-fill: white;
+    -fx-text-fill: rgb(0, 0, 0);
     -fx-effect: dropshadow(gaussian, #ff174466, 10, 0.2, 0, 0);
 }
 
 .split-menu-button:hover > .label {
-    -fx-text-fill: white;
+    -fx-text-fill: rgb(0, 0, 0);
 }
 
 /* Ocultar completamente la flecha y su espacio */
@@ -315,10 +330,445 @@ StackPane {
 .split-menu-button .menu-item:hover,
 .round-split-button .menu-item:hover {
     -fx-background-color: #ff1744;
-    -fx-text-fill: white;
+    -fx-text-fill: black; /* Cambiado a negro para mejor legibilidad */
+}
+
+.split-menu-button .menu-item:focused,
+.round-split-button .menu-item:focused,
+.split-menu-button .menu-item:selected,
+.round-split-button .menu-item:selected {
+    -fx-background-color: #ff1744;
+    -fx-text-fill: black; 
+}
+
+/* Estilos para la imagen dentro del botón */
+.profile-pic {
+    -fx-smooth: true;
+    -fx-background-radius: 100;
+    -fx-border-radius: 100;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0.3, 0.0, 0.0);
+    -fx-clip-shape: "circle";
+}
+
+.image-view {
+    -fx-alignment: center;
+}
+
+/* Estilos para el menú contextual */
+.split-menu-button .context-menu,
+.round-split-button .context-menu {
+    -fx-background-color: rgba(245, 245, 245, 0.95);
+    -fx-background-radius: 4;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0.2, 0, 0);
+    -fx-padding: 4;
+}
+
+/* Ocultar flecha en SplitMenuButton de perfil */
+.no-arrow > .arrow-button {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.no-arrow > .arrow-button > .arrow {
+    -fx-shape: null;
 }
 
 /* Y para que todos los items muestren el cursor de la manita */
 .menu-item {
     -fx-cursor: hand;
+}
+
+/* Fondo general del diálogo */
+.dialog-pane {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.1, 0, 0);
+    -fx-padding: 15;
+}
+
+/* Título del diálogo (cabecera) */
+.dialog-pane .header-panel {
+    -fx-background-color: #F5F5F5;
+    -fx-background-radius: 4 4 0 0;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 0 0 1 0;
+}
+
+.dialog-pane .header-panel .label {
+    -fx-text-fill: #1A1A1A;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 10;
+}
+
+/* Texto del contenido */
+.dialog-pane .content {
+    -fx-text-fill: #1A1A1A;
+    -fx-font-size: 14px;
+    -fx-padding: 15;
+    -fx-fill: #1A1A1A;
+}
+
+/* Contenedor de botones */
+.dialog-pane .button-bar {
+    -fx-padding: 10;
+    -fx-background-color: transparent;
+}
+
+/* Estilo de los botones */
+.dialog-pane .button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1A1A1A;
+    -fx-font-weight: bold;
+    -fx-border-color: #ff1744;
+    -fx-border-width: 2;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-text-transform: uppercase;
+    -fx-letter-spacing: 0.05em;
+}
+
+.dialog-pane .button:hover {
+    -fx-background-color: #ff1744;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, #ff174466, 10, 0.2, 0, 0);
+}
+
+/* Botón OK y Apply */
+.dialog-pane .button:default {
+    -fx-background-color: #ff1744;
+    -fx-text-fill: white;
+}
+
+.dialog-pane .button:default:hover {
+    -fx-background-color: derive(#ff1744, 20%);
+    -fx-effect: dropshadow(gaussian, #ff174466, 10, 0.3, 0, 0);
+}
+
+/* Eliminar gráficos predeterminados */
+.dialog-pane > .graphic-container {
+    -fx-padding: 10;
+}
+
+/* Estilo específico para el ícono de información */
+.dialog-pane:information .graphic-container {
+    -fx-padding: 10;
+}
+
+/* Estilo específico para el ícono de advertencia */
+.dialog-pane:warning .graphic-container {
+    -fx-padding: 10;
+}
+
+/* Estilo específico para el ícono de error */
+.dialog-pane:error .graphic-container {
+    -fx-padding: 10;
+}
+
+/* Estilo específico para el ícono de confirmación */
+.dialog-pane:confirmation .graphic-container {
+    -fx-padding: 10;
+}
+
+/* Estilos para los íconos de las alertas */
+.dialog-pane .graphic {
+    -fx-opacity: 0.9;
+}
+
+/* Color del texto de todas las etiquetas dentro del diálogo */
+.dialog-pane .label {
+    -fx-text-fill: #1A1A1A;
+}
+
+/* Estilos para los botones de batalla - ajustados al tamaño de la ventana */
+.battle-button {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-text-fill: #1A1A1A; 
+    -fx-font-weight: bold;
+    -fx-border-color: #ff1744;
+    -fx-border-width: 3;
+    -fx-border-radius: 8;
+    -fx-background-radius: 11; /* Cambiado de 10 a 8 para que coincida exactamente con border-radius */
+    -fx-padding: 25 20;
+    -fx-cursor: hand;
+    -fx-font-size: 20px;
+    -fx-text-transform: uppercase;
+    -fx-letter-spacing: 0.15em;
+    -fx-background-insets: 0; /* Eliminar cualquier espacio interno */
+    -fx-effect: dropshadow(gaussian, black, 10, 0.2, 0, 0);
+    -fx-alignment: center;
+    -fx-transition: all 0.3s ease;
+}
+
+.battle-button:hover {
+    -fx-background-color: #ff1744;
+    -fx-text-fill: white; /* Texto blanco en hover */
+    -fx-effect: dropshadow(gaussian, #ff174466, 15, 0.3, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.battle-button:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+    -fx-effect: dropshadow(gaussian, #ff174466, 8, 0.2, 0, 0);
+}
+
+/* Estilo para botón de modo historia (variante más grande) */
+.battle-button-historia {
+    -fx-min-width: 300px;
+    -fx-max-width: 320px;
+    -fx-min-height: 110px;
+    -fx-font-size: 24px;
+}
+
+/* Texto de desarrollo bajo los botones */
+.development-text {
+    -fx-fill: #1A1A1A;
+    -fx-font-style: italic;
+    -fx-font-size: 14px;
+    -fx-text-alignment: center;
+}
+
+/* Título grande para la pantalla de batalla */
+.title-text {
+    -fx-fill: #1A1A1A; 
+    -fx-font-weight: bold;
+    -fx-font-size: 30px;
+    -fx-letter-spacing: 0.3em;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0.1, 0, 0);
+    -fx-text-alignment: center;
+}
+
+/* Contenedor para los botones en la pantalla de batalla */
+.battle-buttons-container {
+    -fx-spacing: 30;
+    -fx-alignment: center;
+    -fx-padding: 20;
+}
+
+/* Estilos para botones de selección de personajes - invisibles pero interactivos */
+.character-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0.1, 0, 0);
+}
+
+.character-button:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, #ff174466, 15, 0.3, 0, 0);
+    -fx-transition: all 0.3s ease;
+}
+
+.character-button:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* Botón */
+.button-batalla {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgb(0, 0, 0);
+    -fx-font-weight: bold;
+    -fx-border-color: #ff1744;
+    -fx-border-width: 2;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 12 24;
+    -fx-cursor: hand;
+    -fx-font-size: 24px;
+    -fx-text-transform: uppercase;
+    -fx-letter-spacing: 0.1em;
+}
+
+/* Botón */
+.button-batalla {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgb(0, 0, 0);
+    -fx-font-weight: bold;
+    -fx-border-color: #ff1744;
+    -fx-border-width: 2;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 12 24;
+    -fx-cursor: hand;
+    -fx-font-size: 24px;
+    -fx-text-transform: uppercase;
+    -fx-letter-spacing: 0.1em;
+}
+
+.button-batalla:hover {
+    -fx-background-color: #ff1744;
+    -fx-text-fill: rgb(0, 0, 0);
+    -fx-effect: dropshadow(gaussian, #ff174466, 10, 0.2, 0, 0);
+}
+
+/* Botón */
+.button-normal {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgb(0, 0, 0);
+    -fx-font-weight: bold;
+    -fx-border-color: #ff1744;
+    -fx-border-width: 2;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 12 24;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-text-transform: uppercase;
+    -fx-letter-spacing: 0.1em;
+}
+
+.button-normal:hover {
+    -fx-background-color: #ff1744;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, #ff174466, 10, 0.2, 0, 0);
+}
+
+/* Estilos para la pantalla de selección de personajes */
+.character-info-container {
+    -fx-background-color: rgba(245, 245, 245, 0.9);
+    -fx-padding: 20px;
+    -fx-spacing: 15px;
+    -fx-border-color: #ff1744;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0.3, 0, 0);
+}
+
+.character-title {
+    -fx-fill: #1A1A1A;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Roboto", sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(255, 23, 68, 0.7), 3, 0.3, 0, 0);
+}
+
+.character-description {
+    -fx-fill: #333333;
+    -fx-font-size: 14px;
+    -fx-text-alignment: center;
+    -fx-font-style: italic;
+}
+
+.stat-value {
+    -fx-fill: #ff1744;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(255, 23, 68, 0.4), 3, 0.3, 0, 0);
+}
+
+.stat-name {
+    -fx-fill: #555555;
+    -fx-font-size: 14px;
+}
+
+.confirm-button {
+    -fx-background-color: #ff1744;
+    -fx-text-fill: white;
+    -fx-padding: 10px 20px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.confirm-button:hover {
+    -fx-background-color: #e0002a;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 5, 0.3, 0, 0);
+}
+
+.selected-character {
+    -fx-border-color: #ff1744;
+    -fx-border-width: 3px;
+    -fx-border-radius: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 23, 68, 0.7), 10, 0.5, 0, 0);
+}
+
+/* Estilos para los personajes seleccionados en los equipos */
+.selected-character-container {
+    -fx-background-color: rgba(245, 245, 245, 0.95);
+    -fx-padding: 10px;
+    -fx-border-color: #ff1744;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.selected-character-name {
+    -fx-fill: #1A1A1A;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.battle-ready-button {
+    -fx-background-color: #ff1744;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 5, 0.3, 0, 0);
+}
+
+.battle-ready-button:hover {
+    -fx-background-color: #e0002a;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Estilo para mensaje flotante */
+.mensaje-flotante {
+    -fx-fill: #1A1A1A;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0.5, 0, 0);
+}
+
+/* Estilo para mensaje de error */
+.mensaje-error {
+    -fx-fill: #ff1744;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 3, 0.4, 0, 0);
+}
+
+/* Botón de cerrar para el panel de información */
+.close-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #333333;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 2px 6px;
+    -fx-border-color: rgba(0, 0, 0, 0.3);
+    -fx-border-radius: 50%;
+    -fx-cursor: hand;
+    -fx-min-width: 24px;
+    -fx-max-width: 24px;
+    -fx-min-height: 24px;
+    -fx-max-height: 24px;
+    -fx-alignment: center;
+    -fx-content-display: center;
+}
+
+.close-button:hover {
+    -fx-background-color: rgba(255, 23, 68, 0.7);
+    -fx-text-fill: white;
+    -fx-border-color: #ff1744;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 3, 0.3, 0, 0);
 }

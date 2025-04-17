@@ -17,11 +17,9 @@
 
 <StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="es.alvarogrlp.marvelsimu.backend.controller.LoginController">
 
-   <!-- Imagen de Fondo -->
    <ImageView fx:id="fondo" fitHeight="800" fitWidth="400" preserveRatio="false">
    </ImageView>
 
-   <!-- Contenedor Principal -->
    <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="400.0" spacing="10.0" styleClass="container">
       <ImageView fitHeight="158.0" fitWidth="319.0" pickOnBounds="true" preserveRatio="true">
          <image>
@@ -32,13 +30,11 @@
          </VBox.margin>
       </ImageView>
       <HBox alignment="CENTER" spacing="10">
-         <!-- ComboBox con imagen -->
          <ComboBox fx:id="comboIdioma" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" onAction="#cambiarIdioma" prefHeight="41.0" prefWidth="44.0" promptText="es">
             <HBox.margin>
                <Insets right="230.0" />
             </HBox.margin></ComboBox>
 
-         <!-- Botón de modo oscuro/luz -->
          <Button fx:id="buttonModo" onAction="#cambiarModo" styleClass="button-modo">
             <graphic>
                <ImageView fx:id="iconoModo" fitHeight="24" fitWidth="24" pickOnBounds="true" preserveRatio="true">
@@ -52,10 +48,8 @@
       <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0">
          <children>
 
-            <!-- Caja de Inputs -->
             <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="414.0" prefWidth="360.0" spacing="10">
 
-               <!-- Título -->
                <Text fx:id="textPregunta" styleClass="title" text="¿YA TIENES CUENTA?" textAlignment="CENTER" wrappingWidth="328.396484375">
                   <font>
                      <Font size="26.0" />
@@ -150,7 +144,6 @@
          </cursor>
       </Button>
 
-      <!-- Texto de Marvel -->
       <Text styleClass="marvel-text" text="MARVEL">
          <VBox.margin>
             <Insets bottom="20.0" top="10.0" />

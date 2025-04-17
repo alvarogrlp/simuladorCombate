@@ -29,13 +29,16 @@ public class RecuperarController extends AbstractController {
 
     @FXML
     public void initialize() {
-        // Inicializar el tema usando el método heredado de AbstractController
-        initializeTheme(textFieldEmail, null);
+        // Aplicar el tema actual utilizando el método unificado del AbstractController
+        applyCurrentTheme(textFieldEmail, null, null);
 
-        // También deberías inicializar los textos con el idioma actual
-        textAviso.setText("");
-        onVolverButton.setText(ConfigManager.ConfigProperties.getProperty("onVolverButton"));
-        textFieldEmail.setPromptText(ConfigManager.ConfigProperties.getProperty("promptEmail"));
+        // Inicializar los textos con el idioma actual
+        Platform.runLater(() -> {
+            textAviso.setText("");
+            onVolverButton.setText(ConfigManager.ConfigProperties.getProperty("onVolverButton", "Volver"));
+            onEnviarButton.setText(ConfigManager.ConfigProperties.getProperty("onEnviarButton", "Enviar"));
+            textFieldEmail.setPromptText(ConfigManager.ConfigProperties.getProperty("promptEmail", "Email"));
+        });
     }
 
     @FXML

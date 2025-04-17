@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SplitMenuButton?>
 <?import javafx.scene.image.Image?>
@@ -8,18 +9,15 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="es.alvarogrlp.marvelsimu.backend.controller.PrincipalController">
+<StackPane prefHeight="810.0" prefWidth="410.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="es.alvarogrlp.marvelsimu.backend.controller.PrincipalController">
 
-   <!-- Imagen de Fondo -->
    <ImageView fx:id="fondo" fitHeight="800" fitWidth="400" preserveRatio="false">
    </ImageView>
 
-   <!-- Contenedor Principal -->
-   <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="400.0" spacing="10.0" styleClass="container" stylesheets="@dark-mode.css">
-      <!-- Reemplazamos el Button con un SplitMenuButton -->
-      <SplitMenuButton fx:id="perfilButton" mnemonicParsing="false" prefHeight="180.0" prefWidth="180.0" styleClass="round-split-button" popupSide="BOTTOM">
+   <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="810.0" prefWidth="410.0" spacing="10.0" styleClass="container">
+      <SplitMenuButton fx:id="perfilButton" mnemonicParsing="false" popupSide="BOTTOM" prefHeight="180.0" prefWidth="180.0" styleClass="round-split-button">
          <VBox.margin>
-            <Insets bottom="50.0" top="-60.0" />
+            <Insets bottom="10.0" top="-60.0" />
          </VBox.margin>
          <graphic>
             <ImageView fx:id="imagenPerfil" fitHeight="180.0" fitWidth="180.0" preserveRatio="true" smooth="true" styleClass="profile-pic">
@@ -37,7 +35,7 @@
 
       <VBox alignment="TOP_CENTER" prefHeight="318.0" prefWidth="400.0">
          <VBox.margin>
-            <Insets />
+            <Insets bottom="-40.0" />
          </VBox.margin>
          <children>
             <ImageView fitHeight="340.0" fitWidth="388.0" pickOnBounds="true" preserveRatio="true">
@@ -48,16 +46,11 @@
                   <Insets />
                </VBox.margin>
             </ImageView>
-            <SplitMenuButton fx:id="onBatallaButton" popupSide="TOP" styleClass="split-menu-button" onAction="#onBatallaIndividualClick">
+            <Button fx:id="onBatallaButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#onBatallaClick" prefHeight="83.0" prefWidth="201.0" styleClass="button-batalla" text="BATALLA">
                <VBox.margin>
-                  <Insets top="100.0" />
+                  <Insets top="60.0" />
                </VBox.margin>
-               <items>
-                  <MenuItem mnemonicParsing="false" onAction="#onBatallaIndividualClick" text="Batalla Individual" />
-                  <MenuItem mnemonicParsing="false" onAction="#onBatallaEquiposClick" text="Batalla por Equipos" />
-                  <MenuItem mnemonicParsing="false" onAction="#onTorneoClick" text="Torneo" />
-               </items>
-            </SplitMenuButton>
+            </Button>
          </children>
       </VBox>
    </VBox>

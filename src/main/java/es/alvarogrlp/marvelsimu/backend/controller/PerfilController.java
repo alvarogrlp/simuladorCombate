@@ -39,22 +39,25 @@ public class PerfilController extends AbstractController {
 
     private AnimatedThemeSwitcher themeSwitcher;
     private UsuarioModel usuarioActual;
-    private UsuarioServiceModel usuarioServiceModel; 
+    private UsuarioServiceModel usuarioServiceModel;
 
     @FXML
     public void initialize() {
-        initializeTheme(textFieldUsuario, iconoModo);
+        // Aplicar el tema actual utilizando el método unificado
+        applyCurrentTheme(textFieldUsuario, null, iconoModo);
         
         Platform.runLater(() -> {
+            // Inicializar el animador de transición para el cambio de tema
             themeSwitcher = new AnimatedThemeSwitcher(textFieldUsuario.getScene(), new CircleClipOut());
             themeSwitcher.init();
+            
             try {
                 hacerImagenCircular();
                 cargarDatosUsuarioReal();
             } catch (Exception e) {
                 e.printStackTrace();
-                AlertUtils.mostrarError("Error de conexión", 
-                            "No se pudo conectar a la base de datos: " + e.getMessage());
+                AlertUtils.mostrarError("Error de conexión",
+                        "No se pudo conectar a la base de datos: " + e.getMessage());
             }
         });
     }
@@ -70,29 +73,28 @@ public class PerfilController extends AbstractController {
 
     /**
      * Metodo que carga la alerta al intentar
-     * eliminar la cuenta 
+     * eliminar la cuenta
      */
     @FXML
     protected void onEliminarCuentaClick() {
-        Alert alert = AlertUtils.mostrarAlerta(
-            AlertType.CONFIRMATION, 
-            "Confirmar eliminación", 
-            "Eliminar cuenta permanentemente", 
-            "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede revertir."
-        );
-        
+        // Usar el nuevo método que solo crea la alerta sin mostrarla
+        Alert alert = AlertUtils.crearAlerta(
+                AlertType.CONFIRMATION,
+                "Confirmar eliminación",
+                "Eliminar cuenta permanentemente",
+                "¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede revertir.");
+
+        // Ahora mostramos la alerta una sola vez
         alert.showAndWait().ifPresent(response -> {
             if (response == javafx.scene.control.ButtonType.OK) {
                 try {
-                    boolean exito = getUsuarioServiceModel().eliminarUsuario(usuarioActual);
+                    boolean exito = getUsuarioServiceModel().eliminarUsuario(SessionManager.getUsuarioActual());
                     if (exito) {
                         SessionManager.cerrarSesion();
-                        
-                        AlertUtils.mostrarInfo("Cuenta eliminada", "Tu cuenta ha sido eliminada correctamente.");
                         volverAlLogin();
                     } else {
-                        AlertUtils.mostrarError("No se pudo eliminar la cuenta", 
-                            "Ocurrió un error al eliminar tu cuenta. Inténtalo de nuevo.");
+                        AlertUtils.mostrarError("No se pudo eliminar la cuenta",
+                                "Ocurrió un error al eliminar tu cuenta. Inténtalo de nuevo.");
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -120,6 +122,7 @@ public class PerfilController extends AbstractController {
      */
     @FXML
     protected void cambiarModo() {
+        // Usar el método unificado para cambiar el tema
         toggleTheme(textFieldUsuario, iconoModo);
     }
 }

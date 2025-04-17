@@ -57,22 +57,27 @@ public class LoginController extends AbstractController {
      */
     @FXML
     public void initialize() {
-        initializeTheme(textFieldUsuario, iconoModo);
-
+        // Aplicar el tema actual con el método unificado
+        applyCurrentTheme(textFieldUsuario, null, iconoModo);
+        
+        // Inicializar el animador de transición para el cambio de tema
         Platform.runLater(() -> {
             themeSwitcher = new AnimatedThemeSwitcher(textFieldUsuario.getScene(), new CircleClipOut());
             themeSwitcher.init();
         });
 
+        // Configuración del selector de idioma
         List<String> idiomas = new ArrayList<>();
         idiomas.add("es");
         idiomas.add("en");
         idiomas.add("fr");
         comboIdioma.getItems().addAll(idiomas);
 
+        // Establecer el idioma actual
         String idiomaActual = ConfigManager.ConfigProperties.getProperty("idiomaActual", "es");
         comboIdioma.setValue(idiomaActual);
 
+        // Actualizar textos según el idioma
         cambiarIdioma();
     }
 
@@ -161,8 +166,7 @@ public class LoginController extends AbstractController {
      */
     @FXML
     protected void cambiarModo() {
-        var scene = textFieldUsuario.getScene();
-        // Usar la instancia existente de themeSwitcher
+        // Usar el método unificado para cambiar el tema
         toggleTheme(textFieldUsuario, iconoModo);
     }
 

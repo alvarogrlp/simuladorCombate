@@ -45,6 +45,25 @@ public class AlertUtils {
     }
     
     /**
+     * Crea una alerta con el estilo de la aplicación sin mostrarla.
+     * @param tipo Tipo de alerta (INFORMATION, WARNING, ERROR, CONFIRMATION)
+     * @param titulo Título de la alerta
+     * @param cabecera Cabecera de la alerta (puede ser null)
+     * @param mensaje Mensaje de la alerta
+     * @return La alerta creada (sin mostrar)
+     */
+    public static Alert crearAlerta(Alert.AlertType tipo, String titulo, String cabecera, String mensaje) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle(titulo);
+        alert.setHeaderText(cabecera);
+        alert.setContentText(mensaje);
+        
+        aplicarEstilo(alert);
+        
+        return alert;
+    }
+    
+    /**
      * Crea y muestra una alerta con el estilo de la aplicación.
      * @param tipo Tipo de alerta (INFORMATION, WARNING, ERROR, CONFIRMATION)
      * @param titulo Título de la alerta

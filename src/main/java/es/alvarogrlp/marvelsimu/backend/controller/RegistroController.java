@@ -48,9 +48,10 @@ public class RegistroController extends AbstractController {
      */
     @FXML
     public void initialize() {
-        Platform.runLater(() -> {
-            ThemeManager.applyTheme(textFiledUsuario.getScene(), null);
-        });
+        // Aplicar el tema actual utilizando el método unificado del AbstractController
+        applyCurrentTheme(textFiledUsuario, null, null);
+        
+        // Configurar los textos según el idioma
         setIdioma();
     }
 

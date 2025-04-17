@@ -54,4 +54,13 @@ public class ThemeManager {
             }
         }
     }
+    
+    /**
+     * Verifica si el tema actual es el oscuro.
+     * @return true si el tema es oscuro, false si es claro
+     */
+    public static boolean isDarkMode() {
+        String currentTheme = ConfigManager.ConfigProperties.getProperty(propiedadTema, darkMode);
+        return darkMode.equals(currentTheme);
+    }
 }
