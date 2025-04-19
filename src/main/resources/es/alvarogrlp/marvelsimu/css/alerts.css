@@ -1,0 +1,34 @@
+.custom-alert {
+    -fx-background-color: #2a2a2a;
+}
+
+.custom-alert > *.header-panel {
+    -fx-background-color: #3a3a3a;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.custom-alert > *.header-panel *.label {
+    -fx-text-fill: white;
+}
+
+.custom-alert > *.content.label {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 10 10 10 10;
+}
+
+.custom-alert .button-bar .button {
+    -fx-background-color: #4a7ba7;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 15 8 15;
+}
+
+.custom-alert .button-bar .button:hover {
+    -fx-background-color: #5a8bb7;
+}
+
+.custom-alert .button-bar .button:pressed {
+    -fx-background-color: #3a6b97;
+}

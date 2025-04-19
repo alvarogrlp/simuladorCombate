@@ -1,0 +1,816 @@
+/* ================= ESTILOS PARA LA PANTALLA DE COMBATE ================= */
+
+/* Fondo de la pantalla de combate */
+.root, .stack-pane, .anchor-pane {
+    -fx-background-color: transparent; /* Usar fondo transparente para mostrar el fondo de imagen */
+}
+
+/* Contenedor principal del combate */
+.combat-container {
+    -fx-background-color: rgba(17, 18, 24, 0.75);
+    -fx-background-radius: 15px;
+    -fx-border-color: rgba(142, 68, 173, 0.7);
+    -fx-border-width: 2px;
+    -fx-border-radius: 15px;
+    -fx-effect: dropshadow(gaussian, rgba(142, 68, 173, 0.5), 10, 0.5, 0, 0);
+}
+
+/* Títulos y nombres de personajes */
+.character-name {
+    -fx-font-family: "Roboto", sans-serif;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(142, 68, 173, 0.8), 5, 0.5, 0, 0);
+}
+
+/* Contenedor de la barra de vida */
+.health-container {
+    -fx-background-color: rgba(0, 0, 0, 0.6);
+    -fx-background-radius: 10px;
+    -fx-padding: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 0);
+    -fx-min-width: 200px;
+    -fx-max-width: 200px;
+}
+
+/* Barra de vida del jugador */
+.hp-bar {
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.5), 3, 0, 0, 0);
+    -fx-accent: linear-gradient(to right, #1b9500, #36e619);
+    -fx-pref-height: 18px;
+}
+
+.hp-bar .bar {
+    -fx-background-insets: 1.5;
+    -fx-background-radius: 6px;
+    -fx-padding: 0.20em;
+    -fx-background-color: linear-gradient(to bottom, 
+                          derive(#36e619, 30%), 
+                          #1b9500);
+    -fx-effect: dropshadow(gaussian, rgba(54, 230, 25, 0.3), 5, 0, 0, 0);
+}
+
+.hp-bar .track {
+    -fx-background-color: rgba(0, 0, 0, 0.6);
+    -fx-background-radius: 6px;
+    -fx-background-insets: 0;
+}
+
+/* Barra de vida del enemigo */
+.enemy-hp-bar {
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-width: 1px;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.5), 3, 0, 0, 0);
+    -fx-accent: linear-gradient(to right, #950000, #e63636);
+    -fx-pref-height: 18px;
+}
+
+.enemy-hp-bar .bar {
+    -fx-background-insets: 1.5;
+    -fx-background-radius: 6px;
+    -fx-padding: 0.20em;
+    -fx-background-color: linear-gradient(to bottom, 
+                          derive(#e63636, 30%), 
+                          #950000);
+    -fx-effect: dropshadow(gaussian, rgba(230, 54, 54, 0.3), 5, 0, 0, 0);
+}
+
+.enemy-hp-bar .track {
+    -fx-background-color: rgba(0, 0, 0, 0.6);
+    -fx-background-radius: 6px;
+    -fx-background-insets: 0;
+}
+
+/* Texto de la vida */
+.hp-text {
+    -fx-font-family: "Roboto", "Arial", sans-serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 2, 0, 0, 1);
+    -fx-padding: 0 0 5px 0;
+}
+
+.player-hp-text {
+    -fx-text-fill: #b4ffb4;
+}
+
+.enemy-hp-text {
+    -fx-text-fill: #ffb4b4;
+}
+
+/* Animación para cambios en la barra de vida */
+.hp-bar-transition {
+    -fx-transition: all 0.5s ease-out;
+}
+
+/* Efecto para barra crítica (menos del 25%) */
+.hp-critical .bar {
+    -fx-background-color: linear-gradient(to bottom, 
+                          derive(#ff3636, 30%), 
+                          #950000);
+    -fx-effect: dropshadow(gaussian, rgba(255, 0, 0, 0.5), 8, 0, 0, 0);
+}
+
+/* Efecto de pulsación para vida crítica */
+.pulse-effect {
+    -fx-effect: dropshadow(gaussian, rgba(255, 0, 0, 0.8), 5, 0, 0, 0);
+}
+
+/* Mejora para mostrar el nombre del personaje */
+.character-name-label {
+    -fx-font-family: "Roboto", "Arial", sans-serif;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 3, 0, 0, 1);
+    -fx-background-color: rgba(0, 0, 0, 0.6);
+    -fx-background-radius: 5px;
+    -fx-padding: 5px 10px;
+    -fx-alignment: center;
+}
+
+.player-character-name {
+    -fx-text-fill: #b4ffb4;
+    -fx-border-color: rgba(180, 255, 180, 0.5);
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+}
+
+.enemy-character-name {
+    -fx-text-fill: #ffb4b4;
+    -fx-border-color: rgba(255, 180, 180, 0.5);
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+}
+
+/* Contenedores de equipos */
+.team-container {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-background-radius: 10px;
+    -fx-padding: 5px;
+    -fx-spacing: 5px;
+    -fx-min-width: 180px;
+    -fx-max-width: 180px;
+}
+
+/* Miniaturas de personajes */
+.team-character {
+    -fx-background-color: rgba(30, 60, 100, 0.5);
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 0);
+}
+
+.enemy-team-character {
+    -fx-background-color: rgba(100, 30, 30, 0.5);
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 3, 0, 0, 0);
+}
+
+.team-character-active, .enemy-character-active {
+    -fx-background-color: rgba(255, 215, 0, 0.3);
+    -fx-border-color: #ffcc00;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+}
+
+.character-defeated {
+    -fx-opacity: 0.5;
+    -fx-effect: dropshadow(gaussian, rgba(255,0,0,0.5), 10, 0, 0, 0);
+}
+
+/* Indicador de turno */
+.turn-indicator {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 5, 0, 0, 0);
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-background-radius: 10px;
+    -fx-padding: 8px 20px;
+}
+
+.player-turn {
+    -fx-text-fill: #00bfff;
+    -fx-border-color: #00bfff;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+}
+
+.enemy-turn {
+    -fx-text-fill: #ff5555;
+    -fx-border-color: #ff5555;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+}
+
+/* Botones de batalla */
+.battle-button {
+    -fx-background-color: linear-gradient(to bottom, #3a3a3a, #1a1a1a);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 5px;
+    -fx-border-color: #555555;
+    -fx-border-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.battle-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #4a4a4a, #2a2a2a);
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.3), 10, 0, 0, 0);
+}
+
+.battle-button:pressed {
+    -fx-background-color: #1a1a1a;
+    -fx-translate-y: 1px;
+}
+
+.battle-button:disabled {
+    -fx-opacity: 0.5;
+    -fx-cursor: default;
+}
+
+/* Botones de ataque */
+.attack-button {
+    -fx-background-color: rgba(50, 50, 120, 0.8);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-color: rgba(100, 100, 170, 0.9);
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 8px 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 2);
+    -fx-font-size: 14px;
+}
+
+.attack-button:hover {
+    -fx-background-color: rgba(70, 70, 150, 0.9);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-cursor: hand;
+}
+
+.attack-button:pressed {
+    -fx-background-color: rgba(40, 40, 100, 0.9);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.attack-button:disabled {
+    -fx-background-color: rgba(80, 80, 80, 0.5);
+    -fx-text-fill: rgba(200, 200, 200, 0.7);
+    -fx-border-color: rgba(120, 120, 120, 0.4);
+    -fx-opacity: 0.7;
+    -fx-cursor: default;
+}
+
+/* Estilos para habilidades especiales */
+.special-ability {
+    -fx-background-color: rgba(180, 50, 50, 0.8);
+    -fx-text-fill: white;
+    -fx-border-color: rgba(220, 100, 100, 0.9);
+}
+
+.special-ability:hover {
+    -fx-background-color: rgba(220, 70, 70, 0.9);
+}
+
+.special-ability:pressed {
+    -fx-background-color: rgba(160, 40, 40, 0.9);
+}
+
+.special-ability:disabled {
+    -fx-background-color: rgba(100, 50, 50, 0.5);
+}
+
+/* Estilo para botones de habilidades sin usos disponibles */
+.ability-depleted {
+    -fx-background-color: rgba(80, 80, 80, 0.5);
+    -fx-text-fill: rgba(150, 150, 150, 0.8);
+    -fx-border-color: rgba(100, 100, 100, 0.4);
+    -fx-opacity: 0.7;
+}
+
+.ability-depleted:hover {
+    -fx-cursor: not-allowed;
+    -fx-background-color: rgba(80, 80, 80, 0.5);
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+}
+
+/* Mensajes de combate - Usando fondos para mejor visibilidad */
+.combat-message {
+    -fx-fill: white;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, black, 3, 0, 0, 0);
+}
+
+.player-action-message {
+    -fx-fill: #00ccff;
+    -fx-background-color: rgba(0, 0, 0, 0.6);
+    -fx-background-radius: 10px;
+    -fx-padding: 5px 10px;
+}
+
+.enemy-action-message {
+    -fx-fill: #ff5555;
+    -fx-background-color: rgba(0, 0, 0, 0.6);
+    -fx-background-radius: 10px;
+    -fx-padding: 5px 10px;
+}
+
+/* Indicadores visuales para habilidades especiales */
+.combat-evasion-message {
+    -fx-fill: #00ffe1;
+    -fx-font-style: italic;
+    -fx-background-color: rgba(0, 255, 225, 0.2);
+    -fx-background-radius: 10px;
+    -fx-padding: 5px 10px;
+    -fx-border-color: #00ffe1;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+.combat-block-message {
+    -fx-fill: #c47eff;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(196, 126, 255, 0.2);
+    -fx-background-radius: 10px;
+    -fx-padding: 5px 10px;
+    -fx-border-color: #c47eff;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+.combat-reduction-message {
+    -fx-fill: #ffa500;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(255, 165, 0, 0.2);
+    -fx-background-radius: 10px;
+    -fx-padding: 5px 10px;
+    -fx-border-color: #ffa500;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+.combat-regeneration-message {
+    -fx-fill: #77dd77;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(119, 221, 119, 0.2);
+    -fx-background-radius: 10px;
+    -fx-padding: 5px 10px;
+    -fx-border-color: #77dd77;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+.critical-hit-message {
+    -fx-fill: #ffd700;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(255, 215, 0, 0.2);
+    -fx-background-radius: 10px;
+    -fx-padding: 5px 10px;
+    -fx-border-color: #ffd700;
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+}
+
+/* Textos de daño */
+.damage-text {
+    -fx-fill: white;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, black, 3, 0, 0, 0);
+}
+
+.player-damage {
+    -fx-fill: #ff5555;
+}
+
+.enemy-damage {
+    -fx-fill: #ff5555;
+}
+
+.critical-damage {
+    -fx-fill: #ffd700;
+    -fx-font-size: 34px;
+    -fx-effect: dropshadow(gaussian, #ff0000, 10, 0.5, 0, 0);
+}
+
+/* Estilos para daño verdadero */
+.true-damage-text {
+    -fx-fill: #ff00ff;
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(255, 0, 255, 0.7), 10, 0.5, 0, 0);
+}
+
+/* Diálogo de selección de personaje */
+.selection-dialog {
+    -fx-background-color: rgba(20, 20, 20, 0.9);
+    -fx-background-radius: 10px;
+    -fx-padding: 20px;
+    -fx-spacing: 15px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 15, 0, 0, 0);
+}
+
+.character-selection-container {
+    -fx-background-color: rgba(40, 40, 40, 0.6);
+    -fx-background-radius: 8px;
+    -fx-padding: 15px;
+}
+
+.character-selectable {
+    -fx-background-color: rgba(60, 60, 60, 0.6);
+    -fx-background-radius: 8px;
+    -fx-border-color: #555555;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
+}
+
+.character-selectable:hover {
+    -fx-background-color: rgba(80, 80, 80, 0.6);
+    -fx-effect: dropshadow(gaussian, rgba(255,255,255,0.3), 10, 0, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.character-disabled {
+    -fx-background-color: rgba(30, 30, 30, 0.6);
+    -fx-background-radius: 8px;
+    -fx-border-color: #333333;
+    -fx-border-radius: 8px;
+    -fx-cursor: default;
+}
+
+.character-name-small {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.selection-text {
+    -fx-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-background-radius: 10px;
+    -fx-padding: 8px 12px;
+}
+
+.back-button {
+    -fx-background-color: #333333;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 20px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.back-button:hover {
+    -fx-background-color: #444444;
+}
+
+.action-button {
+    -fx-background-color: linear-gradient(to bottom, #005599, #003366);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 15px 25px;
+    -fx-background-radius: 5px;
+    -fx-cursor: hand;
+}
+
+.action-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #0066bb, #004488);
+    -fx-effect: dropshadow(gaussian, rgba(0,150,255,0.5), 10, 0.4, 0, 0);
+}
+
+.action-button:pressed {
+    -fx-background-color: #003366;
+    -fx-translate-y: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0,150,255,0.3), 5, 0.2, 0, 0);
+}
+
+/* Estilos para información pasiva en selección */
+.passive-title {
+    -fx-fill: #ff9100;
+    -fx-font-size: 18px;
+    -fx-font-family: "Roboto", sans-serif;
+    -fx-font-weight: bold;
+}
+
+.passive-name {
+    -fx-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-family: "Roboto", sans-serif;
+    -fx-font-weight: bold;
+}
+
+.passive-description {
+    -fx-fill: #e0e0e0;
+    -fx-font-size: 14px;
+    -fx-font-family: "Roboto", sans-serif;
+    -fx-font-style: italic;
+}
+
+/* Transiciones suaves */
+.button, .character-selectable, .combat-message {
+    -fx-transition: all 0.2s ease;
+}
+
+/* Contenedores para los personajes - Hacer transparentes */
+.player-character-container, .enemy-character-container {
+    -fx-background-color: transparent; /* Cambiar de rgba(0, 0, 0, 0.3) a transparent */
+    -fx-background-radius: 10px;
+    -fx-padding: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-color: transparent; /* Eliminar también el borde */
+    -fx-border-width: 0px; /* Establecer el ancho del borde a 0 */
+}
+
+/* Eliminar estilos específicos de borde que ya no necesitamos */
+.player-character-container {
+    -fx-border-color: transparent;
+}
+
+.enemy-character-container {
+    -fx-border-color: transparent;
+}
+
+/* Efectos para los diferentes tipos de acciones */
+.attack-effect {
+    -fx-fill: rgba(255, 0, 0, 0.3);
+    -fx-effect: dropshadow(gaussian, red, 15, 0.5, 0, 0);
+}
+
+.block-effect {
+    -fx-fill: rgba(196, 126, 255, 0.3);
+    -fx-effect: dropshadow(gaussian, #c47eff, 15, 0.5, 0, 0);
+}
+
+.evasion-effect {
+    -fx-fill: rgba(0, 255, 225, 0.3);
+    -fx-effect: dropshadow(gaussian, #00ffe1, 15, 0.5, 0, 0);
+}
+
+.reduction-effect {
+    -fx-fill: rgba(255, 165, 0, 0.3);
+    -fx-effect: dropshadow(gaussian, #ffa500, 15, 0.5, 0, 0);
+}
+
+.regeneration-effect {
+    -fx-fill: rgba(119, 221, 119, 0.3);
+    -fx-effect: dropshadow(gaussian, #77dd77, 15, 0.5, 0, 0);
+}
+
+/* Mejoras para el área de mensajes */
+#mensajesContainer {
+    -fx-padding: 10px;
+}
+
+/* Rediseño de botones principales de combate */
+.combat-primary-button {
+    -fx-background-color: linear-gradient(to bottom, rgba(30, 30, 45, 0.9), rgba(15, 15, 25, 0.95));
+    -fx-text-fill: white;
+    -fx-font-family: "Roboto", "Arial", sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-padding: 15px 30px;
+    -fx-min-width: 160px;
+    -fx-min-height: 55px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 0);
+    -fx-cursor: hand;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-graphic-text-gap: 10px;
+}
+
+/* Botón de Atacar - Color verde azulado */
+.attack-primary-button {
+    -fx-border-color: linear-gradient(to bottom, #00ccb4, #009e8a);
+    -fx-background-color: linear-gradient(to bottom, rgba(0, 136, 122, 0.8), rgba(0, 104, 94, 0.9));
+}
+
+.attack-primary-button:hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(0, 156, 142, 0.9), rgba(0, 124, 114, 1.0));
+    -fx-effect: dropshadow(gaussian, rgba(0, 204, 180, 0.7), 15, 0.5, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.attack-primary-button:pressed {
+    -fx-background-color: rgba(0, 104, 94, 1.0);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 0, 0);
+}
+
+/* Botón de Cambiar - Color púrpura */
+.change-primary-button {
+    -fx-border-color: linear-gradient(to bottom, #a35eeb, #8442c9);
+    -fx-background-color: linear-gradient(to bottom, rgba(134, 67, 189, 0.8), rgba(114, 47, 169, 0.9));
+}
+
+.change-primary-button:hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(154, 87, 209, 0.9), rgba(134, 67, 189, 1.0));
+    -fx-effect: dropshadow(gaussian, rgba(163, 94, 235, 0.7), 15, 0.5, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.change-primary-button:pressed {
+    -fx-background-color: rgba(114, 47, 169, 1.0);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 0, 0);
+}
+
+/* Botón de Volver - Color rojo suave */
+.back-primary-button {
+    -fx-border-color: linear-gradient(to bottom, #ff5e5e, #e14444);
+    -fx-background-color: linear-gradient(to bottom, rgba(209, 60, 60, 0.8), rgba(189, 40, 40, 0.9));
+}
+
+.back-primary-button:hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(229, 80, 80, 0.9), rgba(209, 60, 60, 1.0));
+    -fx-effect: dropshadow(gaussian, rgba(255, 94, 94, 0.7), 15, 0.5, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.back-primary-button:pressed {
+    -fx-background-color: rgba(189, 40, 40, 1.0);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 0, 0);
+}
+
+/* Estado deshabilitado para todos los botones */
+.combat-primary-button:disabled {
+    -fx-opacity: 0.5;
+    -fx-background-color: linear-gradient(to bottom, rgba(50, 50, 65, 0.7), rgba(35, 35, 45, 0.8));
+    -fx-border-color: rgba(150, 150, 150, 0.3);
+    -fx-effect: none;
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+    -fx-cursor: default;
+}
+
+/* Iconos para los botones (usando FontAwesome o similar) */
+.attack-icon {
+    -fx-shape: "M6.92 5.51L3.13 13.11C2.6 14.04 2.33 14.5 2.5 14.84C2.67 15.18 3.19 15.18 4.24 15.18H8.5V18.52C8.5 19.47 8.5 19.94 8.77 20.06C9.03 20.18 9.37 19.87 10.05 19.24L13.87 15.64C14.61 14.94 14.97 14.6 14.97 14.17C14.97 13.75 14.61 13.4 13.88 12.72L10.06 9.11C9.38 8.47 9.05 8.16 8.78 8.28C8.51 8.4 8.5 8.88 8.5 9.83V13.18H4.24C3.19 13.18 2.67 13.18 2.5 13.51C2.33 13.85 2.6 14.32 3.13 15.25L6.92 22.85C7.29 23.53 7.47 23.87 7.74 23.87C8 23.87 8.19 23.53 8.56 22.85L17.95 5.51C18.32 4.83 18.5 4.49 18.24 4.49C17.97 4.49 17.6 4.83 16.85 5.51L10.06 11.88C9.38 12.52 9.05 12.84 9.05 12.72C9.05 12.6 9.38 12.28 10.06 11.64L13.87 8.02C14.61 7.33 14.97 6.99 14.97 6.56C14.97 6.14 14.61 5.8 13.88 5.11L10.06 1.52C9.38 0.88 9.05 0.56 8.78 0.68C8.51 0.8 8.5 1.28 8.5 2.23V5.51H4.24C3.19 5.51 2.67 5.51 2.5 5.85C2.33 6.18 2.6 6.65 3.13 7.58L6.92 15.18";
+    -fx-background-color: white;
+    -fx-min-width: 24px;
+    -fx-min-height: 24px;
+    -fx-pref-width: 24px;
+    -fx-pref-height: 24px;
+}
+
+.change-icon {
+    -fx-shape: "M8.5 2C8.5 1.17 9.17 0.5 10 0.5H14C14.83 0.5 15.5 1.17 15.5 2V6C15.5 6.83 14.83 7.5 14 7.5H10C9.17 7.5 8.5 6.83 8.5 6V2ZM10 4C10 4.55 10.45 5 11 5H13C13.55 5 14 4.55 14 4V3C14 2.45 13.55 2 13 2H11C10.45 2 10 2.45 10 3V4ZM8.5 18C8.5 17.17 9.17 16.5 10 16.5H14C14.83 16.5 15.5 17.17 15.5 18V22C15.5 22.83 14.83 23.5 14 23.5H10C9.17 23.5 8.5 22.83 8.5 22V18ZM10 20C10 20.55 10.45 21 11 21H13C13.55 21 14 20.55 14 20V19C14 18.45 13.55 18 13 18H11C10.45 18 10 18.45 10 19V20ZM16.5 10C16.5 9.17 17.17 8.5 18 8.5H22C22.83 8.5 23.5 9.17 23.5 10V14C23.5 14.83 22.83 15.5 22 15.5H18C17.17 15.5 16.5 14.83 16.5 14V10ZM18 12C18 12.55 18.45 13 19 13H21C21.55 13 22 12.55 22 12V11C22 10.45 21.55 10 21 10H19C18.45 10 18 10.45 18 11V12ZM0.5 10C0.5 9.17 1.17 8.5 2 8.5H6C6.83 8.5 7.5 9.17 7.5 10V14C7.5 14.83 6.83 15.5 6 15.5H2C1.17 15.5 0.5 14.83 0.5 14V10ZM2 12C2 12.55 2.45 13 3 13H5C5.55 13 6 12.55 6 12V11C6 10.45 5.55 10 5 10H3C2.45 10 2 10.45 2 11V12Z";
+    -fx-background-color: white;
+    -fx-min-width: 24px;
+    -fx-min-height: 24px;
+    -fx-pref-width: 24px;
+    -fx-pref-height: 24px;
+}
+
+.back-icon {
+    -fx-shape: "M11 19L6.41421 14.4142C5.63317 13.6332 5.63316 12.3668 6.41421 11.5858L11 7M7 14L19 14";
+    -fx-background-color: white;
+    -fx-min-width: 24px;
+    -fx-min-height: 24px;
+    -fx-pref-width: 24px;
+    -fx-pref-height: 24px;
+}
+
+/* Contenedor de botones de acción principales */
+.main-action-buttons-container {
+    -fx-spacing: 15px;
+    -fx-padding: 10px;
+    -fx-alignment: center;
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+    -fx-background-radius: 12px;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 0);
+}
+
+/* Animación sutil para los botones */
+.combat-primary-button {
+    -fx-transition: all 0.2s ease-out;
+}
+
+/* Botones de ataque específicos (habilidades) */
+.attack-option-button {
+    -fx-background-color: linear-gradient(to bottom, rgba(25, 25, 35, 0.9), rgba(15, 15, 25, 0.95));
+    -fx-text-fill: white;
+    -fx-font-family: "Roboto", "Arial", sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 12px 20px;
+    -fx-min-width: 140px;
+    -fx-min-height: 45px;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0, 0, 0);
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s ease-out;
+}
+
+/* Estilos para los diferentes tipos de ataques */
+.melee-attack-button {
+    -fx-border-color: linear-gradient(to bottom, #ff7043, #e64a19);
+    -fx-background-color: linear-gradient(to bottom, rgba(211, 67, 25, 0.8), rgba(191, 47, 5, 0.9));
+}
+
+.melee-attack-button:hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(231, 87, 45, 0.9), rgba(211, 67, 25, 1.0));
+    -fx-effect: dropshadow(gaussian, rgba(255, 112, 67, 0.7), 15, 0.5, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.ranged-attack-button {
+    -fx-border-color: linear-gradient(to bottom, #42a5f5, #1976d2);
+    -fx-background-color: linear-gradient(to bottom, rgba(25, 118, 210, 0.8), rgba(5, 98, 190, 0.9));
+}
+
+.ranged-attack-button:hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(45, 138, 230, 0.9), rgba(25, 118, 210, 1.0));
+    -fx-effect: dropshadow(gaussian, rgba(66, 165, 245, 0.7), 15, 0.5, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.ability1-button {
+    -fx-border-color: linear-gradient(to bottom, #ab47bc, #7b1fa2);
+    -fx-background-color: linear-gradient(to bottom, rgba(123, 31, 162, 0.8), rgba(103, 11, 142, 0.9));
+}
+
+.ability1-button:hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(143, 51, 182, 0.9), rgba(123, 31, 162, 1.0));
+    -fx-effect: dropshadow(gaussian, rgba(171, 71, 188, 0.7), 15, 0.5, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.ability2-button {
+    -fx-border-color: linear-gradient(to bottom, #ffca28, #ff8f00);
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 143, 0, 0.8), rgba(235, 123, 0, 0.9));
+}
+
+.ability2-button:hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(255, 163, 20, 0.9), rgba(255, 143, 0, 1.0));
+    -fx-effect: dropshadow(gaussian, rgba(255, 202, 40, 0.7), 15, 0.5, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Estado presionado común para todos los botones de ataque */
+.attack-option-button:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 0, 0);
+}
+
+/* Estado deshabilitado para botones de ataque */
+.attack-option-button:disabled {
+    -fx-opacity: 0.5;
+    -fx-background-color: linear-gradient(to bottom, rgba(50, 50, 65, 0.7), rgba(35, 35, 45, 0.8));
+    -fx-border-color: rgba(150, 150, 150, 0.3);
+    -fx-effect: none;
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+    -fx-cursor: default;
+}
+
+/* Contenedor para los botones de opciones de ataque */
+.attack-options-container {
+    -fx-spacing: 12px;
+    -fx-padding: 15px;
+    -fx-alignment: center;
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-background-radius: 10px;
+    -fx-border-color: rgba(255, 255, 255, 0.15);
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 12, 0, 0, 0);
+}

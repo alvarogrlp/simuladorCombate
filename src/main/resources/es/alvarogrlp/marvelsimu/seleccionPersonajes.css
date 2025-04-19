@@ -1,0 +1,289 @@
+/* Estilos para el panel principal */
+.root-pane {
+    -fx-background-color: rgba(15, 20, 35, 0.95);
+}
+
+/* Estilos para los contenedores de equipo */
+.container-seleccion {
+    -fx-background-color: rgba(30, 40, 60, 0.7);
+    -fx-padding: 20px;
+    -fx-spacing: 15px;
+    -fx-border-color: rgba(100, 150, 255, 0.4);
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 10, 0, 0, 0);
+}
+
+/* Estilos para títulos */
+.title-text {
+    -fx-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 3, 0, 0, 0);
+}
+
+/* Estilos para botones normales */
+.button-normal {
+    -fx-background-color: rgba(60, 80, 120, 0.9);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-color: rgba(100, 150, 255, 0.7);
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 10px 20px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 0);
+}
+
+.button-normal:hover {
+    -fx-background-color: rgba(80, 120, 180, 0.9);
+    -fx-border-color: rgba(150, 200, 255, 0.9);
+    -fx-effect: dropshadow(gaussian, rgba(0, 50, 255, 0.5), 10, 0, 0, 0);
+}
+
+/* Panel de información de personajes */
+.info-panel {
+    -fx-background-color: rgba(20, 30, 50, 0.9);
+    -fx-background-radius: 15px;
+    -fx-border-color: rgba(100, 150, 255, 0.6);
+    -fx-border-width: 2px;
+    -fx-border-radius: 15px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 10, 0, 0, 0);
+}
+
+/* Reducir tamaño de textos */
+.character-name {
+    -fx-fill: #ffffff !important;
+    -fx-font-size: 20px !important; /* Reducido de 24px */
+    -fx-font-weight: bold !important;
+    -fx-font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 100, 255, 0.7), 5, 0, 0, 0) !important;
+}
+
+.section-title {
+    -fx-fill: #00c8ff !important;
+    -fx-font-size: 14px !important; /* Reducido de 16px */
+    -fx-font-weight: bold !important;
+    -fx-underline: true !important;
+}
+
+/* Estadísticas en formato grande */
+.stat-box {
+    -fx-background-color: rgba(40, 60, 100, 0.5);
+    -fx-background-radius: 10px;
+    -fx-border-color: rgba(100, 150, 255, 0.4);
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-min-width: 80px;
+}
+
+.stat-value {
+    -fx-fill: #ffcc00;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.stat-name {
+    -fx-fill: #ffffff;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+/* Estilo para las filas de estadísticas */
+.stat-name-row {
+    -fx-fill: #ffffff !important;
+    -fx-font-size: 12px !important; /* Reducido de 14px */
+    -fx-font-weight: bold !important;
+}
+
+.stat-value-row {
+    -fx-fill: #ffcc00 !important;
+    -fx-font-size: 16px !important; /* Reducido de 18px */
+    -fx-font-weight: bold !important;
+}
+
+/* Texto de estadísticas secundarias */
+.stat-text {
+    -fx-fill: #ffffff !important;
+    -fx-font-size: 12px !important; /* Reducido de 14px */
+}
+
+/* Ataques y habilidades */
+.attack-name, .ability-name {
+    -fx-fill: #ffcc00 !important;
+    -fx-font-size: 14px !important; /* Reducido de 16px */
+    -fx-font-weight: bold !important;
+}
+
+.ability-type {
+    -fx-fill: #60e060 !important;
+    -fx-font-size: 11px !important; /* Reducido de 12px */
+    -fx-font-style: italic !important;
+}
+
+.attack-power, .ability-power {
+    -fx-fill: #ff9c00 !important;
+    -fx-font-size: 12px !important; /* Reducido de 14px */
+}
+
+.special-ability-info {
+    -fx-fill: #ff00ff;
+    -fx-font-size: 12px;
+    -fx-font-style: italic;
+    -fx-font-weight: bold;
+}
+
+/* Descripción del personaje */
+.description-text {
+    -fx-fill: #d0d0d0 !important;
+    -fx-font-size: 14px !important;
+    -fx-text-alignment: center !important;
+}
+
+/* Botones */
+/* Botón para cerrar la ventana de información */
+.close-button {
+    -fx-background-color: rgba(200, 50, 50, 0.8) !important;
+    -fx-text-fill: white !important;
+    -fx-font-weight: bold !important;
+    -fx-border-color: rgba(255, 100, 100, 0.9) !important;
+    -fx-border-width: 1px !important;
+    -fx-border-radius: 50% !important;
+    -fx-background-radius: 50% !important;
+    -fx-min-width: 25px !important;
+    -fx-min-height: 25px !important;
+    -fx-max-width: 25px !important;
+    -fx-max-height: 25px !important;
+    -fx-padding: 0 !important;
+}
+
+.close-button:hover {
+    -fx-background-color: rgba(255, 70, 70, 0.9) !important;
+    -fx-cursor: hand !important;
+}
+
+.select-button {
+    -fx-background-color: rgba(0, 150, 0, 0.8) !important;
+    -fx-text-fill: white !important;
+    -fx-font-weight: bold !important;
+    -fx-font-size: 16px !important;
+    -fx-border-color: rgba(0, 200, 0, 0.9) !important;
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 8px !important;
+    -fx-background-radius: 8px !important;
+    -fx-padding: 8px 16px !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 2) !important;
+}
+
+.select-button:hover {
+    -fx-background-color: rgba(0, 180, 0, 0.9) !important;
+    -fx-scale-x: 1.05 !important;
+    -fx-scale-y: 1.05 !important;
+    -fx-cursor: hand !important;
+}
+
+.select-button:pressed {
+    -fx-background-color: rgba(0, 120, 0, 0.9) !important;
+    -fx-scale-x: 0.98 !important;
+    -fx-scale-y: 0.98 !important;
+}
+
+/* Miniatura del personaje */
+.character-mini {
+    -fx-effect: dropshadow(gaussian, rgba(100, 150, 255, 0.7), 10, 0, 0, 0) !important;
+}
+
+/* Estilos para las tarjetas de personajes seleccionados */
+.character-card {
+    -fx-background-color: rgba(40, 60, 100, 0.7) !important;
+    -fx-background-radius: 8px !important;
+    -fx-border-color: rgba(100, 150, 255, 0.5) !important; 
+    -fx-border-width: 2px !important;
+    -fx-border-radius: 8px !important;
+    -fx-padding: 10px !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 5, 0, 0, 0) !important;
+    -fx-transition: all 0.3s ease !important;
+}
+
+.character-card:hover {
+    -fx-background-color: rgba(60, 80, 120, 0.8) !important;
+    -fx-border-color: rgba(100, 200, 255, 0.8) !important;
+    -fx-effect: dropshadow(gaussian, rgba(100, 150, 255, 0.5), 10, 0.5, 0, 0) !important;
+    -fx-cursor: hand !important;
+}
+
+/* Añadir icono de eliminar al hacer hover */
+.character-card:hover::after {
+    -fx-content: "X";
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+}
+
+/* Estilo para el ScrollPane transparente */
+.transparent-scrollpane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.transparent-scrollpane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.transparent-scrollpane .scroll-bar:vertical {
+    -fx-background-color: rgba(30, 30, 50, 0.3);
+    -fx-background-radius: 5;
+}
+
+.transparent-scrollpane .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(255, 23, 68, 0.8);
+    -fx-background-radius: 5;
+}
+
+.transparent-scrollpane .scroll-bar:vertical .track {
+    -fx-background-color: rgba(30, 30, 50, 0.5);
+    -fx-background-radius: 5;
+}
+
+.transparent-scrollpane .scroll-bar .increment-button,
+.transparent-scrollpane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0 5 0 5;
+}
+
+.transparent-scrollpane .scroll-bar .increment-button .increment-arrow,
+.transparent-scrollpane .scroll-bar .decrement-button .decrement-arrow {
+    -fx-background-color: rgba(255, 255, 255, 0.7);
+}
+
+/* Estilo para los botones de personajes */
+.character-button {
+    -fx-background-color: transparent;
+    -fx-padding: 5px;
+    -fx-border-color: transparent;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.character-button:hover {
+    -fx-border-color: rgba(255, 180, 0, 0.7);
+    -fx-effect: dropshadow(gaussian, rgba(255, 180, 0, 0.7), 10, 0, 0, 0);
+    -fx-cursor: hand;
+}
+
+.character-button.selected-character {
+    -fx-border-color: rgba(0, 200, 255, 0.9);
+    -fx-effect: dropshadow(gaussian, rgba(0, 150, 255, 0.8), 15, 0, 0, 0);
+}
+
+/* Estilo para el FlowPane de selección de personajes */
+#characterSelectionPane {
+    -fx-background-color: rgba(20, 30, 40, 0.4);
+    -fx-background-radius: 10px;
+    -fx-border-color: rgba(100, 150, 255, 0.4);
+    -fx-border-radius: 10px;
+    -fx-border-width: 1px;
+}

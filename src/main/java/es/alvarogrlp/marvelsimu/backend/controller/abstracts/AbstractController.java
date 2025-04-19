@@ -3,17 +3,13 @@ package es.alvarogrlp.marvelsimu.backend.controller.abstracts;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Properties;
 
-import es.alvarogrlp.marvelsimu.PrincipalApplication;
+import es.alvarogrlp.marvelsimu.backend.config.ThemeManager;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioModel;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioServiceModel;
 import es.alvarogrlp.marvelsimu.backend.util.AlertUtils;
 import es.alvarogrlp.marvelsimu.backend.util.SessionManager;
-import es.alvarogrlp.marvelsimu.backend.config.ThemeManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,7 +19,6 @@ import javafx.scene.control.Control;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public abstract class AbstractController {
@@ -35,7 +30,7 @@ public abstract class AbstractController {
     @FXML
     private TextField textFieldPassword;
 
-    static final String PATH_DB = "src/main/resources/usuarios.db";
+    protected static final String PATH_DB = "src/main/resources/usuarios.db";
 
     private UsuarioServiceModel usuarioServiceModel;
 
@@ -156,6 +151,12 @@ public abstract class AbstractController {
     protected void applyCurrentTheme(Control anyControl, ImageView fondo, ImageView iconoModo) {
         Platform.runLater(() -> {
             try {
+                // Verificar que el control no sea nulo antes de intentar acceder a su escena
+                if (anyControl == null) {
+                    System.err.println("Error: Control nulo en applyCurrentTheme");
+                    return;
+                }
+                
                 Scene scene = anyControl.getScene();
                 if (scene != null) {
                     // Aplicar el tema actual sin animación
@@ -174,23 +175,47 @@ public abstract class AbstractController {
                             System.err.println("Error cargando la imagen de fondo: " + e.getMessage());
                         }
                     }
+                } else {
+                    System.err.println("Advertencia: Scene nula en applyCurrentTheme para el control: " + 
+                        (anyControl != null ? anyControl.getClass().getSimpleName() : "desconocido"));
                 }
             } catch (Exception e) {
+                System.err.println("Error en applyCurrentTheme: " + e.getMessage());
                 e.printStackTrace();
             }
         });
     }
 
-    public void abrirVentana(Button boton, String fxml) {
+    /**
+     * Método para abrir una nueva ventana manteniendo las dimensiones correctas
+     */
+    protected void abrirVentana(Button boton, String fxml) {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(PrincipalApplication.class.getResource(fxml));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/es/alvarogrlp/marvelsimu/" + fxml));
             Scene scene = new Scene(fxmlLoader.load(), 410, 810);
             Stage stage = (Stage) boton.getScene().getWindow();
-            stage.setTitle("Pantalla " + fxml.replace(".fxml", ""));
+            stage.setTitle("Marvel Simulator - " + fxml.replace(".fxml", ""));
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
+            AlertUtils.mostrarError("Error al abrir ventana", 
+                "No se pudo abrir la ventana " + fxml + ". Error: " + e.getMessage());
+        }
+    }
+
+    protected void abrirVentanaJuego(Button boton, String fxml) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/es/alvarogrlp/marvelsimu/" + fxml));
+            Scene scene = new Scene(fxmlLoader.load(), 896, 810);
+            Stage stage = (Stage) boton.getScene().getWindow();
+            stage.setTitle("Marvel Simulator - " + fxml.replace(".fxml", ""));
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            AlertUtils.mostrarError("Error al abrir ventana", 
+                "No se pudo abrir la ventana " + fxml + ". Error: " + e.getMessage());
         }
     }
 

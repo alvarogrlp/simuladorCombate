@@ -1,19 +1,15 @@
 package es.alvarogrlp.marvelsimu.backend.controller;
 
+import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import es.alvarogrlp.marvelsimu.backend.controller.abstracts.AbstractController;
 import es.alvarogrlp.marvelsimu.backend.util.AlertUtils;
-import es.alvarogrlp.marvelsimu.PrincipalApplication;
-import es.alvarogrlp.marvelsimu.backend.config.ThemeManager;
-import javafx.application.Platform;
+import eu.iamgio.animated.transition.AnimatedThemeSwitcher;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
-import eu.iamgio.animated.transition.AnimatedThemeSwitcher;
-import eu.iamgio.animated.transition.animations.clip.CircleClipOut;
 
 public class BatallaController extends AbstractController {
 

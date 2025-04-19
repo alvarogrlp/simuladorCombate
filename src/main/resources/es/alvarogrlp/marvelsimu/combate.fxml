@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="810.0" prefWidth="896.0" stylesheets="@combate.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="es.alvarogrlp.marvelsimu.backend.controller.CombateController">
+   <children>
+      <!-- Imagen de fondo será cargada programáticamente -->
+      
+      <!-- Panel de información de personajes -->
+      <HBox fx:id="headerContainer" spacing="20" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+          <!-- Contenedor para el equipo del jugador, alineado a la izquierda -->
+          <VBox fx:id="equipoJugador" alignment="CENTER" spacing="5" styleClass="team-container" HBox.hgrow="NEVER">
+              <!-- Miniaturas añadidas dinámicamente -->
+          </VBox>
+          
+          <!-- Espaciador para empujar el indicador al centro -->
+          <Region HBox.hgrow="ALWAYS" />
+          
+          <!-- Indicador de turno (centrado) -->
+          <Label fx:id="lblTurno" styleClass="turn-indicator" text="TU TURNO" />
+          
+          <!-- Espaciador para empujar el equipo IA a la derecha -->
+          <Region HBox.hgrow="ALWAYS" />
+          
+          <!-- Contenedor para el equipo de la IA, alineado a la derecha -->
+          <VBox fx:id="equipoIA" alignment="CENTER" spacing="5" styleClass="team-container" HBox.hgrow="NEVER">
+              <!-- Miniaturas añadidas dinámicamente -->
+          </VBox>
+      </HBox>
+      
+      <!-- Área de batalla - Centrada verticalmente en la pantalla -->
+      <AnchorPane fx:id="battleArea" layoutX="48.8" layoutY="187.4" AnchorPane.bottomAnchor="173.39999999999998" AnchorPane.leftAnchor="48.8" AnchorPane.rightAnchor="52.0" AnchorPane.topAnchor="187.4">
+         <!-- Lado del jugador - Con barra de vida debajo -->
+         <StackPane fx:id="jugadorContainer" styleClass="player-character-container" AnchorPane.leftAnchor="80.0" AnchorPane.topAnchor="90.0">
+            <children>
+               <VBox alignment="CENTER" spacing="10">
+                  <children>
+                     <!-- Imagen del personaje -->
+                     <ImageView fx:id="imgPersonajeJugador" fitHeight="280" fitWidth="220" preserveRatio="true" styleClass="character-image" />
+                     
+                     <!-- Contenedor de vida ahora debajo de la imagen -->
+                     <VBox fx:id="healthContainerPlayer" styleClass="health-container" alignment="CENTER">
+                        <children>
+                           <Label fx:id="lblNombreJugador" styleClass="character-name-label,player-character-name" />
+                           <Label fx:id="lblVidaJugador" styleClass="hp-text,player-hp-text" text="HP: 100/100" />
+                           <ProgressBar fx:id="barraVidaJugador" maxWidth="Infinity" progress="1.0" styleClass="hp-bar,hp-bar-transition" />
+                        </children>
+                     </VBox>
+                  </children>
+               </VBox>
+            </children>
+         </StackPane>
+         
+         <!-- Lado de la IA - Con barra de vida debajo -->
+         <StackPane fx:id="iaContainer" styleClass="enemy-character-container" AnchorPane.rightAnchor="80.0" AnchorPane.topAnchor="90.0">
+            <children>
+               <VBox alignment="CENTER" spacing="10">
+                  <children>
+                     <!-- Imagen del personaje -->
+                     <ImageView fx:id="imgPersonajeIA" fitHeight="280" fitWidth="220" preserveRatio="true" styleClass="character-image" />
+                     
+                     <!-- Contenedor de vida ahora debajo de la imagen -->
+                     <VBox fx:id="healthContainerEnemy" styleClass="health-container" alignment="CENTER">
+                        <children>
+                           <Label fx:id="lblNombreIA" styleClass="character-name-label,enemy-character-name" />
+                           <Label fx:id="lblVidaIA" styleClass="hp-text,enemy-hp-text" text="HP: 100/100" />
+                           <ProgressBar fx:id="barraVidaIA" maxWidth="Infinity" progress="1.0" styleClass="enemy-hp-bar,hp-bar-transition" />
+                        </children>
+                     </VBox>
+                  </children>
+               </VBox>
+            </children>
+         </StackPane>
+      </AnchorPane>
+      
+      <!-- Área para mensajes de combate (bajo los personajes) -->
+      <StackPane fx:id="mensajesContainer" AnchorPane.bottomAnchor="170.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0">
+          <!-- Los mensajes se añadirán dinámicamente aquí -->
+      </StackPane>
+      
+      <!-- Panel de acciones -->
+      <VBox fx:id="actionPanel" alignment="CENTER" spacing="10" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
+         <!-- Botones principales -->
+         <HBox alignment="CENTER" spacing="20">
+            <!-- Botón Atacar -->
+            <Button fx:id="btnAtacar" mnemonicParsing="false" text="Atacar" 
+                    styleClass="combat-primary-button,attack-primary-button">
+                <graphic>
+                    <Region styleClass="attack-icon"/>
+                </graphic>
+            </Button>
+
+            <!-- Botón Cambiar -->
+            <Button fx:id="btnCambiar" mnemonicParsing="false" text="Cambiar" 
+                    styleClass="combat-primary-button,change-primary-button">
+                <graphic>
+                    <Region styleClass="change-icon"/>
+                </graphic>
+            </Button>
+
+            <!-- Botón Volver -->
+            <Button fx:id="btnVolver" mnemonicParsing="false" text="Volver" 
+                    styleClass="combat-primary-button,back-primary-button">
+                <graphic>
+                    <Region styleClass="back-icon"/>
+                </graphic>
+            </Button>
+         </HBox>
+         
+         <!-- Contenedor de ataques (inicialmente oculto) -->
+         <HBox fx:id="contenedorAtaques" visible="false" styleClass="attack-options-container">
+            <Button fx:id="btnAtaqueMelee" text="Ataque Cuerpo" styleClass="attack-option-button,melee-attack-button"/>
+            <Button fx:id="btnAtaqueLejano" text="Ataque Distancia" styleClass="attack-option-button,ranged-attack-button"/>
+            <Button fx:id="btnHabilidad1" text="Habilidad 1" styleClass="attack-option-button,ability1-button"/>
+            <Button fx:id="btnHabilidad2" text="Habilidad 2" styleClass="attack-option-button,ability2-button"/>
+         </HBox>
+      </VBox>
+   </children>
+</AnchorPane>
