@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 import es.alvarogrlp.marvelsimu.backend.model.abtrastas.Conexion;
-import es.alvarogrlp.marvelsimu.backend.util.DatabaseUtil;
 
 public class PersonajeServiceModel extends Conexion {
     
+    private static final String DATABASE_PATH = "src/main/resources/marvelSimu.db";
     private static final Map<String, PersonajeModel> cachePersonajes = new HashMap<>();
     
     // Constructor usando la ruta del archivo DB
@@ -22,15 +22,15 @@ public class PersonajeServiceModel extends Conexion {
     }
     
     // Constructor por defecto
-    public PersonajeServiceModel() {
-        super();
+    public PersonajeServiceModel() throws SQLException {
+        super(DATABASE_PATH);
     }
     
     /**
      * Obtiene todos los personajes de la base de datos
      */
-    public List<PersonajeModel> obtenerTodosPersonajes() throws SQLException {
-        String sql = "SELECT * FROM personajes";
+    public List<PersonajeModel> obtenerTodosPersonajes() {
+        String sql = "SELECT * FROM personaje";
         return obtenerPersonajesPorConsulta(sql);
     }
     
@@ -38,35 +38,29 @@ public class PersonajeServiceModel extends Conexion {
      * Obtiene un personaje específico por su código
      */
     public PersonajeModel obtenerPersonajePorCodigo(String codigo) {
+        // Primero verificar si está en caché
+        if (cachePersonajes.containsKey(codigo)) {
+            return cachePersonajes.get(codigo);
+        }
+        
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         
         try {
-            conn = DatabaseUtil.getConnection();
-            String sql = "SELECT * FROM personajes WHERE nombre_codigo = ?";
+            conn = getConnection();
+            String sql = "SELECT * FROM personaje WHERE nombre_codigo = ?";
             stmt = conn.prepareStatement(sql);
             stmt.setString(1, codigo);
             rs = stmt.executeQuery();
             
             if (rs.next()) {
-                // Crear y devolver el personaje...
-                PersonajeModel personaje = new PersonajeModel();
-                // Asignar propiedades desde el ResultSet...
-                personaje.setId(rs.getInt("id"));
-                personaje.setNombre(rs.getString("nombre"));
-                personaje.setNombreCodigo(rs.getString("nombre_codigo"));
-                personaje.setDescripcion(rs.getString("descripcion"));
+                PersonajeModel personaje = construirPersonajeDesdeResultSet(rs);
+                cargarAtaques(conn, personaje);
+                cargarPasivas(conn, personaje);
                 
-                // Estadísticas básicas
-                personaje.setVida(rs.getInt("vida"));
-                personaje.setFuerza(rs.getInt("fuerza"));
-                personaje.setVelocidad(rs.getInt("velocidad"));
-                personaje.setResistencia(rs.getInt("resistencia"));
-                personaje.setPoderMagico(rs.getInt("poder_magico"));
-                
-                // ... (asignar el resto de propiedades)
-                
+                // Agregar a caché y devolver
+                cachePersonajes.put(codigo, personaje);
                 return personaje;
             }
             return null;
@@ -74,17 +68,11 @@ public class PersonajeServiceModel extends Conexion {
             e.printStackTrace();
             return null;
         } finally {
-            // Cerrar los recursos en orden inverso
             try {
                 if (rs != null) rs.close();
                 if (stmt != null) stmt.close();
             } catch (SQLException e) {
                 e.printStackTrace();
-            }
-            
-            // Devolver la conexión al pool
-            if (conn != null) {
-                DatabaseUtil.releaseConnection(conn);
             }
         }
     }
@@ -92,116 +80,125 @@ public class PersonajeServiceModel extends Conexion {
     /**
      * Obtiene una lista de personajes basada en una consulta SQL
      */
-    private List<PersonajeModel> obtenerPersonajesPorConsulta(String sql) throws SQLException {
+    private List<PersonajeModel> obtenerPersonajesPorConsulta(String sql) {
         List<PersonajeModel> personajes = new ArrayList<>();
+        Connection conn = null;
         
-        try (Connection conn = this.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+        try {
+            conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
             
             while (rs.next()) {
-                PersonajeModel personaje = mapearPersonajeDesdeResultSet(rs);
+                PersonajeModel personaje = construirPersonajeDesdeResultSet(rs);
+                cargarAtaques(conn, personaje);
+                cargarPasivas(conn, personaje);
+                
                 personajes.add(personaje);
                 // Actualizar cache
                 cachePersonajes.put(personaje.getNombreCodigo(), personaje);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         
         return personajes;
     }
     
     /**
-     * Mapea un personaje desde el ResultSet de la base de datos
+     * Construye un objeto PersonajeModel a partir de un ResultSet
      */
-    private PersonajeModel mapearPersonajeDesdeResultSet(ResultSet rs) throws SQLException {
+    public PersonajeModel construirPersonajeDesdeResultSet(ResultSet rs) throws SQLException {
         PersonajeModel personaje = new PersonajeModel();
         
-        // Mapear propiedades básicas
+        // Datos básicos
         personaje.setId(rs.getInt("id"));
         personaje.setNombre(rs.getString("nombre"));
         personaje.setNombreCodigo(rs.getString("nombre_codigo"));
         personaje.setDescripcion(rs.getString("descripcion"));
+        
+        // Campo de transformación (nuevo)
+        personaje.setEsTransformacion(rs.getBoolean("es_transformacion"));
+        
+        // Rutas de imágenes
+        personaje.setImagenMiniatura(rs.getString("imagen_miniatura"));
+        personaje.setImagenCombate(rs.getString("imagen_combate"));
+        
+        // Transformación
+        int personajeBaseId = rs.getInt("personaje_base_id");
+        if (!rs.wasNull()) {
+            personaje.setPersonajeBaseId(personajeBaseId);
+        }
+        personaje.setDuracionTurnos(rs.getInt("duracion_turnos"));
+        
+        // Estadísticas
         personaje.setVida(rs.getInt("vida"));
         personaje.setFuerza(rs.getInt("fuerza"));
         personaje.setVelocidad(rs.getInt("velocidad"));
-        personaje.setResistencia(rs.getInt("resistencia"));
-        personaje.setPoderMagico(rs.getInt("poder_magico"));
-        personaje.setAtaqueMelee(rs.getInt("ataque_melee"));
-        personaje.setAtaqueLejano(rs.getInt("ataque_lejano"));
-        personaje.setHabilidad1Poder(rs.getInt("habilidad1_poder"));
-        personaje.setHabilidad2Poder(rs.getInt("habilidad2_poder"));
-        personaje.setAtaqueMeleeNombre(rs.getString("ataque_melee_nombre"));
-        personaje.setAtaqueLejanoNombre(rs.getString("ataque_lejano_nombre"));
-        personaje.setHabilidad1Nombre(rs.getString("habilidad1_nombre"));
-        personaje.setHabilidad2Nombre(rs.getString("habilidad2_nombre"));
-        
-        // AÑADIR: Mapeo de resistencias, críticos y otras stats que faltan
-        personaje.setResistenciaFisica(rs.getInt("resistencia_fisica"));
-        personaje.setResistenciaMagica(rs.getInt("resistencia_magica"));
-        personaje.setEvasion(rs.getInt("evasion"));
-        personaje.setProbabilidadCritico(rs.getInt("probabilidad_critico"));
-        personaje.setMultiplicadorCritico(rs.getDouble("multiplicador_critico"));
-        
-        // AÑADIR: Mapeo de la pasiva
-        personaje.setPasivaNombre(rs.getString("pasiva_nombre"));
-        personaje.setPasivaDescripcion(rs.getString("pasiva_descripcion"));
-        personaje.setPasivaTipo(rs.getString("pasiva_tipo"));
-        personaje.setPasivaValor(rs.getInt("pasiva_valor"));
-        
-        // AÑADIR: Mapeo de los tipos de ataque
-        personaje.setAtaqueMeleeTipo(rs.getString("ataque_melee_tipo"));
-        personaje.setAtaqueLejanoTipo(rs.getString("ataque_lejano_tipo"));
-        personaje.setHabilidad1Tipo(rs.getString("habilidad1_tipo"));
-        personaje.setHabilidad2Tipo(rs.getString("habilidad2_tipo"));
-        
-        // AÑADIR: Mapeo de los usos de las habilidades
-        personaje.setHabilidad1Usos(rs.getInt("usos_habilidad1"));
-        personaje.setHabilidad2Usos(rs.getInt("usos_habilidad2"));
-        
-        // IMPORTANTE: Asignar correctamente las rutas de imágenes
-        String imagenCombate = rs.getString("imagen_combate");
-        String imagenMiniatura = rs.getString("imagen_miniatura");
-        
-        System.out.println("Cargando de BD personaje: " + personaje.getNombre());
-        System.out.println("  - imagen_combate de BD: " + imagenCombate);
-        System.out.println("  - imagen_miniatura de BD: " + imagenMiniatura);
-        
-        // Si no hay rutas en la BD, generar basadas en códigos de personaje
-        if (imagenCombate == null || imagenCombate.isEmpty()) {
-            String nombreCodigo = personaje.getNombreCodigo().toLowerCase().replaceAll("\\s+", "");
-            
-            // Mapeo de nombres de personajes a códigos de archivo
-            String characterCode = null;
-            if (nombreCodigo.contains("hulk")) {
-                characterCode = "hulk";
-            } else if (nombreCodigo.contains("spider")) {
-                characterCode = "spiderman";
-            } else if (nombreCodigo.contains("iron")) {
-                characterCode = "ironman";
-            } else if (nombreCodigo.contains("cap") || nombreCodigo.contains("amer")) {
-                characterCode = "captainamerica";
-            } else if (nombreCodigo.contains("strange") || nombreCodigo.contains("doctor")) {
-                characterCode = "doctorstrange";
-            } else if (nombreCodigo.contains("magik")) {
-                characterCode = "magik";
-            }
-            
-            if (characterCode != null) {
-                imagenCombate = "images/Ingame/" + characterCode + "-ingame.png";
-                System.out.println("  - Generando imagen_combate: " + imagenCombate);
-            }
-        }
-        
-        if (imagenMiniatura == null || imagenMiniatura.isEmpty()) {
-            imagenMiniatura = "images/Personajes/" + personaje.getNombreCodigo().toLowerCase().replaceAll("\\s+", "") + ".png";
-            System.out.println("  - Generando imagen_miniatura: " + imagenMiniatura);
-        }
-        
-        personaje.setImagenCombate(imagenCombate);
-        personaje.setImagenMiniatura(imagenMiniatura);
+        personaje.setPoder(rs.getInt("poder"));
         
         return personaje;
+    }
+    
+    /**
+     * Carga los ataques para un personaje específico
+     */
+    private void cargarAtaques(Connection conn, PersonajeModel personaje) throws SQLException {
+        String sql = "SELECT a.*, ta.clave as tipo_clave FROM ataque a " +
+                     "JOIN tipo_ataque ta ON a.tipo_ataque_id = ta.id " +
+                     "WHERE a.personaje_id = ?";
+        
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setInt(1, personaje.getId());
+        ResultSet rs = stmt.executeQuery();
+        
+        List<AtaqueModel> ataques = new ArrayList<>();
+        
+        while (rs.next()) {
+            AtaqueModel ataque = new AtaqueModel();
+            ataque.setId(rs.getInt("id"));
+            ataque.setPersonajeId(rs.getInt("personaje_id"));
+            ataque.setTipoAtaqueId(rs.getInt("tipo_ataque_id"));
+            ataque.setTipoAtaqueClave(rs.getString("tipo_clave"));
+            ataque.setNombre(rs.getString("nombre"));
+            ataque.setDanoBase(rs.getInt("dano_base"));
+            ataque.setUsosMaximos(rs.getInt("usos_maximos"));
+            ataque.setCooldownTurnos(rs.getInt("cooldown_turnos"));
+            
+            ataques.add(ataque);
+        }
+        
+        personaje.setAtaques(ataques);
+    }
+    
+    /**
+     * Carga las pasivas para un personaje específico
+     */
+    private void cargarPasivas(Connection conn, PersonajeModel personaje) throws SQLException {
+        String sql = "SELECT * FROM pasiva WHERE personaje_id = ?";
+        
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setInt(1, personaje.getId());
+        ResultSet rs = stmt.executeQuery();
+        
+        List<PasivaModel> pasivas = new ArrayList<>();
+        
+        while (rs.next()) {
+            PasivaModel pasiva = new PasivaModel();
+            pasiva.setId(rs.getInt("id"));
+            pasiva.setPersonajeId(rs.getInt("personaje_id"));
+            pasiva.setNombre(rs.getString("nombre"));
+            pasiva.setDescripcion(rs.getString("descripcion"));
+            pasiva.setTriggerTipo(rs.getString("trigger_tipo"));
+            pasiva.setEfectoTipo(rs.getString("efecto_tipo"));
+            pasiva.setEfectoValor(rs.getInt("efecto_valor"));
+            pasiva.setUsosMaximos(rs.getInt("usos_maximos"));
+            pasiva.setCooldownTurnos(rs.getInt("cooldown_turnos"));
+            
+            pasivas.add(pasiva);
+        }
+        
+        personaje.setPasivas(pasivas);
     }
     
     /**
@@ -209,28 +206,5 @@ public class PersonajeServiceModel extends Conexion {
      */
     public static void limpiarCache() {
         cachePersonajes.clear();
-    }
-    
-    /**
-     * Obtiene todos los personajes utilizando la conexión heredada
-     */
-    public List<PersonajeModel> getPersonajes() {
-        List<PersonajeModel> personajes = new ArrayList<>();
-        
-        try (Connection conn = this.getConnection()) {
-            String query = "SELECT * FROM personajes";
-            
-            PreparedStatement stmt = conn.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();
-            
-            while (rs.next()) {
-                PersonajeModel personaje = mapearPersonajeDesdeResultSet(rs);
-                personajes.add(personaje);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        
-        return personajes;
     }
 }

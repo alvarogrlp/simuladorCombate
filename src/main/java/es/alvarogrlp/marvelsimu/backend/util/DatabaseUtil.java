@@ -7,11 +7,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import es.alvarogrlp.marvelsimu.backend.model.AtaqueModel;
+import es.alvarogrlp.marvelsimu.backend.model.PasivaModel;
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
 
 /**
@@ -19,7 +23,7 @@ import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
  */
 public class DatabaseUtil {
     
-    private static final String DB_PATH = "src/main/resources/usuarios.db";
+    private static final String DB_PATH = "src/main/resources/marvelSimu.db";
     private static BlockingQueue<Connection> connectionPool;
     
     /**
@@ -32,10 +36,19 @@ public class DatabaseUtil {
                 Class.forName("org.sqlite.JDBC");
                 
                 // Verificar que la base de datos existe
-                File dbFile = new File("usuarios.db");
+                File dbFile = new File(DB_PATH);
                 if (!dbFile.exists()) {
-                    System.err.println("ERROR CRÍTICO: Base de datos no encontrada en " + dbFile.getAbsolutePath());
-                    System.err.println("Ruta de trabajo actual: " + new File(".").getAbsolutePath());
+                    // Intentar con ruta alternativa en resources
+                    String altPath = "marvelSimu.db";
+                    File altFile = new File(altPath);
+                    
+                    if(!altFile.exists()) {
+                        System.err.println("ERROR CRÍTICO: Base de datos no encontrada en " + dbFile.getAbsolutePath());
+                        System.err.println("Tampoco encontrada en ruta alternativa: " + altFile.getAbsolutePath());
+                        System.err.println("Ruta de trabajo actual: " + new File(".").getAbsolutePath());
+                    } else {
+                        System.out.println("Base de datos encontrada en ruta alternativa: " + altFile.getAbsolutePath());
+                    }
                 } else {
                     System.out.println("Base de datos encontrada en: " + dbFile.getAbsolutePath());
                 }
@@ -109,7 +122,14 @@ public class DatabaseUtil {
      * Crea una nueva conexión a la base de datos
      */
     private static Connection createConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
+        try {
+            // Intentar con la ruta principal
+            return DriverManager.getConnection("jdbc:sqlite:" + DB_PATH);
+        } catch (SQLException e) {
+            System.out.println("No se pudo conectar usando la ruta principal, intentando ruta alternativa");
+            // Intentar con ruta alternativa
+            return DriverManager.getConnection("jdbc:sqlite:marvelSimu.db");
+        }
     }
     
     /**
@@ -245,65 +265,170 @@ public class DatabaseUtil {
     private static PersonajeModel buildPersonajeFromResultSet(ResultSet rs) throws SQLException {
         PersonajeModel character = new PersonajeModel();
         
-        // Guardar el ID exactamente como está en la base de datos
-        String id = rs.getString("id");
-        character.setNombreCodigo(id);
-        System.out.println("Construyendo personaje con ID: " + id + ", Nombre: " + rs.getString("nombre"));
-        
-        // Asignar datos básicos
+        // Datos básicos
+        character.setId(rs.getInt("id"));
         character.setNombre(rs.getString("nombre"));
+        character.setNombreCodigo(rs.getString("nombre_codigo"));
         character.setDescripcion(rs.getString("descripcion"));
         
         // Estadísticas básicas
         character.setVida(rs.getInt("vida"));
         character.setFuerza(rs.getInt("fuerza"));
         character.setVelocidad(rs.getInt("velocidad"));
-        character.setResistencia(rs.getInt("resistencia"));
-        character.setPoderMagico(rs.getInt("poder_magico"));
+        character.setPoder(rs.getInt("poder")); // Correcto: "poder" en lugar de "poder_magico"
         
-        // Ataques y habilidades
-        character.setAtaqueMelee(rs.getInt("ataque_melee"));
-        character.setAtaqueLejano(rs.getInt("ataque_lejano"));
-        character.setHabilidad1Poder(rs.getInt("habilidad1_poder"));
-        character.setHabilidad2Poder(rs.getInt("habilidad2_poder"));
+        // Obtener las rutas de imágenes directamente de la base de datos
+        String imagenMiniatura = getStringOrDefault(rs, "imagen_miniatura", "images/Personajes/random.png");
+        String imagenCombate = getStringOrDefault(rs, "imagen_combate", "images/Ingame/random-ingame.png");
         
-        // Nombres de ataques y habilidades
-        character.setAtaqueMeleeNombre(rs.getString("ataque_melee_nombre"));
-        character.setAtaqueLejanoNombre(rs.getString("ataque_lejano_nombre"));
-        character.setHabilidad1Nombre(rs.getString("habilidad1_nombre"));
-        character.setHabilidad2Nombre(getStringOrDefault(rs, "habilidad2_nombre"));
+        // Asignar rutas al modelo
+        character.setImagenMiniatura(imagenMiniatura);
+        character.setImagenCombate(imagenCombate);
         
-        // Tipos de ataques y habilidades
-        character.setAtaqueMeleeTipo(getStringOrDefault(rs, "ataque_melee_tipo", "fisico"));
-        character.setAtaqueLejanoTipo(getStringOrDefault(rs, "ataque_lejano_tipo", "fisico"));
-        character.setHabilidad1Tipo(getStringOrDefault(rs, "habilidad1_tipo", "fisico"));
-        character.setHabilidad2Tipo(getStringOrDefault(rs, "habilidad2_tipo", "fisico"));
+        // Logging para debug - Más detallado
+        System.out.println("===== PERSONAJE CARGADO =====");
+        System.out.println("ID: " + character.getId());
+        System.out.println("Nombre: " + character.getNombre());
+        System.out.println("Código: " + character.getNombreCodigo());
+        System.out.println("Miniatura: " + character.getImagenMiniatura());
+        System.out.println("Combate: " + character.getImagenCombate());
+        System.out.println("=============================");
         
-        // Imágenes
-        character.setImagenCombate(getStringOrDefault(rs, "imagen_combate", "images/personajes/default.png"));
-        character.setImagenMiniatura(getStringOrDefault(rs, "imagen_miniatura", "images/personajes/default_mini.png"));
+        // Verificar si los recursos existen
+        boolean miniaturaExists = resourceExists(character.getImagenMiniatura());
+        boolean combateExists = resourceExists(character.getImagenCombate());
         
-        // Defensas
-        character.setResistenciaFisica(rs.getInt("resistencia_fisica"));
-        character.setResistenciaMagica(rs.getInt("resistencia_magica"));
-        character.setEvasion(rs.getInt("evasion"));
-        
-        // Críticos
-        try {
-            character.setProbabilidadCritico(rs.getInt("probabilidad_critico"));
-            character.setMultiplicadorCritico(rs.getDouble("multiplicador_critico"));
-        } catch (SQLException e) {
-            character.setProbabilidadCritico(5);  // valor por defecto
-            character.setMultiplicadorCritico(1.5);  // valor por defecto
-        }
-        
-        // Pasiva
-        character.setPasivaNombre(getStringOrDefault(rs, "pasiva_nombre", ""));
-        character.setPasivaDescripcion(getStringOrDefault(rs, "pasiva_descripcion", ""));
-        character.setPasivaTipo(getStringOrDefault(rs, "pasiva_tipo", "ninguna"));
-        character.setPasivaValor(rs.getInt("pasiva_valor"));
+        System.out.println("¿Existe miniatura? " + miniaturaExists);
+        System.out.println("¿Existe imagen combate? " + combateExists);
         
         return character;
+    }
+    
+    /**
+     * Verifica si un recurso existe en el classpath
+     */
+    private static boolean resourceExists(String resourcePath) {
+        try {
+            return DatabaseUtil.class.getClassLoader().getResource(resourcePath) != null;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Carga los ataques de un personaje desde la base de datos
+     * @param personajeId ID del personaje
+     * @return Lista de ataques
+     */
+    private static List<AtaqueModel> cargarAtaquesPersonaje(int personajeId) {
+        List<AtaqueModel> ataques = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = getConnection();
+            
+            // Verificar si la tabla existe
+            String checkTable = "SELECT name FROM sqlite_master WHERE type='table' AND name='ataque'";
+            stmt = conn.prepareStatement(checkTable);
+            rs = stmt.executeQuery();
+            
+            if (!rs.next()) {
+                System.out.println("La tabla 'ataque' no existe en la base de datos");
+                return ataques;
+            }
+            
+            rs.close();
+            stmt.close();
+            
+            // Cargar los ataques usando JOIN con tipo_ataque
+            String sql = "SELECT a.*, ta.clave AS tipo_ataque_clave FROM ataque a " +
+                         "JOIN tipo_ataque ta ON a.tipo_ataque_id = ta.id " +
+                         "WHERE a.personaje_id = ?";
+            
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, personajeId);
+            rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                AtaqueModel ataque = new AtaqueModel();
+                ataque.setId(rs.getInt("id"));
+                ataque.setPersonajeId(personajeId);
+                ataque.setTipoAtaqueId(rs.getInt("tipo_ataque_id"));
+                ataque.setTipoAtaqueClave(rs.getString("tipo_ataque_clave"));
+                ataque.setNombre(rs.getString("nombre"));
+                ataque.setDanoBase(rs.getInt("dano_base"));
+                ataque.setUsosMaximos(rs.getInt("usos_maximos"));
+                ataque.setCooldownTurnos(rs.getInt("cooldown_turnos"));
+                ataque.resetearEstadoCombate();
+                ataques.add(ataque);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error cargando ataques del personaje " + personajeId + ": " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, stmt, rs);
+        }
+        
+        return ataques;
+    }
+    
+    /**
+     * Carga las pasivas de un personaje desde la base de datos
+     * @param personajeId ID del personaje
+     * @return Lista de pasivas
+     */
+    private static List<PasivaModel> cargarPasivasPersonaje(int personajeId) {
+        List<PasivaModel> pasivas = new ArrayList<>();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = getConnection();
+            
+            // Verificar si la tabla existe
+            String checkTable = "SELECT name FROM sqlite_master WHERE type='table' AND name='pasiva'";
+            stmt = conn.prepareStatement(checkTable);
+            rs = stmt.executeQuery();
+            
+            if (!rs.next()) {
+                System.out.println("La tabla 'pasiva' no existe en la base de datos");
+                return pasivas;
+            }
+            
+            rs.close();
+            stmt.close();
+            
+            // Cargar las pasivas
+            String sql = "SELECT * FROM pasiva WHERE personaje_id = ?";
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, personajeId);
+            rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                PasivaModel pasiva = new PasivaModel();
+                pasiva.setId(rs.getInt("id"));
+                pasiva.setPersonajeId(personajeId);
+                pasiva.setNombre(rs.getString("nombre"));
+                pasiva.setDescripcion(rs.getString("descripcion"));
+                pasiva.setTriggerTipo(rs.getString("trigger_tipo"));
+                pasiva.setEfectoTipo(rs.getString("efecto_tipo"));
+                pasiva.setEfectoValor(rs.getInt("efecto_valor"));
+                pasiva.setUsosMaximos(rs.getInt("usos_maximos"));
+                pasiva.setCooldownTurnos(rs.getInt("cooldown_turnos"));
+                pasiva.resetearEstadoCombate();
+                pasivas.add(pasiva);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error cargando pasivas del personaje " + personajeId + ": " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, stmt, rs);
+        }
+        
+        return pasivas;
     }
     
     /**

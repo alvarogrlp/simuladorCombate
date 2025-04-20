@@ -12,10 +12,10 @@
 
 <AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="810.0" prefWidth="896.0" stylesheets="@seleccionPersonajes.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="es.alvarogrlp.marvelsimu.backend.controller.SeleccionPersonajesController">
    <children>
-      <ImageView fx:id="fondo" fitHeight="810.0" fitWidth="896.0" preserveRatio="false" />
+      <!-- El fondo se aplicará por CSS -->
       <Text fx:id="txtTitulo" layoutX="225.0" layoutY="99.0" styleClass="title-text" text="SELECCIONA PERSONAJE" textAlignment="CENTER" wrappingWidth="445.728515625" />
       
-      <!-- ScrollPane para permitir desplazamiento vertical -->
+      <!-- ScrollPane mejorado para permitir desplazamiento vertical -->
       <ScrollPane fitToWidth="true" hbarPolicy="NEVER" layoutX="253.0" layoutY="125.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="537.0" prefWidth="390.0" styleClass="transparent-scrollpane" vbarPolicy="AS_NEEDED">
          <content>
             <FlowPane fx:id="characterSelectionPane" alignment="CENTER" columnHalignment="CENTER" hgap="30.0" prefWidth="370.0" vgap="20.0">
@@ -26,11 +26,16 @@
          </content>
       </ScrollPane>
       
-      <Button fx:id="btnVolver" layoutX="398.0" layoutY="715.0" mnemonicParsing="false" onAction="#onVolverClick" styleClass="button-normal" text="Volver" />
+      <!-- Botones con nuevos estilos -->
+      <Button fx:id="btnVolver" layoutX="308.0" layoutY="715.0" mnemonicParsing="false" onAction="#onVolverClick" styleClass="button-normal" text="VOLVER" />
+      <Button fx:id="onLucharButton" layoutX="488.0" layoutY="715.0" mnemonicParsing="false" onAction="#onLucharClick" styleClass="button-normal" text="LUCHAR" />
+      
+      <!-- Contenedores de equipo con nuevos estilos -->
       <VBox fx:id="miEquipo" layoutX="14.0" layoutY="79.0" prefHeight="678.0" prefWidth="208.0" styleClass="container-seleccion" />
       <VBox fx:id="equipoIA" layoutX="674.0" layoutY="79.0" prefHeight="678.0" prefWidth="208.0" styleClass="container-seleccion" />
-      <Text fx:id="txtTitulo1" layoutX="14.0" layoutY="67.0" styleClass="title-text" text="Mi Equipo" textAlignment="CENTER" wrappingWidth="208.0" />
-      <Text fx:id="txtTitulo11" layoutX="674.0" layoutY="66.0" styleClass="title-text" text="Equipo IA" textAlignment="CENTER" wrappingWidth="208.0" />
-      <Button fx:id="onLucharButton" layoutX="398.0" layoutY="672.0" mnemonicParsing="false" onAction="#onLucharClick" styleClass="button-normal" text="Luchar" />
+      
+      <!-- Títulos de equipo -->
+      <Text fx:id="txtTitulo1" layoutX="14.0" layoutY="67.0" styleClass="title-text" text="MI EQUIPO" textAlignment="CENTER" wrappingWidth="208.0" />
+      <Text fx:id="txtTitulo11" layoutX="674.0" layoutY="66.0" styleClass="title-text" text="EQUIPO IA" textAlignment="CENTER" wrappingWidth="208.0" />
    </children>
 </AnchorPane>

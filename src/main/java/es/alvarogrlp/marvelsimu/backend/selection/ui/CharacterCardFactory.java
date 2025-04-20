@@ -1,17 +1,22 @@
 package es.alvarogrlp.marvelsimu.backend.selection.ui;
 
+import java.io.InputStream;
+
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
 import es.alvarogrlp.marvelsimu.backend.selection.logic.SelectionManager;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
 /**
@@ -26,85 +31,93 @@ public class CharacterCardFactory {
     }
     
     /**
-     * Crea una tarjeta para un personaje seleccionado para mostrar en el equipo
-     * @param character Personaje
-     * @param sourceButton Botón original del personaje
+     * Crea una tarjeta para un personaje
+     * @param character Personaje para la tarjeta
+     * @param sourceButton Botón origen (puede ser null)
      * @param isPlayerTeam Si es para el equipo del jugador
-     * @return VBox con la vista del personaje
+     * @return VBox con la tarjeta del personaje
      */
     public VBox createCharacterCard(PersonajeModel character, Button sourceButton, boolean isPlayerTeam) {
-        VBox container = new VBox(5);
-        container.setAlignment(Pos.CENTER);
-        container.getStyleClass().add("selected-character-container");
-        container.setMaxWidth(180);
+        VBox card = new VBox(8);
+        card.setPrefSize(160, 160);
+        card.setMaxSize(160, 160);
+        card.setAlignment(Pos.CENTER);
+        card.setPadding(new Insets(8));
+        card.getStyleClass().add("character-card");
         
-        // Guardar referencia al personaje para uso futuro
-        container.setUserData(character);
+        // Crear contenedor para la miniatura con efecto de borde
+        StackPane imageContainer = new StackPane();
+        imageContainer.setPrefSize(120, 120);
+        imageContainer.setMaxSize(120, 120);
+        imageContainer.getStyleClass().add("image-container");
         
-        // Nombre del personaje
-        Text nombre = new Text(character.getNombre());
-        nombre.getStyleClass().add("selected-character-name");
-        container.getChildren().add(nombre);
+        // Crear miniatura
+        ImageView thumbnail = new ImageView();
+        thumbnail.setFitWidth(120);
+        thumbnail.setFitHeight(120);
+        thumbnail.setPreserveRatio(true);
         
-        // Imagen del personaje
+        // Cargar imagen
         try {
-            Image imagen = new Image(getClass().getClassLoader().getResourceAsStream(character.getImagenMiniatura()));
-            if (!imagen.isError()) {
-                ImageView imageView = new ImageView(imagen);
-                imageView.setFitHeight(120);
-                imageView.setPreserveRatio(true);
-                container.getChildren().add(0, imageView);
+            InputStream is = getClass().getClassLoader().getResourceAsStream(character.getImagenMiniatura());
+            if (is != null) {
+                Image image = new Image(is);
+                thumbnail.setImage(image);
+                
+                // Aplicar efecto de recorte circular si se desea
+                // Circle clip = new Circle(60, 60, 60);
+                // thumbnail.setClip(clip);
             } else {
-                System.err.println("Error al cargar la imagen para el equipo: " + character.getImagenMiniatura());
+                System.err.println("No se pudo cargar la imagen: " + character.getImagenMiniatura());
+                // Cargar imagen por defecto
+                is = getClass().getClassLoader().getResourceAsStream("images/Personajes/random.png");
+                if (is != null) {
+                    thumbnail.setImage(new Image(is));
+                }
             }
         } catch (Exception e) {
-            System.err.println("Error al cargar la imagen para el equipo: " + e.getMessage());
+            System.err.println("Error cargando imagen: " + e.getMessage());
         }
         
-        // Configurar el manejo de clics para ambos equipos: jugador y IA
-        container.setOnMouseClicked(e -> {
-            // Eliminar directamente de la UI primero
-            VBox parent = (VBox) container.getParent();
-            if (parent != null) {
-                // Eliminar con animación
-                removeWithAnimation(container, parent);
-                
-                // Habilitar el botón original
-                if (sourceButton != null) {
-                    sourceButton.setDisable(false);
-                }
-                
-                // Actualizar el modelo de datos después
-                selectionManager.handleCharacterRemoval(character, isPlayerTeam);
-                
-                // Mostrar mensaje específico según el equipo
-                String mensaje = character.getNombre() + " eliminado del " +
-                                (isPlayerTeam ? "equipo del jugador" : "equipo de la IA");
-                selectionManager.getUIManager().showInfoMessage(mensaje);
-                
-                e.consume();
+        // Añadir miniatura al contenedor
+        imageContainer.getChildren().add(thumbnail);
+        
+        // Configurar nombre del personaje
+        Label nameLabel = new Label(character.getNombre());
+        nameLabel.getStyleClass().add("character-name-label");
+        nameLabel.setWrapText(true);
+        nameLabel.setTextAlignment(TextAlignment.CENTER);
+        nameLabel.setAlignment(Pos.CENTER);
+        nameLabel.setMaxWidth(150);
+        
+        // Añadir elementos a la tarjeta
+        card.getChildren().addAll(imageContainer, nameLabel);
+        
+        // Permitir eliminar con clic para AMBOS equipos
+        card.setOnMouseClicked(e -> {
+            // Eliminar directamente sin confirmación
+            selectionManager.removeCharacterFromTeam(character, isPlayerTeam);
+            
+            // Reactivar el botón asociado
+            Button button = selectionManager.findCharacterButton(character);
+            if (button != null) {
+                button.setDisable(false);
             }
         });
         
-        // Efectos visuales para indicar que es clickeable
-        container.setOnMouseEntered(e -> {
-            container.setCursor(Cursor.HAND);
-            // Efecto de escala
-            ScaleTransition scale = new ScaleTransition(Duration.millis(150), container);
-            scale.setToX(1.05);
-            scale.setToY(1.05);
-            scale.play();
+        // Añadir efecto de hover para ambos equipos
+        card.setOnMouseEntered(e -> {
+            card.setStyle("-fx-cursor: hand;");
         });
         
-        container.setOnMouseExited(e -> {
-            // Restaurar escala
-            ScaleTransition scale = new ScaleTransition(Duration.millis(150), container);
-            scale.setToX(1.0);
-            scale.setToY(1.0);
-            scale.play();
+        card.setOnMouseExited(e -> {
+            card.setStyle("");
         });
         
-        return container;
+        // Guardar el personaje como datos del componente para acceso rápido
+        card.setUserData(character);
+        
+        return card;
     }
     
     /**
@@ -131,5 +144,48 @@ public class CharacterCardFactory {
         
         // Iniciar animación
         exitAnimation.play();
+    }
+    
+    /**
+     * Carga una imagen directamente desde la ruta
+     */
+    private Image cargarImagen(String rutaImagen) {
+        if (rutaImagen == null || rutaImagen.isEmpty()) {
+            System.err.println("Ruta de imagen vacía");
+            return cargarImagenPorDefecto();
+        }
+        
+        try {
+            // Intentar cargar la imagen directamente
+            InputStream is = getClass().getClassLoader().getResourceAsStream(rutaImagen);
+            if (is != null) {
+                Image imagen = new Image(is);
+                if (!imagen.isError()) {
+                    return imagen;
+                }
+            }
+            
+            // Si no se puede cargar, usar imagen por defecto
+            System.err.println("No se pudo cargar la imagen: " + rutaImagen);
+            return cargarImagenPorDefecto();
+        } catch (Exception e) {
+            System.err.println("Error cargando imagen '" + rutaImagen + "': " + e.getMessage());
+            return cargarImagenPorDefecto();
+        }
+    }
+    
+    /**
+     * Carga la imagen por defecto
+     */
+    private Image cargarImagenPorDefecto() {
+        try {
+            InputStream is = getClass().getClassLoader().getResourceAsStream("images/Personajes/random.png");
+            if (is != null) {
+                return new Image(is);
+            }
+            return new WritableImage(100, 100);
+        } catch (Exception e) {
+            return new WritableImage(100, 100);
+        }
     }
 }

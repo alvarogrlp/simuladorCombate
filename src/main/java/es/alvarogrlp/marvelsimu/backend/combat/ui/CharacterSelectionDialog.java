@@ -1,5 +1,6 @@
 package es.alvarogrlp.marvelsimu.backend.combat.ui;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -10,6 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -47,7 +49,8 @@ public class CharacterSelectionDialog {
             characterOption.setAlignment(Pos.CENTER);
             characterOption.setPadding(new Insets(10));
             
-            ImageView characterImage = new ImageView(new Image(getClass().getClassLoader().getResourceAsStream(character.getImagenMiniatura())));
+            // Usar el método de carga segura de imágenes
+            ImageView characterImage = new ImageView(cargarImagenSegura(character.getImagenMiniatura()));
             characterImage.setFitWidth(70);
             characterImage.setFitHeight(70);
             characterImage.setPreserveRatio(true);
@@ -72,6 +75,12 @@ public class CharacterSelectionDialog {
             
             selectionContainer.getChildren().add(characterOption);
         }
+        
+        Text selectionText = new Text("Selecciona un personaje para cambiar");
+        selectionText.getStyleClass().add("selection-text");
+        selectionText.setTextAlignment(TextAlignment.CENTER);
+        
+        completeContainer.getChildren().add(selectionText);
         
         Button cancelButton = new Button("Cancelar");
         cancelButton.getStyleClass().add("back-button");
@@ -120,7 +129,8 @@ public class CharacterSelectionDialog {
             characterOption.setAlignment(Pos.CENTER);
             characterOption.setPadding(new Insets(10));
             
-            ImageView characterImage = new ImageView(new Image(getClass().getClassLoader().getResourceAsStream(character.getImagenMiniatura())));
+            // Usar el método de carga segura de imágenes
+            ImageView characterImage = new ImageView(cargarImagenSegura(character.getImagenMiniatura()));
             characterImage.setFitWidth(70);
             characterImage.setFitHeight(70);
             characterImage.setPreserveRatio(true);
@@ -155,6 +165,35 @@ public class CharacterSelectionDialog {
             AnchorPane.setRightAnchor(completeContainer, 250.0);
             
             rootPane.getChildren().add(completeContainer);
+        }
+    }
+    
+    /**
+     * Carga una imagen de forma simple y directa
+     */
+    private Image cargarImagenSegura(String rutaImagen) {
+        try {
+            // Cargar la imagen directamente
+            InputStream is = getClass().getClassLoader().getResourceAsStream(rutaImagen);
+            if (is != null) {
+                Image imagen = new Image(is);
+                if (!imagen.isError()) {
+                    return imagen;
+                }
+            }
+            
+            // Si no se encuentra, usar imagen por defecto
+            System.err.println("No se encontró la imagen: " + rutaImagen);
+            is = getClass().getClassLoader().getResourceAsStream("images/Personajes/random.png");
+            if (is != null) {
+                return new Image(is);
+            }
+            
+            // Si todo falla, retornar una imagen vacía
+            return new WritableImage(70, 70);
+        } catch (Exception e) {
+            System.err.println("Error cargando imagen: " + e.getMessage());
+            return new WritableImage(70, 70);
         }
     }
 }

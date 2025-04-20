@@ -3,9 +3,14 @@ package es.alvarogrlp.marvelsimu.backend.selection.logic;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.alvarogrlp.marvelsimu.backend.model.AtaqueModel;
+import es.alvarogrlp.marvelsimu.backend.model.PasivaModel;
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
 import es.alvarogrlp.marvelsimu.backend.selection.ui.SelectionUIManager;
+import javafx.animation.FadeTransition;
 import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 /**
  * Clase encargada de gestionar la construcción de equipos
@@ -49,23 +54,29 @@ public class TeamBuilder {
     }
     
     /**
-     * Elimina un personaje del equipo
+     * Elimina un personaje del equipo de manera limpia
      * @param character Personaje a eliminar
      * @param isPlayerTeam Si es del equipo del jugador
      * @param uiManager Gestor de UI para actualizar la interfaz
      * @return true si se eliminó correctamente
      */
     public boolean removeCharacterFromTeam(PersonajeModel character, boolean isPlayerTeam, SelectionUIManager uiManager) {
-        if (character == null) {
+        if (character == null || uiManager == null) {
             return false;
         }
 
         List<PersonajeModel> targetTeam = isPlayerTeam ? playerTeam : aiTeam;
         
+        // Verificar si el equipo está vacío
+        if (targetTeam.isEmpty()) {
+            return false;
+        }
+        
         // Buscar el índice del personaje en el equipo
         int index = -1;
         for (int i = 0; i < targetTeam.size(); i++) {
-            if (targetTeam.get(i).getNombreCodigo().equals(character.getNombreCodigo())) {
+            PersonajeModel existing = targetTeam.get(i);
+            if (existing != null && existing.getNombreCodigo().equals(character.getNombreCodigo())) {
                 index = i;
                 break;
             }
@@ -73,16 +84,40 @@ public class TeamBuilder {
         
         // Si se encontró, eliminarlo
         if (index >= 0) {
-            // Primero eliminamos del modelo
+            // Primero guardar una copia del personaje para evitar problemas de referencia
+            PersonajeModel removedCharacter = targetTeam.get(index);
+            
+            // Eliminar del modelo de datos
             targetTeam.remove(index);
             
-            // Luego animamos la salida en la UI y actualizamos la visualización
-            uiManager.animateRemoveCharacterCard(index, isPlayerTeam);
-            
-            return true;
+            try {
+                // Luego animamos la salida en la UI y actualizamos la visualización
+                uiManager.animateRemoveCharacterCard(index, isPlayerTeam);
+                
+                // Mostrar mensaje de eliminación
+                String equipo = isPlayerTeam ? "tu equipo" : "equipo IA";
+                uiManager.showInfoMessage(removedCharacter.getNombre() + " eliminado de " + equipo);
+                
+                // Actualizar el estado del botón de lucha
+                uiManager.updateFightButtonState();
+                
+                return true;
+            } catch (Exception e) {
+                // En caso de error en la UI, asegurarnos de que el modelo siga siendo consistente
+                System.err.println("Error al eliminar personaje de la UI: " + e.getMessage());
+                
+                // Forzar actualización de la UI sin animación
+                try {
+                    uiManager.forceUpdateTeamDisplay(isPlayerTeam);
+                } catch (Exception ex) {
+                    System.err.println("Error al forzar actualización de la UI: " + ex.getMessage());
+                }
+                
+                return true; // El personaje se eliminó del modelo, aunque haya fallado la UI
+            }
         }
         
-        return false;
+        return false; // No se encontró el personaje
     }
     
     /**
@@ -162,37 +197,15 @@ public class TeamBuilder {
         List<PersonajeModel> preparedTeam = new ArrayList<>();
         
         for (PersonajeModel character : team) {
-            // Clonar el personaje para no modificar el original
-            PersonajeModel clone = cloneCharacter(character);
+            // Usar el método clonar de PersonajeModel en lugar de nuestro propio método
+            PersonajeModel clone = character.clonar();
             
-            // Inicializar valores para el combate
-            clone.setVidaActual(clone.getVida());
+            // Inicializar la vida y el estado de combate
+            clone.inicializarVida();
             
-            // Asegurarse de que los usos de habilidades están inicializados
-            if (clone.getHabilidad1Usos() <= 0) {
-                clone.setHabilidad1Usos(3); // Valor por defecto si no está definido
-            }
-            
-            if (clone.getHabilidad2Usos() <= 0) {
-                clone.setHabilidad2Usos(2); // Valor por defecto si no está definido
-            }
-            
-            // Asegurarse de que los tipos de ataque estén inicializados
-            if (clone.getAtaqueMeleeTipo() == null || clone.getAtaqueMeleeTipo().isEmpty()) {
-                clone.setAtaqueMeleeTipo("fisico"); // Valor por defecto
-            }
-            
-            if (clone.getAtaqueLejanoTipo() == null || clone.getAtaqueLejanoTipo().isEmpty()) {
-                clone.setAtaqueLejanoTipo("fisico"); // Valor por defecto
-            }
-            
-            if (clone.getHabilidad1Tipo() == null || clone.getHabilidad1Tipo().isEmpty()) {
-                clone.setHabilidad1Tipo("magico"); // Valor por defecto
-            }
-            
-            if (clone.getHabilidad2Tipo() == null || clone.getHabilidad2Tipo().isEmpty()) {
-                clone.setHabilidad2Tipo("magico"); // Valor por defecto
-            }
+            // Verificar que todos los ataques y pasivas tienen valores válidos
+            validarYConfigurarAtaques(clone);
+            validarYConfigurarPasivas(clone);
             
             preparedTeam.add(clone);
         }
@@ -201,67 +214,110 @@ public class TeamBuilder {
     }
     
     /**
-     * Crea una copia del personaje
-     * @param original Personaje original
-     * @return Copia del personaje
+     * Valida y configura los ataques de un personaje
+     * @param personaje Personaje a validar
      */
-    private PersonajeModel cloneCharacter(PersonajeModel original) {
-        PersonajeModel clone = new PersonajeModel();
+    private void validarYConfigurarAtaques(PersonajeModel personaje) {
+        List<AtaqueModel> ataques = personaje.getAtaques();
         
-        // Copiar todos los valores
-        clone.setId(original.getId());
-        clone.setNombreCodigo(original.getNombreCodigo());
-        clone.setNombre(original.getNombre());
-        clone.setDescripcion(original.getDescripcion());
+        // Si no hay ataques, crear ataques por defecto basados en los atributos antiguos
+        if (ataques == null || ataques.isEmpty()) {
+            ataques = new ArrayList<>();
+            
+            // Crear ataques básicos por defecto
+            AtaqueModel ataqueCC = new AtaqueModel();
+            ataqueCC.setPersonajeId(personaje.getId());
+            ataqueCC.setTipoAtaqueClave("ACC");
+            ataqueCC.setNombre("Ataque Cuerpo a Cuerpo");
+            ataqueCC.setDanoBase(personaje.getFuerza() / 2);
+            ataqueCC.resetearEstadoCombate();
+            ataques.add(ataqueCC);
+            
+            AtaqueModel ataqueAD = new AtaqueModel();
+            ataqueAD.setPersonajeId(personaje.getId());
+            ataqueAD.setTipoAtaqueClave("AAD");
+            ataqueAD.setNombre("Ataque a Distancia");
+            ataqueAD.setDanoBase(personaje.getFuerza() / 3);
+            ataqueAD.resetearEstadoCombate();
+            ataques.add(ataqueAD);
+            
+            AtaqueModel habilidad1 = new AtaqueModel();
+            habilidad1.setPersonajeId(personaje.getId());
+            habilidad1.setTipoAtaqueClave("habilidad_mas_poderosa");
+            habilidad1.setNombre("Habilidad Especial");
+            habilidad1.setDanoBase(personaje.getFuerza() + personaje.getPoder() / 4);
+            habilidad1.setUsosMaximos(3);
+            habilidad1.setCooldownTurnos(1);
+            habilidad1.resetearEstadoCombate();
+            ataques.add(habilidad1);
+            
+            AtaqueModel habilidad2 = new AtaqueModel();
+            habilidad2.setPersonajeId(personaje.getId());
+            habilidad2.setTipoAtaqueClave("habilidad_caracteristica");
+            habilidad2.setNombre("Habilidad Definitiva");
+            habilidad2.setDanoBase(personaje.getFuerza() + personaje.getPoder() / 2);
+            habilidad2.setUsosMaximos(1);
+            habilidad2.setCooldownTurnos(3);
+            habilidad2.resetearEstadoCombate();
+            ataques.add(habilidad2);
+            
+            personaje.setAtaques(ataques);
+        } else {
+            // Asegurarse de que todos los ataques estén inicializados para el combate
+            for (AtaqueModel ataque : ataques) {
+                ataque.resetearEstadoCombate();
+            }
+        }
+    }
+    
+    /**
+     * Valida y configura las pasivas de un personaje
+     * @param personaje Personaje a validar
+     */
+    private void validarYConfigurarPasivas(PersonajeModel personaje) {
+        List<PasivaModel> pasivas = personaje.getPasivas();
         
-        // Imágenes
-        clone.setImagenCombate(original.getImagenCombate());
-        clone.setImagenMiniatura(original.getImagenMiniatura());
-        clone.setImagenCompleta(original.getImagenCompleta());
-        
-        // Estadísticas básicas
-        clone.setVida(original.getVida());
-        clone.setFuerza(original.getFuerza());
-        clone.setVelocidad(original.getVelocidad());
-        clone.setResistencia(original.getResistencia());
-        clone.setPoderMagico(original.getPoderMagico());
-        
-        // Ataques - nombres, valores y TIPOS
-        clone.setAtaqueMeleeNombre(original.getAtaqueMeleeNombre());
-        clone.setAtaqueMelee(original.getAtaqueMelee());
-        clone.setAtaqueMeleeTipo(original.getAtaqueMeleeTipo());
-        
-        clone.setAtaqueLejanoNombre(original.getAtaqueLejanoNombre());
-        clone.setAtaqueLejano(original.getAtaqueLejano());
-        clone.setAtaqueLejanoTipo(original.getAtaqueLejanoTipo());
-        
-        // Defensas
-        clone.setResistenciaFisica(original.getResistenciaFisica());
-        clone.setResistenciaMagica(original.getResistenciaMagica());
-        clone.setEvasion(original.getEvasion());
-        
-        // Pasiva COMPLETA
-        clone.setPasivaNombre(original.getPasivaNombre());
-        clone.setPasivaDescripcion(original.getPasivaDescripcion());
-        clone.setPasivaTipo(original.getPasivaTipo());
-        clone.setPasivaValor(original.getPasivaValor());
-        
-        // Habilidades COMPLETAS con tipos y usos
-        clone.setHabilidad1Nombre(original.getHabilidad1Nombre());
-        clone.setHabilidad1Tipo(original.getHabilidad1Tipo());
-        clone.setHabilidad1Poder(original.getHabilidad1Poder());
-        clone.setHabilidad1Usos(original.getHabilidad1Usos());
-        
-        clone.setHabilidad2Nombre(original.getHabilidad2Nombre());
-        clone.setHabilidad2Tipo(original.getHabilidad2Tipo());
-        clone.setHabilidad2Poder(original.getHabilidad2Poder());
-        clone.setHabilidad2Usos(original.getHabilidad2Usos());
-        
-        // Extras para combate
-        clone.setProbabilidadCritico(original.getProbabilidadCritico());
-        clone.setMultiplicadorCritico(original.getMultiplicadorCritico());
-        
-        return clone;
+        // Si no hay pasivas, crear una pasiva por defecto
+        if (pasivas == null || pasivas.isEmpty()) {
+            pasivas = new ArrayList<>();
+            
+            // Crear una pasiva básica basada en los atributos del personaje
+            PasivaModel pasiva = new PasivaModel();
+            pasiva.setPersonajeId(personaje.getId());
+            
+            // La pasiva dependerá del atributo más alto
+            if (personaje.getPoder() > personaje.getFuerza() && personaje.getPoder() > personaje.getVelocidad()) {
+                // Personaje enfocado en poder - Pasiva de escudo
+                pasiva.setNombre("Barrera Mágica");
+                pasiva.setDescripcion("Al inicio del combate, el personaje obtiene un escudo que reduce el daño");
+                pasiva.setTriggerTipo("on_start_combat");
+                pasiva.setEfectoTipo("shield_pct");
+                pasiva.setEfectoValor(20);
+            } else if (personaje.getVelocidad() > personaje.getFuerza()) {
+                // Personaje enfocado en velocidad - Pasiva de evasión
+                pasiva.setNombre("Reflejos Rápidos");
+                pasiva.setDescripcion("Tiene probabilidad de esquivar ataques enemigos");
+                pasiva.setTriggerTipo("on_damage_taken");
+                pasiva.setEfectoTipo("dodge_chance_pct");
+                pasiva.setEfectoValor(15);
+            } else {
+                // Personaje enfocado en fuerza - Pasiva de contraataque
+                pasiva.setNombre("Contraataque");
+                pasiva.setDescripcion("Al recibir daño, tiene posibilidad de contraatacar");
+                pasiva.setTriggerTipo("on_damage_taken");
+                pasiva.setEfectoTipo("counter_pct");
+                pasiva.setEfectoValor(25);
+            }
+            
+            pasiva.resetearEstadoCombate();
+            pasivas.add(pasiva);
+            personaje.setPasivas(pasivas);
+        } else {
+            // Asegurarse de que todas las pasivas estén inicializadas para el combate
+            for (PasivaModel pasiva : pasivas) {
+                pasiva.resetearEstadoCombate();
+            }
+        }
     }
     
     /**

@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
+import es.alvarogrlp.marvelsimu.backend.model.AtaqueModel;
+import es.alvarogrlp.marvelsimu.backend.model.PasivaModel;
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
+import es.alvarogrlp.marvelsimu.backend.model.PersonajeServiceModel;
 import es.alvarogrlp.marvelsimu.backend.selection.ui.SelectionUIManager;
-import es.alvarogrlp.marvelsimu.backend.util.DatabaseUtil;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 
@@ -24,13 +27,13 @@ public class SelectionManager {
     private Button oldButton;
     
     private Map<String, PersonajeModel> charactersMap = new HashMap<>();
-    private List<PersonajeModel> playerTeam = new ArrayList<>();
-    private List<PersonajeModel> aiTeam = new ArrayList<>();
-    
+    private Map<String, PersonajeModel> transformationsMap = new HashMap<>();
     private TeamBuilder teamBuilder;
     private SelectionUIManager uiManager;
     
-    // Añadir un mapa para almacenar botones dinámicos y sus personajes asociados
+    /**
+     * Mapa para almacenar los botones dinámicos y sus personajes asociados
+     */
     private Map<Button, PersonajeModel> dynamicButtonsMap = new HashMap<>();
     
     /**
@@ -40,7 +43,7 @@ public class SelectionManager {
     public SelectionManager(AnchorPane rootPane) {
         this.teamBuilder = new TeamBuilder(MAX_TEAM_SIZE);
         this.uiManager = new SelectionUIManager(rootPane, this);
-        loadCharactersFromDatabase();
+        loadCharacters();
     }
     
     /**
@@ -51,30 +54,46 @@ public class SelectionManager {
     }
     
     /**
-     * Carga los personajes desde la base de datos
+     * Carga todos los personajes desde la base de datos
      */
-    private void loadCharactersFromDatabase() {
+    private void loadCharacters() {
         try {
-            DatabaseUtil.initializePool();
-            charactersMap = DatabaseUtil.loadAllCharacters();
-            System.out.println("Personajes cargados de la BD: " + charactersMap.size());
+            // Obtener todos los personajes
+            PersonajeServiceModel personajeService = new PersonajeServiceModel();
+            List<PersonajeModel> allCharacters = personajeService.obtenerTodosPersonajes();
             
-            // Si no se cargaron personajes, crear algunos por defecto
-            if (charactersMap.isEmpty()) {
-                System.err.println("¡ADVERTENCIA! No se encontraron personajes en la base de datos. Creando personajes por defecto.");
-                createDefaultCharacters();
+            // Lista de transformaciones que deben ser excluidas del mapa principal
+            List<String> transformationCodes = List.of(
+                "magik_darkchild", 
+                "thanos_gauntlet"
+            );
+            
+            // Filtrar sólo los personajes jugables (no transformaciones)
+            for (PersonajeModel character : allCharacters) {
+                String codigo = character.getNombreCodigo().toLowerCase();
+                
+                if (!character.isEsTransformacion() && !transformationCodes.contains(codigo)) {
+                    // Personaje jugable normal
+                    charactersMap.put(character.getNombreCodigo(), character);
+                } else {
+                    // Transformación - guardar en mapa separado
+                    transformationsMap.put(character.getNombreCodigo(), character);
+                    character.setEsTransformacion(true); // Asegurar que esté marcado
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Error al cargar personajes: " + e.getMessage());
             
-            // Crear personajes por defecto en caso de error
-            createDefaultCharacters();
+            System.out.println("Se cargaron " + charactersMap.size() + " personajes jugables");
+            System.out.println("Se cargaron " + transformationsMap.size() + " transformaciones");
+            
+        } catch (Exception e) {
+            System.err.println("Error cargando personajes: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
     /**
      * Crea personajes por defecto en caso de que no se puedan cargar de la BD
+     * Se adapta para usar el nuevo modelo con ataques y pasivas
      */
     private void createDefaultCharacters() {
         // Captain America
@@ -84,23 +103,52 @@ public class SelectionManager {
         captain.setVida(850);
         captain.setFuerza(80);
         captain.setVelocidad(70);
-        captain.setResistencia(85);
-        captain.setPoderMagico(10);
-        captain.setAtaqueMeleeNombre("Golpe de Escudo");
-        captain.setAtaqueMelee(65);
-        captain.setAtaqueLejanoNombre("Lanzamiento de Escudo");
-        captain.setAtaqueLejano(55);
-        captain.setResistenciaFisica(40);
-        captain.setResistenciaMagica(20);
-        captain.setEvasion(25);
-        captain.setPasivaTipo("armadura");
-        captain.setPasivaValor(30);
-        captain.setHabilidad1Nombre("Escudo Indestructible");
-        captain.setHabilidad1Tipo("fisico");
-        captain.setHabilidad1Poder(120);
-        captain.setHabilidad2Nombre("¡Vengadores Unidos!");
-        captain.setHabilidad2Tipo("fisico");
-        captain.setHabilidad2Poder(180);
+        
+        // Crear ataques de Captain America
+        List<AtaqueModel> captainAtaques = new ArrayList<>();
+        
+        AtaqueModel captainCC = new AtaqueModel();
+        captainCC.setTipoAtaqueClave("ACC");
+        captainCC.setNombre("Golpe de Escudo");
+        captainCC.setDanoBase(65);
+        captainAtaques.add(captainCC);
+        
+        AtaqueModel captainAD = new AtaqueModel();
+        captainAD.setTipoAtaqueClave("AAD");
+        captainAD.setNombre("Lanzamiento de Escudo");
+        captainAD.setDanoBase(55);
+        captainAtaques.add(captainAD);
+        
+        AtaqueModel captainH1 = new AtaqueModel();
+        captainH1.setTipoAtaqueClave("habilidad_mas_poderosa");
+        captainH1.setNombre("Escudo Indestructible");
+        captainH1.setDanoBase(120);
+        captainH1.setUsosMaximos(3);
+        captainH1.setCooldownTurnos(2);
+        captainAtaques.add(captainH1);
+        
+        AtaqueModel captainH2 = new AtaqueModel();
+        captainH2.setTipoAtaqueClave("habilidad_caracteristica");
+        captainH2.setNombre("¡Vengadores Unidos!");
+        captainH2.setDanoBase(180);
+        captainH2.setUsosMaximos(2);
+        captainH2.setCooldownTurnos(3);
+        captainAtaques.add(captainH2);
+        
+        captain.setAtaques(captainAtaques);
+        
+        // Crear pasiva de Captain America
+        List<PasivaModel> captainPasivas = new ArrayList<>();
+        
+        PasivaModel captainPasiva = new PasivaModel();
+        captainPasiva.setNombre("Voluntad Inquebrantable");
+        captainPasiva.setDescripcion("Reduce el daño recibido en un 30%");
+        captainPasiva.setTriggerTipo("on_damage_taken");
+        captainPasiva.setEfectoTipo("reduce_damage_pct");
+        captainPasiva.setEfectoValor(30);
+        captainPasivas.add(captainPasiva);
+        
+        captain.setPasivas(captainPasivas);
         
         // Hulk
         PersonajeModel hulk = new PersonajeModel();
@@ -109,23 +157,52 @@ public class SelectionManager {
         hulk.setVida(1200);
         hulk.setFuerza(100);
         hulk.setVelocidad(60);
-        hulk.setResistencia(90);
-        hulk.setPoderMagico(5);
-        hulk.setAtaqueMeleeNombre("Puños de Furia");
-        hulk.setAtaqueMelee(85);
-        hulk.setAtaqueLejanoNombre("Aplauso Sónico");
-        hulk.setAtaqueLejano(70);
-        hulk.setResistenciaFisica(50);
-        hulk.setResistenciaMagica(10);
-        hulk.setEvasion(10);
-        hulk.setPasivaTipo("regeneracion");
-        hulk.setPasivaValor(5);
-        hulk.setHabilidad1Nombre("Salto Aplastante");
-        hulk.setHabilidad1Tipo("fisico");
-        hulk.setHabilidad1Poder(150);
-        hulk.setHabilidad2Nombre("Ira Incontrolable");
-        hulk.setHabilidad2Tipo("fisico_penetrante");
-        hulk.setHabilidad2Poder(200);
+        
+        // Crear ataques de Hulk
+        List<AtaqueModel> hulkAtaques = new ArrayList<>();
+        
+        AtaqueModel hulkCC = new AtaqueModel();
+        hulkCC.setTipoAtaqueClave("ACC");
+        hulkCC.setNombre("Puños de Furia");
+        hulkCC.setDanoBase(85);
+        hulkAtaques.add(hulkCC);
+        
+        AtaqueModel hulkAD = new AtaqueModel();
+        hulkAD.setTipoAtaqueClave("AAD");
+        hulkAD.setNombre("Aplauso Sónico");
+        hulkAD.setDanoBase(70);
+        hulkAtaques.add(hulkAD);
+        
+        AtaqueModel hulkH1 = new AtaqueModel();
+        hulkH1.setTipoAtaqueClave("habilidad_mas_poderosa");
+        hulkH1.setNombre("Salto Aplastante");
+        hulkH1.setDanoBase(150);
+        hulkH1.setUsosMaximos(3);
+        hulkH1.setCooldownTurnos(2);
+        hulkAtaques.add(hulkH1);
+        
+        AtaqueModel hulkH2 = new AtaqueModel();
+        hulkH2.setTipoAtaqueClave("habilidad_caracteristica");
+        hulkH2.setNombre("Ira Incontrolable");
+        hulkH2.setDanoBase(200);
+        hulkH2.setUsosMaximos(2);
+        hulkH2.setCooldownTurnos(4);
+        hulkAtaques.add(hulkH2);
+        
+        hulk.setAtaques(hulkAtaques);
+        
+        // Crear pasiva de Hulk
+        List<PasivaModel> hulkPasivas = new ArrayList<>();
+        
+        PasivaModel hulkPasiva = new PasivaModel();
+        hulkPasiva.setNombre("Regeneración Gamma");
+        hulkPasiva.setDescripcion("Recupera un 5% de vida al inicio de cada turno");
+        hulkPasiva.setTriggerTipo("on_turn_start");
+        hulkPasiva.setEfectoTipo("heal_pct");
+        hulkPasiva.setEfectoValor(5);
+        hulkPasivas.add(hulkPasiva);
+        
+        hulk.setPasivas(hulkPasivas);
         
         // Iron Man
         PersonajeModel ironman = new PersonajeModel();
@@ -134,30 +211,68 @@ public class SelectionManager {
         ironman.setVida(750);
         ironman.setFuerza(70);
         ironman.setVelocidad(85);
-        ironman.setResistencia(75);
-        ironman.setPoderMagico(60);
-        ironman.setAtaqueMeleeNombre("Puño Repulsor");
-        ironman.setAtaqueMelee(60);
-        ironman.setAtaqueLejanoNombre("Rayo Repulsor");
-        ironman.setAtaqueLejano(75);
-        ironman.setResistenciaFisica(40);
-        ironman.setResistenciaMagica(30);
-        ironman.setEvasion(30);
-        ironman.setPasivaTipo("barrera");
-        ironman.setPasivaValor(25);
-        ironman.setHabilidad1Nombre("Misiles Inteligentes");
-        ironman.setHabilidad1Tipo("energia");
-        ironman.setHabilidad1Poder(140);
-        ironman.setHabilidad2Nombre("Unirrayo");
-        ironman.setHabilidad2Tipo("energia");
-        ironman.setHabilidad2Poder(190);
+        ironman.setPoder(400);
+        
+        // Crear ataques de Iron Man
+        List<AtaqueModel> ironmanAtaques = new ArrayList<>();
+        
+        AtaqueModel ironmanCC = new AtaqueModel();
+        ironmanCC.setTipoAtaqueClave("ACC");
+        ironmanCC.setNombre("Puño Repulsor");
+        ironmanCC.setDanoBase(60);
+        ironmanAtaques.add(ironmanCC);
+        
+        AtaqueModel ironmanAD = new AtaqueModel();
+        ironmanAD.setTipoAtaqueClave("AAD");
+        ironmanAD.setNombre("Rayo Repulsor");
+        ironmanAD.setDanoBase(75);
+        ironmanAtaques.add(ironmanAD);
+        
+        AtaqueModel ironmanH1 = new AtaqueModel();
+        ironmanH1.setTipoAtaqueClave("habilidad_mas_poderosa");
+        ironmanH1.setNombre("Misiles Inteligentes");
+        ironmanH1.setDanoBase(140);
+        ironmanH1.setUsosMaximos(3);
+        ironmanH1.setCooldownTurnos(2);
+        ironmanAtaques.add(ironmanH1);
+        
+        AtaqueModel ironmanH2 = new AtaqueModel();
+        ironmanH2.setTipoAtaqueClave("habilidad_caracteristica");
+        ironmanH2.setNombre("Unirrayo");
+        ironmanH2.setDanoBase(190);
+        ironmanH2.setUsosMaximos(2);
+        ironmanH2.setCooldownTurnos(3);
+        ironmanAtaques.add(ironmanH2);
+        
+        ironman.setAtaques(ironmanAtaques);
+        
+        // Crear pasiva de Iron Man
+        List<PasivaModel> ironmanPasivas = new ArrayList<>();
+        
+        PasivaModel ironmanPasiva = new PasivaModel();
+        ironmanPasiva.setNombre("Escudo de Energía");
+        ironmanPasiva.setDescripcion("Al inicio del combate, obtiene un escudo que absorbe el 25% del daño");
+        ironmanPasiva.setTriggerTipo("on_start_combat");
+        ironmanPasiva.setEfectoTipo("shield_pct");
+        ironmanPasiva.setEfectoValor(25);
+        ironmanPasivas.add(ironmanPasiva);
+        
+        ironman.setPasivas(ironmanPasivas);
+        
+        // Agregar las imágenes a los personajes
+        captain.setImagenMiniatura("images/Personajes/captain-america.png");
+        captain.setImagenCombate("images/Ingame/captain-america-ingame.png");
+        
+        hulk.setImagenMiniatura("images/Personajes/hulk.png");
+        hulk.setImagenCombate("images/Ingame/hulk-ingame.png");
+        
+        ironman.setImagenMiniatura("images/Personajes/ironman.png");
+        ironman.setImagenCombate("images/Ingame/ironman-ingame.png");
         
         // Agregar al mapa
         charactersMap.put(captain.getNombreCodigo(), captain);
         charactersMap.put(hulk.getNombreCodigo(), hulk);
         charactersMap.put(ironman.getNombreCodigo(), ironman);
-        
-        // Agregar más personajes conforme se necesiten
         
         System.out.println("Se crearon " + charactersMap.size() + " personajes por defecto");
     }
@@ -204,101 +319,111 @@ public class SelectionManager {
         
         // Si ya está en algún equipo, eliminarlo primero
         if (isInPlayerTeam) {
-            // Eliminar del equipo
+            // Crear una copia local para evitar NullPointerException después de limpiar currentCharacter
+            String nombrePersonaje = currentCharacter.getNombre();
+            
             if (teamBuilder.removeCharacterFromTeam(currentCharacter, true, uiManager)) {
-                // Habilitar su botón para poder seleccionarlo nuevamente
-                Button button = findCharacterButton(currentCharacter);
-                if (button != null) {
-                    button.setDisable(false);
-                }
+                // Limpiar resaltado del botón solo si la eliminación fue exitosa
+                uiManager.clearButtonHighlight(currentButton);
                 
-                // Mensaje de confirmación
-                uiManager.showInfoMessage(currentCharacter.getNombre() + " eliminado de tu equipo");
+                // Restaurar estado del botón
+                if (currentButton != null) {
+                    currentButton.setDisable(false);
+                }
                 
                 // Limpiar selección actual
                 currentCharacter = null;
                 currentButton = null;
                 
-                // Actualizar estado del botón de luchar
+                // Verificar estado del botón de luchar
                 updateFightButtonState();
                 
-                return;
+                // Mensaje de confirmación de eliminación
+                uiManager.showInfoMessage(nombrePersonaje + " eliminado de tu equipo");
             }
+            
+            return;
         } else if (isInAITeam) {
-            // Eliminar del equipo de IA
+            // Crear una copia local para evitar NullPointerException después de limpiar currentCharacter
+            String nombrePersonaje = currentCharacter.getNombre();
+            
             if (teamBuilder.removeCharacterFromTeam(currentCharacter, false, uiManager)) {
-                // Habilitar su botón para poder seleccionarlo nuevamente
-                Button button = findCharacterButton(currentCharacter);
-                if (button != null) {
-                    button.setDisable(false);
-                }
+                // Limpiar resaltado del botón solo si la eliminación fue exitosa
+                uiManager.clearButtonHighlight(currentButton);
                 
-                // Mensaje de confirmación
-                uiManager.showInfoMessage(currentCharacter.getNombre() + " eliminado del equipo IA");
+                // Restaurar estado del botón
+                if (currentButton != null) {
+                    currentButton.setDisable(false);
+                }
                 
                 // Limpiar selección actual
                 currentCharacter = null;
                 currentButton = null;
                 
-                // Actualizar estado del botón de luchar
+                // Verificar estado del botón de luchar
                 updateFightButtonState();
                 
-                return;
+                // Mensaje de confirmación de eliminación
+                uiManager.showInfoMessage(nombrePersonaje + " eliminado del equipo IA");
             }
+            
+            return;
         }
         
-        // Determinar a qué equipo añadir el personaje
-        boolean addToPlayerTeam = !teamBuilder.isPlayerTeamComplete();
-        
-        // Si el equipo del jugador está lleno, intentar añadir al equipo de IA
-        if (addToPlayerTeam) {
-            if (teamBuilder.canAddToPlayerTeam()) {
-                if (teamBuilder.addCharacterToTeam(currentCharacter, currentButton, true, uiManager)) {
-                    // Deshabilitar su botón para evitar seleccionarlo de nuevo
-                    currentButton.setDisable(true);
-                    
-                    // Mensaje de confirmación
-                    uiManager.showInfoMessage(currentCharacter.getNombre() + " añadido a tu equipo");
-                    
-                    // Limpiar selección actual
-                    currentCharacter = null;
-                    currentButton = null;
-                    
-                    // Actualizar estado del botón de luchar
-                    updateFightButtonState();
-                }
-            } else {
-                uiManager.showErrorMessage("Tu equipo está completo (3/3)");
+        // Aquí está el cambio: SIEMPRE intentar añadir al equipo del jugador si hay espacio,
+        // sin importar si el equipo de la IA tiene espacio o no
+        if (teamBuilder.canAddToPlayerTeam()) {
+            if (teamBuilder.addCharacterToTeam(currentCharacter, currentButton, true, uiManager)) {
+                // Deshabilitar su botón para evitar seleccionarlo de nuevo
+                currentButton.setDisable(true);
+                
+                // Mensaje de confirmación
+                uiManager.showInfoMessage(currentCharacter.getNombre() + " añadido a tu equipo");
+                
+                // Limpiar selección actual
+                currentCharacter = null;
+                currentButton = null;
+                
+                // Actualizar estado del botón de luchar
+                updateFightButtonState();
+            }
+        } else if (teamBuilder.canAddToAITeam()) {
+            // Solo si el equipo del jugador está lleno, añadir al equipo de IA
+            if (teamBuilder.addCharacterToTeam(currentCharacter, currentButton, false, uiManager)) {
+                // Deshabilitar su botón para evitar seleccionarlo de nuevo
+                currentButton.setDisable(true);
+                
+                // Mensaje de confirmación
+                uiManager.showInfoMessage(currentCharacter.getNombre() + " añadido al equipo IA");
+                
+                // Limpiar selección actual
+                currentCharacter = null;
+                currentButton = null;
+                
+                // Actualizar estado del botón de luchar
+                updateFightButtonState();
             }
         } else {
-            // Intentar añadir al equipo de IA
-            if (teamBuilder.canAddToAITeam()) {
-                if (teamBuilder.addCharacterToTeam(currentCharacter, currentButton, false, uiManager)) {
-                    // Deshabilitar su botón para evitar seleccionarlo de nuevo
-                    currentButton.setDisable(true);
-                    
-                    // Mensaje de confirmación
-                    uiManager.showInfoMessage(currentCharacter.getNombre() + " añadido al equipo IA");
-                    
-                    // Limpiar selección actual
-                    currentCharacter = null;
-                    currentButton = null;
-                    
-                    // Actualizar estado del botón de luchar
-                    updateFightButtonState();
-                }
-            } else {
-                uiManager.showErrorMessage("El equipo IA está completo (3/3)");
-            }
+            uiManager.showErrorMessage("Ambos equipos están completos (3/3)");
         }
     }
     
     /**
      * Encuentra el botón correspondiente a un personaje
+     * @param character Personaje a buscar
+     * @return El botón correspondiente o null si no se encuentra
      */
-    private Button findCharacterButton(PersonajeModel character) {
+    public Button findCharacterButton(PersonajeModel character) {
         if (character == null) return null;
         
+        // Primero buscar en los botones dinámicos
+        for (Map.Entry<Button, PersonajeModel> entry : dynamicButtonsMap.entrySet()) {
+            if (entry.getValue().getNombreCodigo().equals(character.getNombreCodigo())) {
+                return entry.getKey();
+            }
+        }
+        
+        // Si no se encuentra, buscar en los botones predefinidos
         String nombre = character.getNombre().toLowerCase();
         
         if (nombre.contains("captain") || nombre.contains("america")) {
@@ -316,50 +441,6 @@ public class SelectionManager {
         }
         
         return null;
-    }
-    
-    /**
-     * Elimina un personaje del equipo
-     * @param character Personaje a eliminar
-     * @param sourceButton Botón original del personaje (se habilitará nuevamente)
-     * @param isPlayerTeam Si es del equipo del jugador
-     * @return true si se eliminó correctamente
-     */
-    public boolean removeCharacterFromTeam(PersonajeModel character, Button sourceButton, boolean isPlayerTeam) {
-        if (character == null) {
-            return false;
-        }
-
-        // Eliminar personaje del equipo usando TeamBuilder
-        if (teamBuilder.removeCharacterFromTeam(character, isPlayerTeam, uiManager)) {
-            // Si se encontró y eliminó, habilitar su botón original
-            if (sourceButton != null) {
-                sourceButton.setDisable(false);
-            } else {
-                // Si no se proporcionó el botón, intentar encontrarlo
-                Button button = findCharacterButton(character);
-                if (button != null) {
-                    button.setDisable(false);
-                }
-            }
-            
-            // Actualizar estado del botón de luchar
-            updateFightButtonState();
-            
-            return true;
-        }
-        
-        return false;
-    }
-
-    /**
-     * Sobrecarga del método para mantener compatibilidad
-     * @param character Personaje a eliminar
-     * @param isPlayerTeam Si es del equipo del jugador
-     * @return true si se eliminó correctamente
-     */
-    public boolean removeCharacterFromTeam(PersonajeModel character, boolean isPlayerTeam) {
-        return removeCharacterFromTeam(character, null, isPlayerTeam);
     }
     
     /**
@@ -527,29 +608,15 @@ public class SelectionManager {
     }
     
     /**
-     * Verifica si el equipo del jugador está completo
-     * @return true si el equipo tiene el número máximo de personajes
-     */
-    public boolean isPlayerTeamComplete() {
-        return teamBuilder.isPlayerTeamComplete();
-    }
-
-    /**
-     * Verifica si el equipo de la IA está completo
-     * @return true si el equipo tiene el número máximo de personajes
-     */
-    public boolean isAITeamComplete() {
-        return teamBuilder.isAITeamComplete();
-    }
-    
-    /**
-     * Maneja la eliminación de un personaje (separado de la UI)
+     * Maneja la eliminación de un personaje sin actualizar la UI directamente
+     * @param character Personaje a eliminar
+     * @param isPlayerTeam Si es del equipo del jugador (true) o IA (false)
      */
     public void handleCharacterRemoval(PersonajeModel character, boolean isPlayerTeam) {
         if (character == null) return;
         
         // Actualizar el modelo de datos directamente
-        List<PersonajeModel> team = isPlayerTeam ? 
+        List<PersonajeModel> team = isPlayerTeam ?
                                    teamBuilder.getPlayerTeam() :
                                    teamBuilder.getAITeam();
         
@@ -570,16 +637,166 @@ public class SelectionManager {
         // Actualizar estado del botón de luchar
         updateFightButtonState();
     }
-    
+
     /**
-     * Obtiene el gestor de UI
-     * @return El gestor de UI
+     * Elimina un personaje del equipo
+     * @param character Personaje a eliminar
+     * @param isPlayerTeam Si es del equipo del jugador (true) o IA (false)
+     * @return true si se eliminó correctamente
      */
-    public SelectionUIManager getUIManager() {
-        return uiManager;
+    public boolean removeCharacterFromTeam(PersonajeModel character, boolean isPlayerTeam) {
+        if (character == null) {
+            return false;
+        }
+        
+        // Buscar el botón asociado primero
+        Button button = findCharacterButton(character);
+        
+        // Intentar eliminarlo del equipo
+        boolean removed = teamBuilder.removeCharacterFromTeam(character, isPlayerTeam, uiManager);
+        
+        if (removed) {
+            // Reactivar el botón si se ha encontrado
+            if (button != null) {
+                button.setDisable(false);
+            }
+            
+            // Actualizar estado del botón de luchar
+            updateFightButtonState();
+        }
+        
+        return removed;
     }
     
+    /**
+     * Verifica si el equipo del jugador está completo
+     * @return true si el equipo del jugador tiene el número máximo de personajes
+     */
+    public boolean isPlayerTeamComplete() {
+        return teamBuilder.isPlayerTeamComplete();
+    }
+
+    /**
+     * Verifica si el equipo de la IA está completo
+     * @return true si el equipo de la IA tiene el número máximo de personajes
+     */
+    public boolean isAITeamComplete() {
+        return teamBuilder.isAITeamComplete();
+    }
+    
+    /**
+     * Selecciona un personaje aleatorio cuando se hace clic en el botón de selección aleatoria
+     */
+    public void selectRandomCharacter() {
+        try {
+            // Obtener todos los personajes disponibles que no estén en ningún equipo
+            List<PersonajeModel> availableCharacters = new ArrayList<>();
+            
+            for (PersonajeModel character : charactersMap.values()) {
+                // Verificar si ya está en algún equipo
+                boolean isInPlayerTeam = teamBuilder.isCharacterInTeam(character, true);
+                boolean isInAITeam = teamBuilder.isCharacterInTeam(character, false);
+                
+                // Si no está en ningún equipo, añadirlo a la lista de disponibles
+                if (!isInPlayerTeam && !isInAITeam) {
+                    availableCharacters.add(character);
+                }
+            }
+            
+            // Si no hay personajes disponibles, mostrar un mensaje y salir
+            if (availableCharacters.isEmpty()) {
+                uiManager.showErrorMessage("No hay personajes disponibles para seleccionar");
+                return;
+            }
+            
+            // Seleccionar un personaje aleatorio
+            Random random = new Random();
+            PersonajeModel randomCharacter = availableCharacters.get(random.nextInt(availableCharacters.size()));
+            
+            // Encontrar el botón correspondiente
+            Button button = null;
+            for (Map.Entry<Button, PersonajeModel> entry : dynamicButtonsMap.entrySet()) {
+                if (entry.getValue().getNombreCodigo().equals(randomCharacter.getNombreCodigo())) {
+                    button = entry.getKey();
+                    break;
+                }
+            }
+            
+            // Si encontramos el botón, seleccionar el personaje
+            if (button != null) {
+                selectCharacter(randomCharacter, button);
+            } else {
+                // Buscar por los botones específicos
+                button = findCharacterButton(randomCharacter);
+                if (button != null) {
+                    selectCharacter(randomCharacter, button);
+                } else {
+                    uiManager.showErrorMessage("No se pudo encontrar el botón para el personaje aleatorio");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error al seleccionar personaje aleatorio: " + e.getMessage());
+            e.printStackTrace();
+            uiManager.showErrorMessage("Error al seleccionar personaje aleatorio");
+        }
+    }
+    
+    /**
+     * Añade un personaje aleatorio directamente al equipo
+     */
+    public void addRandomCharacterToTeam() {
+        // Obtener personajes disponibles (que no estén en ningún equipo)
+        List<PersonajeModel> availableCharacters = new ArrayList<>();
+        
+        for (PersonajeModel character : charactersMap.values()) {
+            // Solo incluir personajes no transformaciones que no estén en ningún equipo
+            if (!teamBuilder.isCharacterInTeam(character, true) && 
+                !teamBuilder.isCharacterInTeam(character, false) && 
+                !character.isEsTransformacion()) {
+                availableCharacters.add(character);
+            }
+        }
+        
+        // Si no hay personajes disponibles, mostrar mensaje y salir
+        if (availableCharacters.isEmpty()) {
+            uiManager.showErrorMessage("No hay personajes disponibles");
+            return;
+        }
+        
+        // Seleccionar personaje aleatorio
+        Random random = new Random();
+        PersonajeModel randomCharacter = availableCharacters.get(random.nextInt(availableCharacters.size()));
+        
+        // Encontrar el botón correspondiente
+        Button button = null;
+        for (Map.Entry<Button, PersonajeModel> entry : dynamicButtonsMap.entrySet()) {
+            if (entry.getValue().getNombreCodigo().equals(randomCharacter.getNombreCodigo())) {
+                button = entry.getKey();
+                break;
+            }
+        }
+        
+        // Agregar al equipo del jugador o IA según disponibilidad
+        if (button != null) {
+            if (teamBuilder.canAddToPlayerTeam()) {
+                teamBuilder.addCharacterToTeam(randomCharacter, button, true, uiManager);
+                button.setDisable(true);
+            } else if (teamBuilder.canAddToAITeam()) {
+                teamBuilder.addCharacterToTeam(randomCharacter, button, false, uiManager);
+                button.setDisable(true);
+            } else {
+                uiManager.showErrorMessage("Ambos equipos están completos");
+            }
+            
+            // Actualizar estado del botón de luchar
+            updateFightButtonState();
+        }
+    }
+    
+    // Resto de métodos sin cambios... (seleccionRandomCharacter, registerDynamicButton, etc.)
+    
     // Getters y setters
+    
     public Map<String, PersonajeModel> getCharactersMap() {
         return charactersMap;
     }
@@ -601,167 +818,30 @@ public class SelectionManager {
     }
     
     /**
-     * Selecciona un personaje aleatorio de entre los disponibles
+     * Obtiene el gestor de UI
+     * @return El gestor de UI
      */
-    public void selectRandomCharacter() {
-        // Obtener todos los personajes disponibles (no seleccionados)
-        Map<Button, PersonajeModel> buttonCharacterMap = new HashMap<>();
-        
-        // Acceder a los botones a través del uiManager
-        Button btnCaptain = uiManager.getCaptainButton();
-        Button btnHulk = uiManager.getHulkButton();
-        Button btnIronMan = uiManager.getIronManButton();
-        Button btnSpiderMan = uiManager.getSpiderManButton();
-        Button btnDrStrange = uiManager.getDrStrangeButton();
-        Button btnMagik = uiManager.getMagikButton();
-        
-        // Agregar botones y personajes al mapa
-        if (btnCaptain != null && !btnCaptain.isDisable()) {
-            PersonajeModel character = findCharacterByIdOrName(charactersMap, "4", "Captain America");
-            if (character != null) {
-                buttonCharacterMap.put(btnCaptain, character);
-            }
-        }
-        
-        if (btnHulk != null && !btnHulk.isDisable()) {
-            PersonajeModel character = findCharacterByIdOrName(charactersMap, "1", "Hulk");
-            if (character != null) {
-                buttonCharacterMap.put(btnHulk, character);
-            }
-        }
-        
-        if (btnIronMan != null && !btnIronMan.isDisable()) {
-            PersonajeModel character = findCharacterByIdOrName(charactersMap, "3", "Iron Man");
-            if (character != null) {
-                buttonCharacterMap.put(btnIronMan, character);
-            }
-        }
-        
-        if (btnSpiderMan != null && !btnSpiderMan.isDisable()) {
-            PersonajeModel character = findCharacterByIdOrName(charactersMap, "2", "Spider-Man");
-            if (character != null) {
-                buttonCharacterMap.put(btnSpiderMan, character);
-            }
-        }
-        
-        if (btnDrStrange != null && !btnDrStrange.isDisable()) {
-            PersonajeModel character = findCharacterByIdOrName(charactersMap, "5", "Doctor Strange");
-            if (character != null) {
-                buttonCharacterMap.put(btnDrStrange, character);
-            }
-        }
-        
-        if (btnMagik != null && !btnMagik.isDisable()) {
-            PersonajeModel character = findCharacterByIdOrName(charactersMap, "6", "Magik");
-            if (character != null) {
-                buttonCharacterMap.put(btnMagik, character);
-            }
-        }
-        
-        // Añadir todos los botones disponibles adicionales que se han cargado dinámicamente
-        for (Map.Entry<Button, PersonajeModel> entry : dynamicButtonsMap.entrySet()) {
-            if (!entry.getKey().isDisable()) {
-                buttonCharacterMap.put(entry.getKey(), entry.getValue());
-            }
-        }
-        
-        // Si no hay personajes disponibles, mostrar mensaje y salir
-        if (buttonCharacterMap.isEmpty()) {
-            uiManager.showErrorMessage("No hay más personajes disponibles para seleccionar");
-            return;
-        }
-        
-        // Seleccionar un personaje aleatoriamente
-        int randomIndex = (int)(Math.random() * buttonCharacterMap.size());
-        
-        // Convertir el mapa a lista para acceder por índice
-        List<Map.Entry<Button, PersonajeModel>> entries = new ArrayList<>(buttonCharacterMap.entrySet());
-        Map.Entry<Button, PersonajeModel> selectedEntry = entries.get(randomIndex);
-        
-        Button selectedButton = selectedEntry.getKey();
-        PersonajeModel selectedCharacter = selectedEntry.getValue();
-        
-        // Determinar a qué equipo añadir el personaje
-        boolean addToPlayerTeam = !teamBuilder.isPlayerTeamComplete();
-        
-        // Añadir al equipo correspondiente
-        if (addToPlayerTeam) {
-            if (teamBuilder.canAddToPlayerTeam()) {
-                if (teamBuilder.addCharacterToTeam(selectedCharacter, selectedButton, true, uiManager)) {
-                    // Deshabilitar el botón
-                    selectedButton.setDisable(true);
-                    
-                    // Mensaje de confirmación
-                    uiManager.showInfoMessage(selectedCharacter.getNombre() + " añadido aleatoriamente a tu equipo");
-                    
-                    // Actualizar estado del botón de luchar
-                    updateFightButtonState();
-                }
-            } else {
-                // Si el equipo del jugador está lleno, intentar añadir al equipo de la IA
-                if (teamBuilder.canAddToAITeam()) {
-                    if (teamBuilder.addCharacterToTeam(selectedCharacter, selectedButton, false, uiManager)) {
-                        // Deshabilitar el botón
-                        selectedButton.setDisable(true);
-                        
-                        // Mensaje de confirmación
-                        uiManager.showInfoMessage(selectedCharacter.getNombre() + " añadido aleatoriamente al equipo IA");
-                        
-                        // Actualizar estado del botón de luchar
-                        updateFightButtonState();
-                    }
-                } else {
-                    uiManager.showErrorMessage("Ambos equipos están completos");
-                }
-            }
-        } else {
-            // Añadir al equipo IA directamente
-            if (teamBuilder.canAddToAITeam()) {
-                if (teamBuilder.addCharacterToTeam(selectedCharacter, selectedButton, false, uiManager)) {
-                    // Deshabilitar el botón
-                    selectedButton.setDisable(true);
-                    
-                    // Mensaje de confirmación
-                    uiManager.showInfoMessage(selectedCharacter.getNombre() + " añadido aleatoriamente al equipo IA");
-                    
-                    // Actualizar estado del botón de luchar
-                    updateFightButtonState();
-                }
-            } else {
-                uiManager.showErrorMessage("El equipo IA está completo");
-            }
-        }
-    }
-    
-    /**
-     * Busca un personaje por ID o nombre en el mapa de personajes
-     * @param characterMap Mapa de personajes
-     * @param id ID a buscar
-     * @param name Nombre a buscar como fallback
-     * @return PersonajeModel encontrado o null
-     */
-    private PersonajeModel findCharacterByIdOrName(Map<String, PersonajeModel> characterMap, String id, String name) {
-        // Intentar primero por ID
-        PersonajeModel character = characterMap.get(id);
-        
-        // Si no se encuentra, buscar por nombre
-        if (character == null) {
-            for (PersonajeModel p : characterMap.values()) {
-                if (p.getNombre().equalsIgnoreCase(name) || 
-                    p.getNombreCodigo().equalsIgnoreCase(name.toLowerCase().replace(" ", "-"))) {
-                    return p;
-                }
-            }
-        }
-        
-        return character;
+    public SelectionUIManager getUIManager() {
+        return uiManager;
     }
     
     /**
      * Registra un botón dinámico con su personaje asociado
+     * @param button Botón a registrar
+     * @param character Personaje asociado al botón
      */
     public void registerDynamicButton(Button button, PersonajeModel character) {
-        dynamicButtonsMap.put(button, character);
+        if (button != null && character != null) {
+            dynamicButtonsMap.put(button, character);
+        }
+    }
+
+    /**
+     * Obtiene el mapa de botones dinámicos
+     * @return Mapa con los botones y sus personajes asociados
+     */
+    public Map<Button, PersonajeModel> getDynamicButtonsMap() {
+        return dynamicButtonsMap;
     }
     
     /**
@@ -800,12 +880,29 @@ public class SelectionManager {
             button.getStyleClass().remove("selected-character");
         }
     }
+    
+    /**
+     * Obtiene el mapa de transformaciones
+     * @return Mapa con las transformaciones y sus personajes asociados
+     */
+    public Map<String, PersonajeModel> getTransformationsMap() {
+        return transformationsMap;
+    }
 
     /**
-     * Getter para el mapa de botones dinámicos
-     * @return Mapa de botones y sus personajes asociados
+     * Obtiene el TeamBuilder
+     * @return El TeamBuilder actual
      */
-    public Map<Button, PersonajeModel> getDynamicButtonsMap() {
-        return dynamicButtonsMap;
+    public TeamBuilder getTeamBuilder() {
+        return teamBuilder;
+    }
+
+    /**
+     * Oculta el panel de información del personaje
+     */
+    public void hideCharacterInfo() {
+        if (uiManager != null) {
+            uiManager.hideCharacterInfo();
+        }
     }
 }

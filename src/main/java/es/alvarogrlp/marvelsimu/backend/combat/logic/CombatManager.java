@@ -6,6 +6,7 @@ import java.util.List;
 import es.alvarogrlp.marvelsimu.backend.combat.animation.CombatAnimationManager;
 import es.alvarogrlp.marvelsimu.backend.combat.ui.CombatUIManager;
 import es.alvarogrlp.marvelsimu.backend.combat.ui.MessageDisplayManager;
+import es.alvarogrlp.marvelsimu.backend.model.AtaqueModel;
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -39,17 +40,20 @@ public class CombatManager {
     private MessageDisplayManager messageManager;
     private AIActionSelector aiSelector;
     private AnchorPane rootPane;
+    private es.alvarogrlp.marvelsimu.backend.selection.logic.SelectionManager selectionManager;
     
     public CombatManager(
             AnchorPane rootPane, 
             List<PersonajeModel> playerCharacters, 
-            List<PersonajeModel> aiCharacters) {
+            List<PersonajeModel> aiCharacters,
+            es.alvarogrlp.marvelsimu.backend.selection.logic.SelectionManager selectionManager) {
         
         this.rootPane = rootPane;
         this.playerCharacters = new ArrayList<>(playerCharacters);
         this.aiCharacters = new ArrayList<>(aiCharacters);
         this.playerCharacterIndex = 0;
         this.aiCharacterIndex = 0;
+        this.selectionManager = selectionManager;
         
         // Inicializar managers
         this.uiManager = new CombatUIManager(rootPane);
@@ -69,24 +73,22 @@ public class CombatManager {
         // Inicializar cada personaje
         for (PersonajeModel p : this.playerCharacters) {
             p.inicializarVida();
-            p.inicializarUsosHabilidades();
             
-            // Verificar si falta algún tipo de ataque
-            if (p.getAtaqueMeleeTipo() == null) p.setAtaqueMeleeTipo("fisico");
-            if (p.getAtaqueLejanoTipo() == null) p.setAtaqueLejanoTipo("fisico");
-            if (p.getHabilidad1Tipo() == null) p.setHabilidad1Tipo("magico");
-            if (p.getHabilidad2Tipo() == null) p.setHabilidad2Tipo("magico");
+            // No usar métodos inexistentes
+            // Solo reiniciar los ataques usando el nuevo modelo
+            for (AtaqueModel ataque : p.getAtaques()) {
+                ataque.resetearEstadoCombate();
+            }
         }
         
         for (PersonajeModel p : this.aiCharacters) {
             p.inicializarVida();
-            p.inicializarUsosHabilidades();
             
-            // Verificar si falta algún tipo de ataque
-            if (p.getAtaqueMeleeTipo() == null) p.setAtaqueMeleeTipo("fisico");
-            if (p.getAtaqueLejanoTipo() == null) p.setAtaqueLejanoTipo("fisico");
-            if (p.getHabilidad1Tipo() == null) p.setHabilidad1Tipo("magico");
-            if (p.getHabilidad2Tipo() == null) p.setHabilidad2Tipo("magico");
+            // No usar métodos inexistentes
+            // Solo reiniciar los ataques usando el nuevo modelo
+            for (AtaqueModel ataque : p.getAtaques()) {
+                ataque.resetearEstadoCombate();
+            }
         }
         
         // Actualizar la UI
@@ -113,97 +115,98 @@ public class CombatManager {
         PersonajeModel attacker = playerCharacters.get(playerCharacterIndex);
         PersonajeModel defender = aiCharacters.get(aiCharacterIndex);
         
-        // Verificar usos de habilidad
-        if ((attackType.equals("habilidad1") || attackType.equals("habilidad2")) 
-                && !attacker.tieneUsosDisponibles(attackType)) {
-            messageManager.displayMessage("¡No quedan usos para esta habilidad!", true, 
+        // Obtener el ataque según el tipo seleccionado
+        AtaqueModel ataque = null;
+        
+        switch (attackType) {
+            case "melee":
+                ataque = attacker.getAtaquePorTipo("ACC");
+                break;
+            case "lejano":
+                ataque = attacker.getAtaquePorTipo("AAD");
+                break;
+            case "habilidad1":
+                ataque = attacker.getAtaquePorTipo("habilidad_mas_poderosa");
+                break;
+            case "habilidad2":
+                ataque = attacker.getAtaquePorTipo("habilidad_caracteristica");
+                break;
+        }
+        
+        // Verificar disponibilidad del ataque
+        boolean puedeUsar = true;
+        if (ataque != null) {
+            puedeUsar = ataque.estaDisponible();
+        }
+        
+        if (!puedeUsar) {
+            messageManager.displayMessage("¡Ataque no disponible!", true, 
                     () -> turnManager.finishPlayerTurn(false));
             return;
         }
         
-        // Consumir uso si es habilidad
-        if (attackType.equals("habilidad1") || attackType.equals("habilidad2")) {
-            attacker.consumirUsoHabilidad(attackType);
+        // Consumir uso si el ataque existe
+        if (ataque != null) {
+            ataque.consumirUso();
         }
         
-        // Calcular daño y crítico
-        boolean isCritical = attacker.esGolpeCritico();
-        String attackTypeCode = attacker.getTipoAtaque(attackType);
-        int attackPower = attacker.getPoderAtaque(attackType);
+        // Calcular poder de ataque y nombre
+        int multiplicadorAtaque = 1;
+        String attackName = "Ataque";
         
-        // Obtener el nombre real del ataque
-        String attackName = attacker.getNombreAtaque(attackType);
-        
-        // Mostrar mensaje de ataque con el nombre real
-        String attackMessage = attacker.getNombre() + " usa " + attackName;
-        if (isCritical) {
-            attackMessage += " ¡GOLPE CRÍTICO!";
+        if (ataque != null) {
+            // Usar danoBase como multiplicador
+            multiplicadorAtaque = ataque.getDanoBase() / 50; // Factor de escala
+            if (multiplicadorAtaque < 1) multiplicadorAtaque = 1;
+            
+            attackName = ataque.getNombre();
         }
         
-        // Mensaje especial para daño verdadero
-        boolean isTrueDamage = "daño_verdadero".equals(attackTypeCode);
-        if (isTrueDamage) {
-            attackMessage += " (¡Daño Verdadero!)";
-        }
+        // Mensaje de ataque
+        messageManager.displayMessage(attacker.getNombre() + " usa " + attackName, true);
         
-        messageManager.displayMessage(attackMessage, true);
+        // Factor final para el cálculo de daño
+        final int factorAtaque = multiplicadorAtaque;
         
         // Animar ataque
         animationManager.animatePlayerAttack(attackType, () -> {
+            // Obtener vida antes del ataque
             int previousHealth = defender.getVidaActual();
             
+            // Calcular daño con el nuevo sistema
+            int damageToInflict = DamageCalculator.calcularDano(
+                attacker.getFuerza() * factorAtaque, 
+                attacker.getPoder(), 
+                defender.getPoder()
+            );
+            
             // Aplicar daño
-            boolean defeated = defender.recibirDaño(attackPower, attackTypeCode, isCritical);
+            defender.setVidaActual(defender.getVidaActual() - damageToInflict);
+            boolean defeated = defender.getVidaActual() <= 0;
+            
+            // Asegurar que la vida no baje de 0
+            if (defeated) {
+                defender.setVidaActual(0);
+            }
             
             // Calcular daño real
             int realDamage = previousHealth - defender.getVidaActual();
             
-            processAttackResult(defender, realDamage, isCritical, isTrueDamage, defeated, true);
+            // Procesar resultado del ataque
+            processAttackResult(defender, realDamage, defeated, true);
         });
     }
-    
+
     private void processAttackResult(
             PersonajeModel defender, 
             int damage, 
-            boolean isCritical, 
-            boolean isTrueDamage, 
             boolean defeated,
             boolean isPlayerAttack) {
         
         // Mostrar efectos visuales según el resultado
-        if (damage == 0) {
-            if (Math.random() * 100 < defender.getEvasion()) {
-                // Mostrar efecto de evasión
-                animationManager.showEvasionEffect(defender, isPlayerAttack);
-                
-                // Mensaje de evasión (probabilidad reducida)
-                if (Math.random() < 0.5) {
-                    messageManager.displayMessage(defender.getNombre() + " esquiva el ataque!", isPlayerAttack);
-                }
-            }
-        } else {
-            // Comprobar pasivas de reducción de daño
-            boolean hasReductionPassive = "reduccion".equals(defender.getPasivaTipo()) || 
-                                         "barrera".equals(defender.getPasivaTipo()) || 
-                                         "armadura".equals(defender.getPasivaTipo());
-            
-            if (hasReductionPassive && Math.random() * 100 < defender.getPasivaValor()) {
-                // Mostrar efecto de reducción
-                animationManager.showDamageReductionEffect(defender, isPlayerAttack);
-                
-                // Mensaje de reducción (probabilidad reducida)
-                if (Math.random() < 0.3) {
-                    messageManager.displayMessage("Daño reducido", isPlayerAttack);
-                }
-            }
-            
+        if (damage > 0) {
             // Mostrar texto de daño
-            animationManager.showDamageText(damage, isPlayerAttack, isCritical, isTrueDamage);
-        }
-        
-        // Efecto especial para daño verdadero
-        if (isTrueDamage) {
-            animationManager.showTrueDamageEffect(defender, isPlayerAttack);
+            animationManager.showDamageText(damage, isPlayerAttack, false, false);
         }
         
         // Actualizar UI
@@ -225,86 +228,86 @@ public class CombatManager {
         }
     }
     
-    private void handleCharacterDefeat(PersonajeModel defeated, boolean isPlayerAttack) {
-        // Ocultar el personaje derrotado
-        if (isPlayerAttack) {
-            uiManager.hideAICharacter();
-        } else {
-            uiManager.hidePlayerCharacter();
-        }
-        
-        // Mensaje de derrota
-        messageManager.displayMessage(defeated.getNombre() + " ha sido derrotado!", isPlayerAttack, () -> {
-            if (isPlayerAttack) {
-                // Si la IA fue derrotada
-                boolean allAIDefeated = aiCharacters.stream().allMatch(PersonajeModel::isDerrotado);
-                
-                if (allAIDefeated) {
-                    endCombat(true);
-                } else {
-                    changeAICharacter();
-                }
-            } else {
-                // Si el jugador fue derrotado
-                boolean allPlayerDefeated = playerCharacters.stream().allMatch(PersonajeModel::isDerrotado);
-                
-                if (allPlayerDefeated) {
-                    endCombat(false);
-                } else {
-                    uiManager.showForceCharacterSelection(this);
-                }
-            }
-        });
-    }
-    
     public void aiTurn() {
         // Obtener personajes actuales
         PersonajeModel attacker = aiCharacters.get(aiCharacterIndex);
         PersonajeModel defender = playerCharacters.get(playerCharacterIndex);
         
-        // Regeneración si aplica
-        if ("regeneracion".equals(attacker.getPasivaTipo())) {
-            int regenerationAmount = (attacker.getVida() * attacker.getPasivaValor()) / 100;
-            attacker.regenerar(regenerationAmount);
-            animationManager.showRegenerationEffect(attacker, false);
-            
-            if (Math.random() < 0.5) {
-                messageManager.displayMessage(attacker.getNombre() + " regenera " + 
-                        regenerationAmount + " puntos de vida", false);
-            }
+        // Actualizar cooldowns de ataques
+        for (AtaqueModel ataque : attacker.getAtaques()) {
+            ataque.finalizarTurno();
         }
         
         // Seleccionar el mejor ataque
         String attackType = aiSelector.selectBestAttack(attacker, defender);
         
-        // Si es una habilidad, consumir un uso
-        if (attackType.equals("habilidad1") || attackType.equals("habilidad2")) {
-            attacker.consumirUsoHabilidad(attackType);
+        // Obtener el ataque según el tipo seleccionado
+        AtaqueModel ataque = null;
+        
+        switch (attackType) {
+            case "melee":
+                ataque = attacker.getAtaquePorTipo("ACC");
+                break;
+            case "lejano":
+                ataque = attacker.getAtaquePorTipo("AAD");
+                break;
+            case "habilidad1":
+                ataque = attacker.getAtaquePorTipo("habilidad_mas_poderosa");
+                break;
+            case "habilidad2":
+                ataque = attacker.getAtaquePorTipo("habilidad_caracteristica");
+                break;
         }
         
-        String attackName = attacker.getNombreAtaque(attackType);
+        // Consumir uso si el ataque existe
+        if (ataque != null) {
+            ataque.consumirUso();
+        }
+        
+        // Calcular poder de ataque y nombre
+        int multiplicadorAtaque = 1;
+        String attackName = "Ataque";
+        
+        if (ataque != null) {
+            // Usar danoBase como multiplicador
+            multiplicadorAtaque = ataque.getDanoBase() / 50; // Factor de escala
+            if (multiplicadorAtaque < 1) multiplicadorAtaque = 1;
+            
+            attackName = ataque.getNombre();
+        }
         
         // Mostrar mensaje de ataque
         messageManager.displayMessage(attacker.getNombre() + " usa " + attackName, false);
         
+        // Factor final para el cálculo de daño
+        final int factorAtaque = multiplicadorAtaque;
+        
         // Animar ataque
         animationManager.animateAIAttack(attackType, () -> {
-            boolean isCritical = attacker.esGolpeCritico();
-            int attackPower = attacker.getPoderAtaque(attackType);
-            String attackTypeCode = attacker.getTipoAtaque(attackType);
-            
+            // Obtener vida antes del ataque
             int previousHealth = defender.getVidaActual();
             
+            // Calcular daño con el nuevo sistema
+            int damageToInflict = DamageCalculator.calcularDano(
+                attacker.getFuerza() * factorAtaque, 
+                attacker.getPoder(), 
+                defender.getPoder()
+            );
+            
             // Aplicar daño
-            boolean defeated = defender.recibirDaño(attackPower, attackTypeCode, isCritical);
+            defender.setVidaActual(defender.getVidaActual() - damageToInflict);
+            boolean defeated = defender.getVidaActual() <= 0;
+            
+            // Asegurar que la vida no baje de 0
+            if (defeated) {
+                defender.setVidaActual(0);
+            }
             
             // Calcular daño real
             int realDamage = previousHealth - defender.getVidaActual();
             
-            // Determinar si es daño verdadero
-            boolean isTrueDamage = "daño_verdadero".equals(attackTypeCode);
-            
-            processAttackResult(defender, realDamage, isCritical, isTrueDamage, defeated, false);
+            // Procesar resultado del ataque
+            processAttackResult(defender, realDamage, defeated, false);
         });
     }
     
@@ -546,5 +549,232 @@ public class CombatManager {
     
     public TurnManager getTurnManager() {
         return turnManager;
+    }
+    
+    /**
+     * Maneja la derrota de un personaje y determina las consecuencias
+     * @param defeated El personaje derrotado
+     * @param isPlayerAttack Indica si fue el jugador quien realizó el ataque
+     */
+    private void handleCharacterDefeat(PersonajeModel defeated, boolean isPlayerAttack) {
+        // Marcar al personaje como derrotado
+        defeated.setDerrotado(true);
+        
+        // Animar la derrota
+        if (isPlayerAttack) {
+            // Si es un personaje de la IA el derrotado
+            animationManager.animateDefeat(defeated, false, () -> {
+                // Mostrar mensaje de derrota
+                messageManager.displayMessage("¡" + defeated.getNombre() + " ha sido derrotado!", true, () -> {
+                    // Verificar si todos los personajes de la IA están derrotados
+                    boolean allAIDefeated = true;
+                    for (PersonajeModel aiChar : aiCharacters) {
+                        if (!aiChar.isDerrotado()) {
+                            allAIDefeated = false;
+                            break;
+                        }
+                    }
+                    
+                    // Si todos los personajes de la IA están derrotados, victoria del jugador
+                    if (allAIDefeated) {
+                        endCombat(true); // Victoria del jugador
+                    } else {
+                        // Cambiar al siguiente personaje de la IA
+                        changeAICharacter();
+                    }
+                });
+            });
+        } else {
+            // Si es un personaje del jugador el derrotado
+            animationManager.animateDefeat(defeated, true, () -> {
+                // Mostrar mensaje de derrota
+                messageManager.displayMessage("¡" + defeated.getNombre() + " ha sido derrotado!", false, () -> {
+                    // Verificar si todos los personajes del jugador están derrotados
+                    boolean allPlayerDefeated = true;
+                    for (PersonajeModel playerChar : playerCharacters) {
+                        if (!playerChar.isDerrotado()) {
+                            allPlayerDefeated = false;
+                            break;
+                        }
+                    }
+                    
+                    // Si todos los personajes del jugador están derrotados, victoria de la IA
+                    if (allPlayerDefeated) {
+                        endCombat(false); // Derrota del jugador
+                    } else {
+                        // Mostrar diálogo para seleccionar el siguiente personaje
+                        showCharacterSelectionDialog();
+                    }
+                });
+            });
+        }
+    }
+    
+    /**
+     * Muestra un diálogo para seleccionar un nuevo personaje cuando el actual es derrotado
+     */
+    private void showCharacterSelectionDialog() {
+        // Crear contenedor para el diálogo
+        VBox dialogContainer = new VBox(15);
+        dialogContainer.setAlignment(Pos.CENTER);
+        dialogContainer.setStyle("-fx-background-color: rgba(0, 0, 0, 0.8); -fx-padding: 20px; -fx-background-radius: 10px;");
+        dialogContainer.setMaxWidth(400);
+        dialogContainer.setMaxHeight(500);
+        
+        // Título del diálogo
+        Text titleText = new Text("Selecciona tu próximo personaje");
+        titleText.setFill(Color.WHITE);
+        titleText.setFont(Font.font("System", FontWeight.BOLD, 18));
+        
+        // Añadir título al contenedor
+        dialogContainer.getChildren().add(titleText);
+        
+        // Crear botones para cada personaje disponible
+        for (int i = 0; i < playerCharacters.size(); i++) {
+            PersonajeModel character = playerCharacters.get(i);
+            
+            // Saltarse personajes derrotados y el actual
+            if (character.isDerrotado() || i == playerCharacterIndex) {
+                continue;
+            }
+            
+            // Crear botón para el personaje
+            Button characterButton = new Button(character.getNombre());
+            characterButton.setPrefWidth(300);
+            characterButton.setPrefHeight(50);
+            characterButton.setStyle(
+                "-fx-background-color: #4a7ba7;" +
+                "-fx-text-fill: white;" +
+                "-fx-background-radius: 5px;" +
+                "-fx-border-color: #2a5b87;" +
+                "-fx-border-width: 2px;" +
+                "-fx-border-radius: 5px;" +
+                "-fx-cursor: hand;"
+            );
+            
+            // Configurar acción del botón (cambiar al personaje seleccionado)
+            final int index = i;
+            characterButton.setOnAction(e -> {
+                // Remover el diálogo
+                rootPane.getChildren().remove(dialogContainer);
+                
+                // Cambiar al personaje seleccionado
+                playerCharacterIndex = index;
+                
+                // Actualizar vistas y continuar con el combate
+                uiManager.hidePlayerCharacter();
+                
+                messageManager.displayMessage("¡Has cambiado a " + 
+                    playerCharacters.get(playerCharacterIndex).getNombre() + "!", true, () -> {
+                        uiManager.updateCharacterViews(
+                            playerCharacters.get(playerCharacterIndex),
+                            aiCharacters.get(aiCharacterIndex),
+                            playerCharacters,
+                            aiCharacters,
+                            playerCharacterIndex,
+                            aiCharacterIndex
+                        );
+                        
+                        uiManager.showPlayerCharacter();
+                        turnManager.finishAITurn();
+                    });
+            });
+            
+            // Añadir botón al contenedor
+            dialogContainer.getChildren().add(characterButton);
+        }
+        
+        // Posicionar el diálogo en el centro de la pantalla
+        AnchorPane.setTopAnchor(dialogContainer, 200.0);
+        AnchorPane.setLeftAnchor(dialogContainer, 248.0); // (896 - 400) / 2 = 248
+        AnchorPane.setRightAnchor(dialogContainer, 248.0);
+        
+        // Añadir el diálogo a la escena con animación
+        dialogContainer.setScaleX(0.5);
+        dialogContainer.setScaleY(0.5);
+        dialogContainer.setOpacity(0);
+        rootPane.getChildren().add(dialogContainer);
+        
+        // Animar la aparición del diálogo
+        ScaleTransition scaleIn = new ScaleTransition(Duration.millis(300), dialogContainer);
+        scaleIn.setToX(1.0);
+        scaleIn.setToY(1.0);
+        
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), dialogContainer);
+        fadeIn.setToValue(1.0);
+        
+        // Ejecutar animaciones
+        ParallelTransition animation = new ParallelTransition(scaleIn, fadeIn);
+        animation.play();
+    }
+    
+    /**
+     * Aplica una transformación a un personaje
+     * @param character Personaje a transformar
+     * @param transformationCode Código de la transformación
+     * @return true si la transformación fue exitosa
+     */
+    public boolean applyTransformation(PersonajeModel character, String transformationCode) {
+        // Obtener la transformación desde el mapa
+        PersonajeModel transformation = selectionManager.getTransformationsMap().get(transformationCode);
+        
+        if (transformation == null) {
+            System.err.println("Transformación no encontrada: " + transformationCode);
+            return false;
+        }
+        
+        // Guardar referencia al personaje original
+        int originalId = character.getId();
+        String originalName = character.getNombre();
+        
+        // Clonar la transformación
+        PersonajeModel transformedCharacter = transformation.clonar();
+        
+        // Mantener algunos datos del personaje original
+        transformedCharacter.setPersonajeBaseId(originalId);
+        transformedCharacter.setNombre(originalName + " (" + transformation.getNombre() + ")");
+        
+        // Reemplazar el personaje en el equipo
+        if (character == playerCharacters.get(playerCharacterIndex)) {
+            // Es el personaje activo del jugador
+            playerCharacters.set(playerCharacterIndex, transformedCharacter);
+            // Actualizar UI
+            uiManager.updateCharacterViews(
+                transformedCharacter, 
+                aiCharacters.get(aiCharacterIndex),
+                playerCharacters,
+                aiCharacters,
+                playerCharacterIndex,
+                aiCharacterIndex
+            );
+        } else if (character == aiCharacters.get(aiCharacterIndex)) {
+            // Es el personaje activo de la IA
+            aiCharacters.set(aiCharacterIndex, transformedCharacter);
+            // Actualizar UI
+            uiManager.updateCharacterViews(
+                playerCharacters.get(playerCharacterIndex),
+                transformedCharacter,
+                playerCharacters,
+                aiCharacters,
+                playerCharacterIndex,
+                aiCharacterIndex
+            );
+        } else {
+            // Buscar en todo el equipo
+            for (int i = 0; i < playerCharacters.size(); i++) {
+                if (playerCharacters.get(i) == character) {
+                    playerCharacters.set(i, transformedCharacter);
+                    break;
+                }
+            }
+            for (int i = 0; i < aiCharacters.size(); i++) {
+                if (aiCharacters.get(i) == character) {
+                    aiCharacters.set(i, transformedCharacter);
+                    break;
+                }
+            }
+        }
+        
+        return true;
     }
 }

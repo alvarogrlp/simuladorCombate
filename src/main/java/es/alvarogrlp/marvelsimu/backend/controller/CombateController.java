@@ -7,7 +7,9 @@ import java.util.Optional;
 import es.alvarogrlp.marvelsimu.backend.combat.logic.CombatManager;
 import es.alvarogrlp.marvelsimu.backend.controller.abstracts.AbstractController;
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
+import es.alvarogrlp.marvelsimu.backend.selection.logic.SelectionManager;
 import es.alvarogrlp.marvelsimu.backend.util.AlertUtils;
+import es.alvarogrlp.marvelsimu.backend.util.SessionManager;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -58,22 +60,17 @@ public class CombateController extends AbstractController {
                 return;
             }
             
-            // Transferir los personajes de la selección estática 
-            if (personajesJugadorSeleccionados != null && personajesIASeleccionados != null) {
-                // Crear el gestor de combate y pasarle los personajes
-                combatManager = new CombatManager(rootPane, personajesJugadorSeleccionados, personajesIASeleccionados);
-                
-                // Configurar los event handlers
-                setupEventHandlers();
-                
-                // Iniciar el combate
-                combatManager.getTurnManager().startCombat();
-            } else {
-                // No se establecieron personajes, mostrar error
-                AlertUtils.mostrarError("Error", "No se han seleccionado personajes para el combate");
-                // Volver a la pantalla de selección
-                onVolverClick();
-            }
+            // Obtener el SelectionManager actual (posiblemente de SessionManager)
+            SelectionManager selectionManager = SessionManager.getInstance().getSelectionManager();
+            
+            // Inicializar el CombatManager pasando el SelectionManager
+            combatManager = new CombatManager(rootPane, personajesJugadorSeleccionados, personajesIASeleccionados, selectionManager);
+            
+            // Configurar los event handlers
+            setupEventHandlers();
+            
+            // Iniciar el combate
+            combatManager.getTurnManager().startCombat();
             
         } catch (Exception e) {
             System.err.println("Error en initialize: " + e.getMessage());

@@ -30,7 +30,7 @@ public abstract class AbstractController {
     @FXML
     private TextField textFieldPassword;
 
-    protected static final String PATH_DB = "src/main/resources/usuarios.db";
+    protected static final String PATH_DB = "src/main/resources/marvelSimu.db";
 
     private UsuarioServiceModel usuarioServiceModel;
 

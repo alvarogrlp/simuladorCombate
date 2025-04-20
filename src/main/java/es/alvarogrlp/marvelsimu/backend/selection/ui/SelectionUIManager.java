@@ -1,5 +1,6 @@
 package es.alvarogrlp.marvelsimu.backend.selection.ui;
 
+import java.util.List;
 import java.util.Map;
 
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
@@ -20,6 +21,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
@@ -184,13 +186,13 @@ public class SelectionUIManager {
         characterInfoContainer = new AnimatedVBox(animationsInfo);
         characterInfoContainer.setAlignment(Pos.CENTER);
         characterInfoContainer.setSpacing(10);
-        characterInfoContainer.setMaxWidth(450);
+        characterInfoContainer.setMaxWidth(520);
         characterInfoContainer.setVisible(false);
         
-        // Centrar en la pantalla
+        // Centrar exactamente en la pantalla
         AnchorPane.setTopAnchor(characterInfoContainer, 50.0);
-        AnchorPane.setLeftAnchor(characterInfoContainer, 208.0);
-        AnchorPane.setRightAnchor(characterInfoContainer, 208.0);
+        AnchorPane.setLeftAnchor(characterInfoContainer, 188.0); // (896 - 520) / 2 = 188
+        AnchorPane.setRightAnchor(characterInfoContainer, 188.0);
         rootPane.getChildren().add(characterInfoContainer);
     }
     
@@ -226,9 +228,23 @@ public class SelectionUIManager {
         // Primero añadir el botón random como primer personaje
         createAndAddRandomButton();
         
-        // Crear botones para todos los personajes
+        // Lista de transformaciones que deben ser excluidas
+        List<String> transformationCodes = List.of(
+            "magik_darkchild", 
+            "thanos_gauntlet"
+        );
+        
+        // Crear botones solo para personajes que NO son transformaciones
         for (PersonajeModel character : characters.values()) {
-            createAndAddCharacterButton(character);
+            String codigo = character.getNombreCodigo().toLowerCase();
+            
+            // Verificar si es una transformación usando la lista
+            if (!character.isEsTransformacion() && !transformationCodes.contains(codigo)) {
+                createAndAddCharacterButton(character);
+            } else {
+                System.out.println("Personaje filtrado (transformación): " + character.getNombre() + 
+                                 " - Código: " + character.getNombreCodigo());
+            }
         }
     }
 
@@ -243,8 +259,14 @@ public class SelectionUIManager {
         
         // Crear botón aleatorio
         Button randomButton = new Button();
-        randomButton.getStyleClass().add("character-button");
+        randomButton.getStyleClass().addAll("character-button", "random-button");
         btnRandom = randomButton; // Guardar referencia
+        
+        // Contenedor para la imagen con efecto de borde
+        StackPane imageContainer = new StackPane();
+        imageContainer.setPrefSize(131, 131);
+        imageContainer.setMaxSize(131, 131);
+        imageContainer.getStyleClass().add("random-image-container");
         
         // Configurar imagen
         try {
@@ -256,7 +278,8 @@ public class SelectionUIManager {
                 imageView.setFitWidth(131);
                 imageView.setPreserveRatio(true);
                 imageView.setPickOnBounds(true);
-                randomButton.setGraphic(imageView);
+                imageContainer.getChildren().add(imageView);
+                randomButton.setGraphic(imageContainer);
             } else {
                 System.err.println("Error al cargar la imagen random.png");
             }
@@ -264,11 +287,11 @@ public class SelectionUIManager {
             System.err.println("Error cargando imagen random: " + e.getMessage());
         }
         
-        // Configurar acción
-        randomButton.setOnAction(e -> selectionManager.selectRandomCharacter());
+        // Configurar acción - Añadir directamente al equipo sin mostrar panel de info
+        randomButton.setOnAction(e -> selectionManager.addRandomCharacterToTeam());
         
         // Tooltip
-        Tooltip tooltip = new Tooltip("Seleccionar personaje aleatorio");
+        Tooltip tooltip = new Tooltip("Añadir personaje aleatorio al equipo");
         tooltip.setShowDelay(Duration.millis(500));
         Tooltip.install(randomButton, tooltip);
         
@@ -280,16 +303,23 @@ public class SelectionUIManager {
     }
 
     /**
-     * Crea y añade un botón para un personaje específico
+     * Crea y añade un botón para un personaje
      */
     private void createAndAddCharacterButton(PersonajeModel character) {
-        if (characterSelectionPane == null || character == null) {
+        if (characterSelectionPane == null) {
+            System.err.println("Error: characterSelectionPane es null");
             return;
         }
         
         // Crear botón
-        Button button = new Button();
-        button.getStyleClass().add("character-button");
+        Button charButton = new Button();
+        charButton.getStyleClass().add("character-button");
+        
+        // Contenedor para la imagen con efecto de borde
+        StackPane imageContainer = new StackPane();
+        imageContainer.setPrefSize(131, 131);
+        imageContainer.setMaxSize(131, 131);
+        imageContainer.getStyleClass().add("character-image-container");
         
         // Configurar imagen
         try {
@@ -301,56 +331,33 @@ public class SelectionUIManager {
                 imageView.setFitWidth(131);
                 imageView.setPreserveRatio(true);
                 imageView.setPickOnBounds(true);
-                button.setGraphic(imageView);
+                imageContainer.getChildren().add(imageView);
+                charButton.setGraphic(imageContainer);
             } else {
-                System.err.println("Error al cargar la imagen para: " + character.getNombre());
+                System.err.println("Error al cargar la imagen: " + character.getImagenMiniatura());
             }
         } catch (Exception e) {
             System.err.println("Error cargando imagen: " + e.getMessage());
         }
         
         // Configurar acción
-        button.setOnAction(e -> selectionManager.selectCharacter(character, button));
+        charButton.setOnAction(e -> {
+            selectionManager.selectCharacter(character, charButton);
+        });
         
-        // Tooltip con info básica
-        Tooltip tooltip = new Tooltip(character.getNombre() + 
-                                     "\nVida: " + character.getVida() + 
-                                     "\nFuerza: " + character.getFuerza());
+        // Tooltip
+        Tooltip tooltip = new Tooltip(character.getNombre());
         tooltip.setShowDelay(Duration.millis(500));
-        Tooltip.install(button, tooltip);
+        Tooltip.install(charButton, tooltip);
         
-        // Guardar referencias para los botones principales
-        saveButtonReference(button, character);
+        // Registrar botón
+        selectionManager.registerDynamicButton(charButton, character);
         
         // Añadir al panel
-        characterSelectionPane.getChildren().add(button);
+        characterSelectionPane.getChildren().add(charButton);
         
         // Aplicar animación hover
-        animationHandler.applyHoverAnimation(button);
-    }
-
-    /**
-     * Guarda referencias a los botones principales para acceso posterior
-     */
-    private void saveButtonReference(Button button, PersonajeModel character) {
-        String nombre = character.getNombre().toLowerCase();
-        
-        if (nombre.contains("captain") || nombre.contains("america")) {
-            btnCaptain = button;
-        } else if (nombre.contains("hulk")) {
-            btnHulk = button;
-        } else if (nombre.contains("iron") || nombre.contains("stark")) {
-            btnIronMan = button;
-        } else if (nombre.contains("spider") || nombre.contains("parker")) {
-            btnSpiderMan = button;
-        } else if (nombre.contains("doctor") || nombre.contains("strange")) {
-            btnDrStrange = button;
-        } else if (nombre.contains("magik")) {
-            btnMagik = button;
-        } else {
-            // Registrar botón dinámico
-            selectionManager.registerDynamicButton(button, character);
-        }
+        animationHandler.applyHoverAnimation(charButton);
     }
     
     /**
@@ -461,32 +468,26 @@ public class SelectionUIManager {
      * Añade un personaje a la vista del equipo de forma simple y directa
      */
     public void addCharacterToTeamDisplay(PersonajeModel character, Button sourceButton, boolean isPlayerTeam) {
-        // Crear tarjeta directamente con la fábrica (que ya tiene manejador de clic)
+        // Obtener el contenedor correcto
+        AnimatedVBox container = isPlayerTeam ? playerTeamContainer : aiTeamContainer;
+        
+        if (container == null || character == null) {
+            return;
+        }
+        
+        // Crear tarjeta directamente con la fábrica
         VBox characterCard = cardFactory.createCharacterCard(character, sourceButton, isPlayerTeam);
         
-        // Obtener el contenedor correcto
-        VBox container = isPlayerTeam ? playerTeamBox : aiTeamBox;
+        // Configurar tamaño
+        characterCard.setPrefSize(160, 180);
+        characterCard.setMaxSize(160, 180);
         
-        // Añadir la tarjeta al contenedor
+        // Añadir la tarjeta al contenedor sin animaciones complejas
         container.getChildren().add(characterCard);
         
-        // Aplicar animación de entrada
-        characterCard.setOpacity(0);
-        characterCard.setScaleX(0.8);
-        characterCard.setScaleY(0.8);
-        
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), characterCard);
-        fadeIn.setFromValue(0);
-        fadeIn.setToValue(1.0);
-        
-        ScaleTransition scaleIn = new ScaleTransition(Duration.millis(300), characterCard);
-        scaleIn.setFromX(0.8);
-        scaleIn.setFromY(0.8);
-        scaleIn.setToX(1.0);
-        scaleIn.setToY(1.0);
-        
-        ParallelTransition entryAnimation = new ParallelTransition(fadeIn, scaleIn);
-        entryAnimation.play();
+        // Asegurar que sea visible
+        characterCard.setVisible(true);
+        characterCard.setOpacity(1.0);
     }
 
     /**
@@ -569,7 +570,7 @@ public class SelectionUIManager {
     /**
      * Actualiza el estado del botón de luchar
      */
-    private void updateFightButtonState() {
+    public void updateFightButtonState() {
         if (selectionManager.isPlayerTeamComplete() && selectionManager.isAITeamComplete()) {
             fightButton.setDisable(false);
             fightButton.setOpacity(1.0);
@@ -723,22 +724,22 @@ public class SelectionUIManager {
      */
     private void reorganizeTeamDisplay(boolean isPlayerTeam) {
         AnimatedVBox container = isPlayerTeam ? playerTeamContainer : aiTeamContainer;
-        
+       
         // Aseguramos que no haya más de 3 tarjetas
         while (container.getChildren().size() > 3) {
             container.getChildren().remove(container.getChildren().size() - 1);
         }
-        
+       
         // Reposicionar las tarjetas existentes
         for (int i = 0; i < container.getChildren().size(); i++) {
             javafx.scene.Node card = container.getChildren().get(i);
-            
+           
             // Asegurar que cada tarjeta sea visible y tenga las propiedades correctas
             card.setVisible(true);
             card.setOpacity(1.0);
             card.setScaleX(1.0);
             card.setScaleY(1.0);
-            
+           
             // Si la tarjeta es un VBox, aplicar estilos adicionales si es necesario
             if (card instanceof VBox) {
                 VBox cardBox = (VBox) card;
@@ -765,13 +766,31 @@ public class SelectionUIManager {
     }
     
     /**
+     * Limpia completamente el contenedor del equipo del jugador
+     */
+    public void clearPlayerTeam() {
+        if (playerTeamContainer != null) {
+            playerTeamContainer.getChildren().clear();
+        }
+    }
+
+    /**
+     * Limpia completamente el contenedor del equipo de la IA
+     */
+    public void clearAITeam() {
+        if (aiTeamContainer != null) {
+            aiTeamContainer.getChildren().clear();
+        }
+    }
+    
+    /**
      * Limpia el resaltado de todos los botones de personajes
      */
     public void clearAllButtonsHighlight() {
         try {
             // Recorrer solo los botones que existen en el flujo de personajes
             if (characterSelectionPane != null) {
-                for (javafx.scene.Node node : characterSelectionPane.getChildren()) {
+                for (Node node : characterSelectionPane.getChildren()) {
                     if (node instanceof Button) {
                         Button button = (Button) node;
                         button.getStyleClass().remove("selected-character");
@@ -779,8 +798,14 @@ public class SelectionUIManager {
                 }
             }
             
-            // Los botones específicos ya no existen como variables de clase,
-            // así que no los intentamos limpiar directamente
+            // Limpiar botones específicos si existen
+            if (btnCaptain != null) btnCaptain.getStyleClass().remove("selected-character");
+            if (btnHulk != null) btnHulk.getStyleClass().remove("selected-character");
+            if (btnIronMan != null) btnIronMan.getStyleClass().remove("selected-character");
+            if (btnSpiderMan != null) btnSpiderMan.getStyleClass().remove("selected-character");
+            if (btnDrStrange != null) btnDrStrange.getStyleClass().remove("selected-character");
+            if (btnMagik != null) btnMagik.getStyleClass().remove("selected-character");
+            if (btnRandom != null) btnRandom.getStyleClass().remove("selected-character");
         } catch (Exception e) {
             System.err.println("Error al limpiar resaltado de botones: " + e.getMessage());
         }
@@ -847,41 +872,24 @@ public class SelectionUIManager {
      * @param enable true para habilitar, false para deshabilitar
      */
     private void enableAllControls(boolean enable) {
-        // Habilitar/deshabilitar botones de personajes
-        btnCaptain.setDisable(!enable);
-        btnHulk.setDisable(!enable);
-        btnIronMan.setDisable(!enable);
-        btnSpiderMan.setDisable(!enable);
-        btnDrStrange.setDisable(!enable);
-        btnMagik.setDisable(!enable);
-        
-        // Habilitar/deshabilitar botones de acción
-        // No deshabilitamos el botón de luchar aquí ya que tiene su propia lógica
-        backButton.setDisable(!enable);
-        
-        // Ajustar opacidad para dar feedback visual
-        if (!enable) {
-            // Si estamos deshabilitando, reducir opacidad
-            btnCaptain.setOpacity(0.7);
-            btnHulk.setOpacity(0.7);
-            btnIronMan.setOpacity(0.7);
-            btnSpiderMan.setOpacity(0.7);
-            btnDrStrange.setOpacity(0.7);
-            btnMagik.setOpacity(0.7);
-            backButton.setOpacity(0.7);
-        } else {
-            // Si estamos habilitando, restaurar opacidad
-            btnCaptain.setOpacity(1.0);
-            btnHulk.setOpacity(1.0);
-            btnIronMan.setOpacity(1.0);
-            btnSpiderMan.setOpacity(1.0);
-            btnDrStrange.setOpacity(1.0);
-            btnMagik.setOpacity(1.0);
-            backButton.setOpacity(1.0);
+        if (characterSelectionPane != null) {
+            for (Node node : characterSelectionPane.getChildren()) {
+                if (node instanceof Button) {
+                    Button button = (Button) node;
+                    // No cambiar el estado de los botones ya deshabilitados por otras razones
+                    if (!button.isDisabled() || enable) {
+                        button.setDisable(!enable);
+                        button.setOpacity(enable ? 1.0 : 0.7);
+                    }
+                }
+            }
         }
         
-        // No modificamos los botones que ya están deshabilitados por otras razones
-        // como los personajes no encontrados en la base de datos
+        // No deshabilitamos el botón de luchar aquí ya que tiene su propia lógica
+        if (backButton != null) {
+            backButton.setDisable(!enable);
+            backButton.setOpacity(enable ? 1.0 : 0.7);
+        }
     }
     
     /**
@@ -924,33 +932,56 @@ public class SelectionUIManager {
      * @param isPlayerTeam Si es del equipo del jugador
      */
     public void animateRemoveCharacterCard(int index, boolean isPlayerTeam) {
-        VBox container = isPlayerTeam ? playerTeamBox : aiTeamBox;
+        VBox container = isPlayerTeam ? playerTeamContainer : aiTeamContainer;
         
-        if (index >= 0 && index < container.getChildren().size()) {
-            Node card = container.getChildren().get(index);
-            
-            // Crear animación de desvanecimiento
-            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), card);
-            fadeOut.setFromValue(1.0);
-            fadeOut.setToValue(0.0);
-            
-            // Crear animación de escala
-            ScaleTransition scaleOut = new ScaleTransition(Duration.millis(300), card);
-            scaleOut.setFromX(1.0);
-            scaleOut.setFromY(1.0);
-            scaleOut.setToX(0.7);
-            scaleOut.setToY(0.7);
-            
-            // Combinar animaciones
-            ParallelTransition exitAnimation = new ParallelTransition(fadeOut, scaleOut);
-            
-            // Al finalizar la animación, eliminar el nodo
-            exitAnimation.setOnFinished(e -> {
-                container.getChildren().remove(card);
-            });
-            
-            // Iniciar animación
-            exitAnimation.play();
+        if (container == null || index < 0 || index >= container.getChildren().size()) {
+            updateFightButtonState();
+            return;
         }
+        
+        VBox cardToRemove = (VBox) container.getChildren().get(index);
+        
+        // Sacar la tarjeta del flujo de layout para evitar reordenamientos durante la animación
+        cardToRemove.setManaged(false);
+        
+        // Crear animación de desvanecimiento
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), cardToRemove);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        
+        // Al finalizar la animación, eliminar la tarjeta completamente
+        fadeOut.setOnFinished(e -> {
+            // Eliminar del contenedor (esto es seguro ahora que está fuera del flujo de layout)
+            Platform.runLater(() -> {
+                container.getChildren().remove(cardToRemove);
+                updateFightButtonState();
+            });
+        });
+        
+        // Iniciar la animación
+        fadeOut.play();
+    }
+
+    /**
+     * Fuerza una actualización de la visualización del equipo sin animaciones
+     * @param isPlayerTeam Si es el equipo del jugador
+     */
+    public void forceUpdateTeamDisplay(boolean isPlayerTeam) {
+        // Esta función se llamará solo en caso de error para asegurar consistencia
+        VBox container = isPlayerTeam ? playerTeamContainer : aiTeamContainer;
+        List<PersonajeModel> team = isPlayerTeam ? 
+            selectionManager.getTeamBuilder().getPlayerTeam() : 
+            selectionManager.getTeamBuilder().getAITeam();
+        
+        // Limpiar el contenedor
+        container.getChildren().clear();
+        
+        // Reconstruir la visualización desde el modelo de datos
+        for (PersonajeModel character : team) {
+            Button sourceButton = findCharacterButton(character);
+            addCharacterToTeamDisplay(character, sourceButton, isPlayerTeam);
+        }
+        
+        updateFightButtonState();
     }
 }

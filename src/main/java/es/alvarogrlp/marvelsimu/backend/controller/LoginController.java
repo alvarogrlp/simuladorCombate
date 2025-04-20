@@ -3,26 +3,21 @@ package es.alvarogrlp.marvelsimu.backend.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import es.alvarogrlp.marvelsimu.backend.config.ConfigManager;
 import es.alvarogrlp.marvelsimu.backend.controller.abstracts.AbstractController;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioModel;
+import es.alvarogrlp.marvelsimu.backend.util.AlertUtils;
 import es.alvarogrlp.marvelsimu.backend.util.SessionManager;
-import es.alvarogrlp.marvelsimu.backend.config.ThemeManager;
 import eu.iamgio.animated.transition.AnimatedThemeSwitcher;
 import eu.iamgio.animated.transition.animations.clip.CircleClipOut;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 public class LoginController extends AbstractController {
     
@@ -62,8 +57,12 @@ public class LoginController extends AbstractController {
         
         // Inicializar el animador de transición para el cambio de tema
         Platform.runLater(() -> {
-            themeSwitcher = new AnimatedThemeSwitcher(textFieldUsuario.getScene(), new CircleClipOut());
-            themeSwitcher.init();
+            try {
+                themeSwitcher = new AnimatedThemeSwitcher(textFieldUsuario.getScene(), new CircleClipOut());
+                themeSwitcher.init();
+            } catch (Exception e) {
+                System.err.println("Error inicializando el animador de tema: " + e.getMessage());
+            }
         });
 
         // Configuración del selector de idioma
@@ -87,21 +86,29 @@ public class LoginController extends AbstractController {
      */
     @FXML
     protected void cambiarIdioma() {
-        String idiomaSeleccionado = comboIdioma.getValue().toString();
-        String path = "src/main/resources/idioma-" + idiomaSeleccionado + ".properties";
+        try {
+            String idiomaSeleccionado = comboIdioma.getValue().toString();
+            String path = "src/main/resources/idioma-" + idiomaSeleccionado + ".properties";
 
-        ConfigManager.ConfigProperties.setPath(path);
-        ConfigManager.ConfigProperties.setProperty("idiomaActual", idiomaSeleccionado);
+            ConfigManager.ConfigProperties.setPath(path);
+            ConfigManager.ConfigProperties.setProperty("idiomaActual", idiomaSeleccionado);
 
-        textUsuario.setText(ConfigManager.ConfigProperties.getProperty("textUsuario"));
-        textContrasenia.setText(ConfigManager.ConfigProperties.getProperty("textContrasenia"));
-        textPregunta.setText(ConfigManager.ConfigProperties.getProperty("textPregunta"));
-        onRecuperarButton.setText(ConfigManager.ConfigProperties.getProperty("onRecuperarButton"));
-        onRegistrarButton.setText(ConfigManager.ConfigProperties.getProperty("onRegistrarButton"));
-        onEntrarButton.setText(ConfigManager.ConfigProperties.getProperty("onEntrarButton"));
+            textUsuario.setText(ConfigManager.ConfigProperties.getProperty("textUsuario"));
+            textContrasenia.setText(ConfigManager.ConfigProperties.getProperty("textContrasenia"));
+            textPregunta.setText(ConfigManager.ConfigProperties.getProperty("textPregunta"));
+            onRecuperarButton.setText(ConfigManager.ConfigProperties.getProperty("onRecuperarButton"));
+            onRegistrarButton.setText(ConfigManager.ConfigProperties.getProperty("onRegistrarButton"));
+            onEntrarButton.setText(ConfigManager.ConfigProperties.getProperty("onEntrarButton"));
 
-        textFieldUsuario.setPromptText(ConfigManager.ConfigProperties.getProperty("promptUsuario"));
-        textFieldPassword.setPromptText(ConfigManager.ConfigProperties.getProperty("promptContrasenia"));
+            textFieldUsuario.setPromptText(ConfigManager.ConfigProperties.getProperty("promptUsuario"));
+            textFieldPassword.setPromptText(ConfigManager.ConfigProperties.getProperty("promptContrasenia"));
+            
+            // Limpiar mensaje anterior al cambiar idioma
+            textMensaje.setText("");
+        } catch (Exception e) {
+            System.err.println("Error al cambiar idioma: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -110,36 +117,49 @@ public class LoginController extends AbstractController {
      */
     @FXML
     protected void onLoginButtonClick() {
-        if (textFieldUsuario == null || textFieldUsuario.getText().isEmpty() ||
-                textFieldPassword == null || textFieldPassword.getText().isEmpty()) {
-            textMensaje.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeCredencialesVacias") + " ❌");
+        try {
+            if (textFieldUsuario == null || textFieldUsuario.getText().isEmpty() ||
+                    textFieldPassword == null || textFieldPassword.getText().isEmpty()) {
+                textMensaje.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeCredencialesVacias") + " ❌");
+                textMensaje.setStyle("-fx-fill: red;"); // Cambiar el color a rojo
+                return;
+            }
+
+            // Usar el servicio actualizado para la nueva base de datos
+            UsuarioModel usuarioEntity = getUsuarioServiceModel().obtenerCredencialesUsuario(textFieldUsuario.getText());
+
+            if (usuarioEntity == null) {
+                textMensaje.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeUsuarioNoExiste") + " ❌");
+                textMensaje.setStyle("-fx-fill: red;"); // Cambiar el color a rojo
+                return;
+            }
+
+            if ((textFieldUsuario.getText().equals(usuarioEntity.getEmail())
+                    || textFieldUsuario.getText().equals(usuarioEntity.getNombre()))
+                    && textFieldPassword.getText().equals(usuarioEntity.getContrasenia())) {
+                
+                // Guardar el usuario en la sesión
+                SessionManager.setUsuarioActual(usuarioEntity);
+                
+                textMensaje.setText("✅ " + ConfigManager.ConfigProperties.getProperty("mensajeUsuarioValidado") + " ✅");
+                textMensaje.setStyle("-fx-fill: green;"); // Cambiar el color a verde para éxito
+                
+                // Abrir la ventana principal
+                abrirVentana(onEntrarButton, "principal.fxml");
+                return;
+            }
+
+            textMensaje.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeCredencialesInvalidas") + " ❌");
             textMensaje.setStyle("-fx-fill: red;"); // Cambiar el color a rojo
-            return;
-        }
-
-        UsuarioModel usuarioEntity = getUsuarioServiceModel().obtenerCredencialesUsuario(textFieldUsuario.getText());
-
-        if (usuarioEntity == null) {
-            textMensaje.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeUsuarioNoExiste") + " ❌");
+        } catch (Exception e) {
+            e.printStackTrace();
+            textMensaje.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeErrorSistema", "Error en el sistema") + " ❌");
             textMensaje.setStyle("-fx-fill: red;"); // Cambiar el color a rojo
-            return;
-        }
-
-        if ((textFieldUsuario.getText().equals(usuarioEntity.getEmail())
-                || textFieldUsuario.getText().equals(usuarioEntity.getNombre()))
-                && textFieldPassword.getText().equals(usuarioEntity.getContrasenia())) {
             
-            // Guardar el usuario en la sesión
-            SessionManager.setUsuarioActual(usuarioEntity);
-            
-            textMensaje.setText("✅ " + ConfigManager.ConfigProperties.getProperty("mensajeUsuarioValidado") + " ✅");
-            textMensaje.setStyle("-fx-fill: green;"); // Cambiar el color a verde para éxito
-            abrirVentana(onEntrarButton, "principal.fxml");
-            return;
+            // Registrar el error detallado
+            System.err.println("Error en login: " + e.getMessage());
+            AlertUtils.mostrarError("Error de inicio de sesión", "No se pudo iniciar sesión: " + e.getMessage());
         }
-
-        textMensaje.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeCredencialesInvalidas") + " ❌");
-        textMensaje.setStyle("-fx-fill: red;"); // Cambiar el color a rojo
     }
 
     /**

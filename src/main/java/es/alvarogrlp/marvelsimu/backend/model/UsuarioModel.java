@@ -1,11 +1,14 @@
 package es.alvarogrlp.marvelsimu.backend.model;
 
+import java.util.Date;
 import java.util.Objects;
 
 public class UsuarioModel {
+    private int id;
     private String nombre;
     private String email;
     private String contrasenia;
+    private Date creadoEn;
 
     public UsuarioModel() {
     }
@@ -14,6 +17,22 @@ public class UsuarioModel {
         this.nombre = nombre;
         this.email = email;
         this.contrasenia = contrasenia;
+    }
+    
+    public UsuarioModel(int id, String nombre, String email, String contrasenia, Date creadoEn) {
+        this.id = id;
+        this.nombre = nombre;
+        this.email = email;
+        this.contrasenia = contrasenia;
+        this.creadoEn = creadoEn;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -39,20 +58,13 @@ public class UsuarioModel {
     public void setContrasenia(String contrasenia) {
         this.contrasenia = contrasenia;
     }
-
-    public UsuarioModel nombre(String nombre) {
-        setNombre(nombre);
-        return this;
+    
+    public Date getCreadoEn() {
+        return creadoEn;
     }
-
-    public UsuarioModel email(String email) {
-        setEmail(email);
-        return this;
-    }
-
-    public UsuarioModel contrasenia(String contrasenia) {
-        setContrasenia(contrasenia);
-        return this;
+    
+    public void setCreadoEn(Date creadoEn) {
+        this.creadoEn = creadoEn;
     }
 
     @Override
@@ -69,5 +81,10 @@ public class UsuarioModel {
     @Override
     public int hashCode() {
         return Objects.hash(email);
+    }
+    
+    @Override
+    public String toString() {
+        return nombre + " (" + email + ")";
     }
 }

@@ -1,9 +1,11 @@
 package es.alvarogrlp.marvelsimu.backend.combat.ui;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import es.alvarogrlp.marvelsimu.backend.combat.logic.CombatManager;
+import es.alvarogrlp.marvelsimu.backend.model.AtaqueModel;
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
 import es.alvarogrlp.marvelsimu.backend.util.AlertUtils;
 import javafx.animation.FadeTransition;
@@ -11,6 +13,7 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -51,6 +54,12 @@ public class CombatUIManager {
     private Label turnIndicator;
     private VBox playerTeamContainer;
     private VBox aiTeamContainer;
+    
+    // Añadir estos campos a la sección de variables de clase
+    private List<PersonajeModel> playerCharacters;
+    private List<PersonajeModel> aiCharacters;
+    private int playerCharacterIndex;
+    private int aiCharacterIndex;
     
     // Character selection dialog
     private CharacterSelectionDialog selectionDialog;
@@ -144,6 +153,12 @@ public class CombatUIManager {
         int playerIndex,
         int aiIndex) {
         
+        // Guardar referencias para uso interno
+        this.playerCharacters = new ArrayList<>(playerTeam);
+        this.aiCharacters = new ArrayList<>(aiTeam);
+        this.playerCharacterIndex = playerIndex;
+        this.aiCharacterIndex = aiIndex;
+        
         // Cargar imágenes basadas directamente en las rutas de los personajes
         Image playerImage = loadImageFromMultipleSources(playerCharacter.getImagenCombate());
         Image aiImage = loadImageFromMultipleSources(aiCharacter.getImagenCombate());
@@ -178,63 +193,39 @@ public class CombatUIManager {
     }
     
     /**
-     * Intenta cargar una imagen desde múltiples fuentes posibles
+     * Carga una imagen desde una ruta específica
      */
     private Image loadImageFromMultipleSources(String imagePath) {
-        // Si la ruta es nula, salir temprano
         if (imagePath == null || imagePath.isEmpty()) {
-            return new WritableImage(100, 100);
+            System.err.println("Ruta de imagen vacía");
+            return loadDefaultImage();
         }
         
         try {
-            // Intento 1: Cargar directamente con ClassLoader
+            // Simplemente cargar la imagen directamente
             InputStream is = getClass().getClassLoader().getResourceAsStream(imagePath);
             if (is != null) {
                 return new Image(is);
             }
             
-            // Intento 2: Probar con ruta relativa desde recursos
-            is = getClass().getResourceAsStream("/" + imagePath);
+            // Si no encuentra la imagen, mostrar error y usar imagen por defecto
+            System.err.println("No se encontró la imagen: " + imagePath);
+            return loadDefaultImage();
+        } catch (Exception e) {
+            System.err.println("Error cargando imagen: " + e.getMessage());
+            return loadDefaultImage();
+        }
+    }
+    
+    /**
+     * Carga una imagen por defecto según el tipo
+     */
+    private Image loadDefaultImage() {
+        try {
+            InputStream is = getClass().getClassLoader().getResourceAsStream("images/Personajes/random.png");
             if (is != null) {
                 return new Image(is);
             }
-            
-            // Intento 3: Intentar con un nombre de archivo directo basado en personajes conocidos
-            String filename = imagePath.contains("/") ? 
-                         imagePath.substring(imagePath.lastIndexOf('/') + 1) : 
-                         imagePath;
-                         
-            // Construir rutas específicas basadas en el nombre del archivo
-            String characterCode = null;
-            if (filename.contains("hulk")) {
-                characterCode = "hulk";
-            } else if (filename.contains("spider") || filename.contains("spiderman")) {
-                characterCode = "spiderman";
-            } else if (filename.contains("iron") || filename.contains("ironman")) {
-                characterCode = "ironman";
-            } else if (filename.contains("capt") || filename.contains("america")) {
-                characterCode = "captainamerica";
-            } else if (filename.contains("strange") || filename.contains("doctor")) {
-                characterCode = "doctorstrange";
-            } else if (filename.contains("magik")) {
-                characterCode = "magik";
-            }
-            
-            if (characterCode != null) {
-                // Intentar con imágenes de combate
-                is = getClass().getClassLoader().getResourceAsStream("images/Ingame/" + characterCode + "-ingame.png");
-                if (is != null) {
-                    return new Image(is);
-                }
-                
-                // Intentar con miniaturas
-                is = getClass().getClassLoader().getResourceAsStream("images/Personajes/" + characterCode + ".png");
-                if (is != null) {
-                    return new Image(is);
-                }
-            }
-            
-            // Si todo falla, una imagen vacía
             return new WritableImage(100, 100);
         } catch (Exception e) {
             return new WritableImage(100, 100);
@@ -387,38 +378,77 @@ public class CombatUIManager {
      * Actualiza los botones de ataques con los nombres correctos y valores del personaje actual
      */
     public void updateAttackButtons(PersonajeModel character) {
-        // Configurar el botón de ataque melee con el nombre real
-        if (meleeAttackButton != null) {
-            meleeAttackButton.setText(character.getAtaqueMeleeNombre());
-            meleeAttackButton.setTooltip(new Tooltip("Daño: " + character.getAtaqueMelee() + 
-                                              "\nTipo: " + formatTipoAtaque(character.getAtaqueMeleeTipo())));
-        }
-        
-        // Configurar el botón de ataque a distancia con el nombre real
-        if (rangedAttackButton != null) {
-            rangedAttackButton.setText(character.getAtaqueLejanoNombre());
-            rangedAttackButton.setTooltip(new Tooltip("Daño: " + character.getAtaqueLejano() + 
-                                                "\nTipo: " + formatTipoAtaque(character.getAtaqueLejanoTipo())));
-        }
-        
-        // Configurar el botón de la primera habilidad con el nombre real
-        if (ability1Button != null) {
-            ability1Button.setText(character.getHabilidad1Nombre());
-            int usosRestantes = character.getUsosRestantes("habilidad1");
-            ability1Button.setTooltip(new Tooltip("Daño: " + character.getHabilidad1Poder() + 
-                                           "\nTipo: " + formatTipoAtaque(character.getHabilidad1Tipo()) + 
-                                           "\nUsos: " + usosRestantes));
-            ability1Button.setDisable(usosRestantes <= 0);
-        }
-        
-        // Configurar el botón de la segunda habilidad con el nombre real
-        if (ability2Button != null) {
-            ability2Button.setText(character.getHabilidad2Nombre());
-            int usosRestantes = character.getUsosRestantes("habilidad2");
-            ability2Button.setTooltip(new Tooltip("Daño: " + character.getHabilidad2Poder() + 
-                                           "\nTipo: " + formatTipoAtaque(character.getHabilidad2Tipo()) + 
-                                           "\nUsos: " + usosRestantes));
-            ability2Button.setDisable(usosRestantes <= 0);
+        try {
+            // Configurar el botón de ataque melee con el nombre real
+            if (meleeAttackButton != null) {
+                AtaqueModel ataqueCC = character.getAtaquePorTipo("ACC");
+                if (ataqueCC != null) {
+                    meleeAttackButton.setText(ataqueCC.getNombre());
+                    meleeAttackButton.setTooltip(new Tooltip("Daño: " + ataqueCC.getDanoBase()));
+                    meleeAttackButton.setDisable(!ataqueCC.estaDisponible());
+                } else {
+                    // Fallback simple si no está en el nuevo modelo
+                    meleeAttackButton.setText("Ataque Cuerpo a Cuerpo");
+                    meleeAttackButton.setTooltip(new Tooltip("Daño Base"));
+                    meleeAttackButton.setDisable(false);
+                }
+            }
+            
+            // Configurar el botón de ataque a distancia
+            if (rangedAttackButton != null) {
+                AtaqueModel ataqueAD = character.getAtaquePorTipo("AAD");
+                if (ataqueAD != null) {
+                    rangedAttackButton.setText(ataqueAD.getNombre());
+                    rangedAttackButton.setTooltip(new Tooltip("Daño: " + ataqueAD.getDanoBase()));
+                    rangedAttackButton.setDisable(!ataqueAD.estaDisponible());
+                } else {
+                    // Fallback simple
+                    rangedAttackButton.setText("Ataque a Distancia");
+                    rangedAttackButton.setTooltip(new Tooltip("Daño Base"));
+                    rangedAttackButton.setDisable(false);
+                }
+            }
+            
+            // Configurar el botón de la primera habilidad
+            if (ability1Button != null) {
+                AtaqueModel habilidad1 = character.getAtaquePorTipo("habilidad_mas_poderosa");
+                if (habilidad1 != null) {
+                    ability1Button.setText(habilidad1.getNombre());
+                    ability1Button.setTooltip(new Tooltip(
+                        "Daño: " + habilidad1.getDanoBase() + 
+                        "\nUsos: " + habilidad1.getUsosRestantes() + "/" + habilidad1.getUsosMaximos() +
+                        (habilidad1.getCooldownActual() > 0 ? "\nEnfriamiento: " + habilidad1.getCooldownActual() + " turnos" : "")
+                    ));
+                    ability1Button.setDisable(!habilidad1.estaDisponible());
+                } else {
+                    // Fallback simple
+                    ability1Button.setText("Habilidad 1");
+                    ability1Button.setTooltip(new Tooltip("No disponible"));
+                    ability1Button.setDisable(true);
+                }
+            }
+            
+            // Configurar el botón de la segunda habilidad
+            if (ability2Button != null) {
+                AtaqueModel habilidad2 = character.getAtaquePorTipo("habilidad_caracteristica");
+                if (habilidad2 != null) {
+                    ability2Button.setText(habilidad2.getNombre());
+                    ability2Button.setTooltip(new Tooltip(
+                        "Daño: " + habilidad2.getDanoBase() + 
+                        "\nUsos: " + habilidad2.getUsosRestantes() + "/" + habilidad2.getUsosMaximos() +
+                        (habilidad2.getCooldownActual() > 0 ? "\nEnfriamiento: " + habilidad2.getCooldownActual() + " turnos" : "")
+                    ));
+                    ability2Button.setDisable(!habilidad2.estaDisponible());
+                } else {
+                    // Fallback simple
+                    ability2Button.setText("Habilidad 2");
+                    ability2Button.setTooltip(new Tooltip("No disponible"));
+                    ability2Button.setDisable(true);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error actualizando botones de ataque: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -586,29 +616,28 @@ public class CombatUIManager {
             // Actualizar estado de botones de habilidad según disponibilidad
             PersonajeModel playerCharacter = getCurrentPlayerCharacter();
             if (playerCharacter != null) {
-                ability1Button.setDisable(!playerCharacter.tieneUsosDisponibles("habilidad1"));
-                ability2Button.setDisable(!playerCharacter.tieneUsosDisponibles("habilidad2"));
+                // Verificar disponibilidad de habilidades usando el nuevo modelo
+                AtaqueModel habilidad1 = playerCharacter.getAtaquePorTipo("habilidad_mas_poderosa");
+                AtaqueModel habilidad2 = playerCharacter.getAtaquePorTipo("habilidad_caracteristica");
+                
+                if (habilidad1 != null) {
+                    ability1Button.setDisable(habilidad1.getUsosRestantes() <= 0);
+                } else {
+                    // Si no está en el nuevo modelo, verificar con el modelo de compatibilidad
+                    ability1Button.setDisable(playerCharacter.getHabilidad1Poder() <= 0);
+                }
+                
+                if (habilidad2 != null) {
+                    ability2Button.setDisable(habilidad2.getUsosRestantes() <= 0);
+                } else {
+                    // Si no está en el nuevo modelo, verificar con el modelo de compatibilidad
+                    ability2Button.setDisable(playerCharacter.getHabilidad2Poder() <= 0);
+                }
             }
             
             // Log para diagnosticar
             System.out.println("Controles del jugador habilitados");
         });
-    }
-    
-    // Método para obtener el personaje actual del jugador
-    private PersonajeModel getCurrentPlayerCharacter() {
-        // Si tenemos acceso directo a través de CombatManager, úsalo
-        if (rootPane.getUserData() instanceof CombatManager) {
-            CombatManager manager = (CombatManager) rootPane.getUserData();
-            return manager.getCurrentPlayerCharacter();
-        }
-        
-        // Si no, buscamos en el rootPane si se almacenó como userData directamente
-        if (rootPane.getUserData() instanceof PersonajeModel) {
-            return (PersonajeModel) rootPane.getUserData();
-        }
-        
-        return null;
     }
     
     /**
@@ -635,8 +664,23 @@ public class CombatUIManager {
         // Los botones de habilidad se actualizan según disponibilidad
         PersonajeModel playerCharacter = getCurrentPlayerCharacter();
         if (playerCharacter != null) {
-            ability1Button.setDisable(!playerCharacter.tieneUsosDisponibles("habilidad1"));
-            ability2Button.setDisable(!playerCharacter.tieneUsosDisponibles("habilidad2"));
+            // Verificar disponibilidad de habilidades usando el nuevo modelo
+            AtaqueModel habilidad1 = playerCharacter.getAtaquePorTipo("habilidad_mas_poderosa");
+            AtaqueModel habilidad2 = playerCharacter.getAtaquePorTipo("habilidad_caracteristica");
+            
+            if (habilidad1 != null) {
+                ability1Button.setDisable(habilidad1.getUsosRestantes() <= 0);
+            } else {
+                // Si no está en el nuevo modelo, usar el modelo de compatibilidad
+                ability1Button.setDisable(playerCharacter.getHabilidad1Poder() <= 0);
+            }
+            
+            if (habilidad2 != null) {
+                ability2Button.setDisable(habilidad2.getUsosRestantes() <= 0);
+            } else {
+                // Si no está en el nuevo modelo, usar el modelo de compatibilidad
+                ability2Button.setDisable(playerCharacter.getHabilidad2Poder() <= 0);
+            }
         }
     }
     
@@ -667,5 +711,142 @@ public class CombatUIManager {
     
     public Button getAbility2Button() {
         return ability2Button;
+    }
+    
+    /**
+     * Marca la interfaz para indicar que el personaje del jugador ha sido derrotado
+     */
+    public void markPlayerDefeated() {
+        // Obtener la imagen y el contenedor del personaje
+        ImageView playerImage = (ImageView) rootPane.lookup("#imgPersonajeJugador");
+        Node playerContainer = rootPane.lookup("#playerCharacterContainer");
+        
+        if (playerImage != null) {
+            // Aplicar estilos CSS para indicar derrota
+            playerImage.getStyleClass().add("character-defeated");
+        }
+        
+        if (playerContainer != null) {
+            playerContainer.getStyleClass().add("character-defeated-container");
+        }
+        
+        // Actualizar las miniaturas del equipo
+        updateTeamThumbnails(
+            getPlayerCharacters(),
+            getAICharacters(),
+            getPlayerCharacterIndex(),
+            getAICharacterIndex()
+        );
+    }
+
+    /**
+     * Marca la interfaz para indicar que el personaje de la IA ha sido derrotado
+     */
+    public void markAIDefeated() {
+        // Obtener la imagen y el contenedor del personaje
+        ImageView aiImage = (ImageView) rootPane.lookup("#imgPersonajeIA");
+        Node aiContainer = rootPane.lookup("#aiCharacterContainer");
+        
+        if (aiImage != null) {
+            // Aplicar estilos CSS para indicar derrota
+            aiImage.getStyleClass().add("character-defeated");
+        }
+        
+        if (aiContainer != null) {
+            aiContainer.getStyleClass().add("character-defeated-container");
+        }
+        
+        // Actualizar las miniaturas del equipo
+        updateTeamThumbnails(
+            getPlayerCharacters(),
+            getAICharacters(),
+            getPlayerCharacterIndex(),
+            getAICharacterIndex()
+        );
+    }
+
+    /**
+     * Obtiene el personaje actual del jugador desde el CombatManager
+     * @return El personaje actual del jugador, o null si no se puede obtener
+     */
+    private PersonajeModel getCurrentPlayerCharacter() {
+        try {
+            if (rootPane.getUserData() instanceof CombatManager) {
+                CombatManager manager = (CombatManager) rootPane.getUserData();
+                return manager.getCurrentPlayerCharacter();
+            }
+            return null;
+        } catch (Exception e) {
+            System.err.println("Error obteniendo el personaje actual: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Obtiene la lista de personajes del jugador desde el CombatManager
+     * @return Lista de personajes del jugador, o una lista vacía si no se puede obtener
+     */
+    private List<PersonajeModel> getPlayerCharacters() {
+        try {
+            if (rootPane.getUserData() instanceof CombatManager) {
+                CombatManager manager = (CombatManager) rootPane.getUserData();
+                return manager.getPlayerCharacters();
+            }
+            return new ArrayList<>();
+        } catch (Exception e) {
+            System.err.println("Error obteniendo la lista de personajes: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Obtiene la lista de personajes de la IA desde el CombatManager
+     * @return Lista de personajes de la IA, o una lista vacía si no se puede obtener
+     */
+    private List<PersonajeModel> getAICharacters() {
+        try {
+            if (rootPane.getUserData() instanceof CombatManager) {
+                CombatManager manager = (CombatManager) rootPane.getUserData();
+                return manager.getAICharacters();
+            }
+            return new ArrayList<>();
+        } catch (Exception e) {
+            System.err.println("Error obteniendo la lista de personajes IA: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Obtiene el índice del personaje actual del jugador
+     * @return Índice del personaje actual del jugador, o 0 si no se puede obtener
+     */
+    private int getPlayerCharacterIndex() {
+        try {
+            if (rootPane.getUserData() instanceof CombatManager) {
+                CombatManager manager = (CombatManager) rootPane.getUserData();
+                return manager.getPlayerCharacterIndex();
+            }
+            return 0;
+        } catch (Exception e) {
+            System.err.println("Error obteniendo el índice del personaje actual: " + e.getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Obtiene el índice del personaje actual de la IA
+     * @return Índice del personaje actual de la IA, o 0 si no se puede obtener
+     */
+    private int getAICharacterIndex() {
+        try {
+            if (rootPane.getUserData() instanceof CombatManager) {
+                CombatManager manager = (CombatManager) rootPane.getUserData();
+                return manager.getAICharacterIndex();
+            }
+            return 0;
+        } catch (Exception e) {
+            System.err.println("Error obteniendo el índice del personaje IA: " + e.getMessage());
+            return 0;
+        }
     }
 }

@@ -1,228 +1,283 @@
-/* Estilos para el panel principal */
+/* Estilos base para el panel principal con estética Marvel */
 .root-pane {
-    -fx-background-color: rgba(15, 20, 35, 0.95);
+    -fx-background-color: linear-gradient(to bottom, #0a0f1f, #141c30);
+    -fx-background-image: url("../../../images/Fondos/cosmic-fondo.png");
+    -fx-background-size: cover;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
 }
 
-/* Estilos para los contenedores de equipo */
+/* Estilos para los contenedores de equipo - Aspecto más Premium */
 .container-seleccion {
-    -fx-background-color: rgba(30, 40, 60, 0.7);
-    -fx-padding: 20px;
+    -fx-background-color: rgba(15, 25, 40, 0.85);
+    -fx-padding: 20px 15px;
     -fx-spacing: 15px;
-    -fx-border-color: rgba(100, 150, 255, 0.4);
-    -fx-border-width: 1px;
-    -fx-border-radius: 10px;
-    -fx-background-radius: 10px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 10, 0, 0, 0);
+    -fx-border-color: linear-gradient(to bottom, #3f87ff, #2157b0);
+    -fx-border-width: 2px;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 100, 255, 0.4), 15, 0.5, 0, 0);
 }
 
-/* Estilos para títulos */
+/* Estilos para títulos con estilo Marvel */
 .title-text {
     -fx-fill: white;
-    -fx-font-weight: bold;
-    -fx-font-size: 24px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 3, 0, 0, 0);
+    -fx-font-weight: 900;
+    -fx-font-size: 28px;
+    -fx-font-family: "Roboto Condensed", "Arial Black", sans-serif;
+    -fx-letter-spacing: 1.5px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 150, 255, 0.6), 8, 0.5, 0, 2);
+    -fx-text-fill: transparent;
+    -fx-stroke: white;
+    -fx-stroke-width: 0.5px;
 }
 
-/* Estilos para botones normales */
+/* Botones con estilo Marvel - Inspirados en los botones del MCU */
 .button-normal {
-    -fx-background-color: rgba(60, 80, 120, 0.9);
+    -fx-background-color: linear-gradient(to bottom, #3472e0, #1e4bad);
     -fx-text-fill: white;
     -fx-font-weight: bold;
-    -fx-border-color: rgba(100, 150, 255, 0.7);
+    -fx-font-family: "Roboto", sans-serif;
+    -fx-font-size: 14px;
+    -fx-border-color: linear-gradient(to bottom, #4a8aff, #2157b0);
     -fx-border-width: 2px;
-    -fx-border-radius: 5px;
-    -fx-background-radius: 5px;
-    -fx-padding: 10px 20px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 12px 25px;
     -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(0, 50, 150, 0.6), 10, 0.5, 0, 0);
+    -fx-letter-spacing: 0.8px;
+    -fx-text-transform: uppercase;
 }
 
 .button-normal:hover {
-    -fx-background-color: rgba(80, 120, 180, 0.9);
-    -fx-border-color: rgba(150, 200, 255, 0.9);
-    -fx-effect: dropshadow(gaussian, rgba(0, 50, 255, 0.5), 10, 0, 0, 0);
+    -fx-background-color: linear-gradient(to bottom, #4a8aff, #2674e8);
+    -fx-border-color: #6babff;
+    -fx-effect: dropshadow(gaussian, rgba(50, 150, 255, 0.7), 15, 0.6, 0, 0);
+    -fx-translate-y: -1px;
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-transition: all 0.2s ease;
 }
 
-/* Panel de información de personajes */
-.info-panel {
-    -fx-background-color: rgba(20, 30, 50, 0.9);
-    -fx-background-radius: 15px;
-    -fx-border-color: rgba(100, 150, 255, 0.6);
+.button-normal:pressed {
+    -fx-background-color: #1e4bad;
+    -fx-translate-y: 1px;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+    -fx-effect: dropshadow(gaussian, rgba(0, 50, 150, 0.4), 5, 0.3, 0, 0);
+}
+
+/* Panel de información de personajes - Estilo holográfico moderno */
+.character-info-container {
+    -fx-background-color: rgba(15, 25, 45, 0.92);
+    -fx-background-radius: 20px;
+    -fx-border-color: linear-gradient(to right, #2157b0, #4a8aff, #2157b0);
     -fx-border-width: 2px;
-    -fx-border-radius: 15px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 10, 0, 0, 0);
+    -fx-border-radius: 20px;
+    -fx-effect: dropshadow(gaussian, rgba(50, 150, 255, 0.5), 20, 0.5, 0, 0);
 }
 
-/* Reducir tamaño de textos */
+/* Efecto de resplandor para elementos interactivos */
+.glow-effect {
+    -fx-effect: dropshadow(gaussian, rgba(0, 150, 255, 0.5), 10, 0.5, 0, 0);
+}
+
+/* Nombre del personaje en el panel de información */
 .character-name {
-    -fx-fill: #ffffff !important;
-    -fx-font-size: 20px !important; /* Reducido de 24px */
+    -fx-fill: white !important;
+    -fx-font-size: 26px !important;
     -fx-font-weight: bold !important;
-    -fx-font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
-    -fx-effect: dropshadow(gaussian, rgba(0, 100, 255, 0.7), 5, 0, 0, 0) !important;
+    -fx-font-family: "Roboto Condensed", "Segoe UI", sans-serif !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 150, 255, 0.7), 8, 0.5, 0, 0) !important;
+    -fx-letter-spacing: 1px !important;
 }
 
+/* Títulos de sección más elegantes */
 .section-title {
-    -fx-fill: #00c8ff !important;
-    -fx-font-size: 14px !important; /* Reducido de 16px */
+    -fx-fill: #42a5f5 !important;
+    -fx-font-size: 16px !important;
     -fx-font-weight: bold !important;
-    -fx-underline: true !important;
+    -fx-font-family: "Roboto", sans-serif !important;
+    -fx-underline: false !important;
+    -fx-border-color: transparent transparent rgba(66, 165, 245, 0.5) transparent !important;
+    -fx-border-width: 0 0 1px 0 !important;
+    -fx-padding: 0 0 5px 0 !important;
+    -fx-letter-spacing: 0.8px !important;
 }
 
-/* Estadísticas en formato grande */
+/* Estadísticas en formato mejorado - Estilo holográfico */
 .stat-box {
-    -fx-background-color: rgba(40, 60, 100, 0.5);
-    -fx-background-radius: 10px;
-    -fx-border-color: rgba(100, 150, 255, 0.4);
-    -fx-border-width: 1px;
-    -fx-border-radius: 10px;
-    -fx-min-width: 80px;
+    -fx-background-color: linear-gradient(to bottom, rgba(20, 40, 80, 0.7), rgba(15, 30, 60, 0.7));
+    -fx-background-radius: 12px;
+    -fx-border-color: linear-gradient(to bottom, rgba(100, 150, 255, 0.6), rgba(70, 120, 220, 0.6));
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 12px;
+    -fx-min-width: 85px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 100, 200, 0.4), 5, 0.3, 0, 0);
 }
 
 .stat-value {
-    -fx-fill: #ffcc00;
-    -fx-font-size: 28px;
+    -fx-fill: #ffd54f;
+    -fx-font-size: 30px;
     -fx-font-weight: bold;
-    -fx-font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    -fx-font-family: "Roboto Condensed", "Segoe UI", sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(255, 213, 79, 0.7), 3, 0.3, 0, 0);
 }
 
 .stat-name {
-    -fx-fill: #ffffff;
-    -fx-font-size: 12px;
+    -fx-fill: #90caf9;
+    -fx-font-size: 13px;
     -fx-font-weight: bold;
+    -fx-font-family: "Roboto", sans-serif;
+    -fx-letter-spacing: 0.5px;
 }
 
 /* Estilo para las filas de estadísticas */
 .stat-name-row {
-    -fx-fill: #ffffff !important;
-    -fx-font-size: 12px !important; /* Reducido de 14px */
+    -fx-fill: #90caf9 !important;
+    -fx-font-size: 13px !important;
     -fx-font-weight: bold !important;
+    -fx-font-family: "Roboto", sans-serif !important;
 }
 
 .stat-value-row {
-    -fx-fill: #ffcc00 !important;
-    -fx-font-size: 16px !important; /* Reducido de 18px */
+    -fx-fill: #ffd54f !important;
+    -fx-font-size: 17px !important;
     -fx-font-weight: bold !important;
+    -fx-font-family: "Roboto Condensed", sans-serif !important;
+    -fx-effect: dropshadow(gaussian, rgba(255, 213, 79, 0.4), 2, 0.3, 0, 0) !important;
 }
 
-/* Texto de estadísticas secundarias */
-.stat-text {
-    -fx-fill: #ffffff !important;
-    -fx-font-size: 12px !important; /* Reducido de 14px */
-}
-
-/* Ataques y habilidades */
+/* Ataques y habilidades con estilo impactante */
 .attack-name, .ability-name {
-    -fx-fill: #ffcc00 !important;
-    -fx-font-size: 14px !important; /* Reducido de 16px */
+    -fx-fill: #ff9e80 !important;
+    -fx-font-size: 15px !important;
     -fx-font-weight: bold !important;
+    -fx-font-family: "Roboto Condensed", sans-serif !important;
+    -fx-effect: dropshadow(gaussian, rgba(255, 158, 128, 0.4), 2, 0.3, 0, 0) !important;
 }
 
 .ability-type {
-    -fx-fill: #60e060 !important;
-    -fx-font-size: 11px !important; /* Reducido de 12px */
+    -fx-fill: #81c784 !important;
+    -fx-font-size: 12px !important;
     -fx-font-style: italic !important;
+    -fx-font-family: "Roboto", sans-serif !important;
 }
 
 .attack-power, .ability-power {
-    -fx-fill: #ff9c00 !important;
-    -fx-font-size: 12px !important; /* Reducido de 14px */
+    -fx-fill: #ffb74d !important;
+    -fx-font-size: 13px !important;
+    -fx-font-family: "Roboto", sans-serif !important;
 }
 
 .special-ability-info {
-    -fx-fill: #ff00ff;
-    -fx-font-size: 12px;
+    -fx-fill: #ce93d8;
+    -fx-font-size: 13px;
     -fx-font-style: italic;
     -fx-font-weight: bold;
+    -fx-font-family: "Roboto", sans-serif;
 }
 
-/* Descripción del personaje */
+/* Descripción del personaje con mejor legibilidad */
 .description-text {
-    -fx-fill: #d0d0d0 !important;
-    -fx-font-size: 14px !important;
-    -fx-text-alignment: center !important;
+    -fx-fill: #e0e0e0;
+    -fx-font-size: 14px;
+    -fx-font-family: "Roboto", sans-serif;
+    -fx-text-alignment: justify;
+    -fx-wrap-text: true;
+    -fx-line-spacing: 3px;
 }
 
-/* Botones */
 /* Botón para cerrar la ventana de información */
 .close-button {
-    -fx-background-color: rgba(200, 50, 50, 0.8) !important;
+    -fx-background-color: linear-gradient(to bottom, #f44336, #d32f2f) !important;
     -fx-text-fill: white !important;
     -fx-font-weight: bold !important;
-    -fx-border-color: rgba(255, 100, 100, 0.9) !important;
-    -fx-border-width: 1px !important;
+    -fx-font-family: "Roboto", sans-serif !important;
+    -fx-border-color: #ff5252 !important;
+    -fx-border-width: 1.5px !important;
     -fx-border-radius: 50% !important;
     -fx-background-radius: 50% !important;
-    -fx-min-width: 25px !important;
-    -fx-min-height: 25px !important;
-    -fx-max-width: 25px !important;
-    -fx-max-height: 25px !important;
+    -fx-min-width: 30px !important;
+    -fx-min-height: 30px !important;
+    -fx-max-width: 30px !important;
+    -fx-max-height: 30px !important;
     -fx-padding: 0 !important;
+    -fx-effect: dropshadow(gaussian, rgba(244, 67, 54, 0.5), 5, 0.3, 0, 0) !important;
 }
 
 .close-button:hover {
-    -fx-background-color: rgba(255, 70, 70, 0.9) !important;
+    -fx-background-color: #f44336 !important;
     -fx-cursor: hand !important;
+    -fx-scale-x: 1.1 !important;
+    -fx-scale-y: 1.1 !important;
+    -fx-effect: dropshadow(gaussian, rgba(244, 67, 54, 0.7), 8, 0.5, 0, 0) !important;
 }
 
+/* Botón de selección con diseño inspirado en Marvel */
 .select-button {
-    -fx-background-color: rgba(0, 150, 0, 0.8) !important;
+    -fx-background-color: linear-gradient(to bottom, #4caf50, #388e3c) !important;
     -fx-text-fill: white !important;
     -fx-font-weight: bold !important;
     -fx-font-size: 16px !important;
-    -fx-border-color: rgba(0, 200, 0, 0.9) !important;
+    -fx-font-family: "Roboto", sans-serif !important;
+    -fx-border-color: #66bb6a !important;
     -fx-border-width: 2px !important;
-    -fx-border-radius: 8px !important;
-    -fx-background-radius: 8px !important;
-    -fx-padding: 8px 16px !important;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 5, 0, 0, 2) !important;
+    -fx-border-radius: 10px !important;
+    -fx-background-radius: 10px !important;
+    -fx-padding: 10px 20px !important;
+    -fx-effect: dropshadow(gaussian, rgba(76, 175, 80, 0.5), 7, 0.3, 0, 0) !important;
+    -fx-letter-spacing: 0.8px !important;
+    -fx-text-transform: uppercase !important;
 }
 
 .select-button:hover {
-    -fx-background-color: rgba(0, 180, 0, 0.9) !important;
+    -fx-background-color: #4caf50 !important;
     -fx-scale-x: 1.05 !important;
     -fx-scale-y: 1.05 !important;
     -fx-cursor: hand !important;
+    -fx-effect: dropshadow(gaussian, rgba(76, 175, 80, 0.7), 10, 0.5, 0, 0) !important;
 }
 
 .select-button:pressed {
-    -fx-background-color: rgba(0, 120, 0, 0.9) !important;
+    -fx-background-color: #388e3c !important;
     -fx-scale-x: 0.98 !important;
     -fx-scale-y: 0.98 !important;
+    -fx-translate-y: 1px !important;
 }
 
-/* Miniatura del personaje */
-.character-mini {
-    -fx-effect: dropshadow(gaussian, rgba(100, 150, 255, 0.7), 10, 0, 0, 0) !important;
-}
-
-/* Estilos para las tarjetas de personajes seleccionados */
+/* Tarjetas de personajes seleccionados - Estilo Marvel moderno */
 .character-card {
-    -fx-background-color: rgba(40, 60, 100, 0.7) !important;
-    -fx-background-radius: 8px !important;
-    -fx-border-color: rgba(100, 150, 255, 0.5) !important; 
+    -fx-background-color: linear-gradient(to bottom, rgba(30, 50, 90, 0.8), rgba(20, 40, 70, 0.8)) !important;
+    -fx-background-radius: 12px !important;
+    -fx-border-color: linear-gradient(to bottom, rgba(100, 150, 255, 0.6), rgba(70, 120, 220, 0.6)) !important; 
     -fx-border-width: 2px !important;
-    -fx-border-radius: 8px !important;
-    -fx-padding: 10px !important;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 5, 0, 0, 0) !important;
+    -fx-border-radius: 12px !important;
+    -fx-padding: 12px !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 100, 255, 0.5), 8, 0.3, 0, 0) !important;
     -fx-transition: all 0.3s ease !important;
 }
 
 .character-card:hover {
-    -fx-background-color: rgba(60, 80, 120, 0.8) !important;
+    -fx-background-color: linear-gradient(to bottom, rgba(40, 70, 120, 0.85), rgba(30, 60, 100, 0.85)) !important;
     -fx-border-color: rgba(100, 200, 255, 0.8) !important;
-    -fx-effect: dropshadow(gaussian, rgba(100, 150, 255, 0.5), 10, 0.5, 0, 0) !important;
+    -fx-effect: dropshadow(gaussian, rgba(100, 150, 255, 0.7), 12, 0.5, 0, 0) !important;
     -fx-cursor: hand !important;
 }
 
-/* Añadir icono de eliminar al hacer hover */
-.character-card:hover::after {
-    -fx-content: "X";
-    -fx-font-size: 20px;
+/* Nombre del personaje en la tarjeta */
+.character-name-label {
     -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Roboto Condensed", sans-serif;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 1, 0.5, 0, 0);
 }
 
-/* Estilo para el ScrollPane transparente */
+/* ScrollPane transparente mejorado */
 .transparent-scrollpane {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
@@ -233,18 +288,18 @@
 }
 
 .transparent-scrollpane .scroll-bar:vertical {
-    -fx-background-color: rgba(30, 30, 50, 0.3);
-    -fx-background-radius: 5;
+    -fx-background-color: rgba(20, 30, 50, 0.3);
+    -fx-background-radius: 6px;
 }
 
 .transparent-scrollpane .scroll-bar:vertical .thumb {
-    -fx-background-color: rgba(255, 23, 68, 0.8);
-    -fx-background-radius: 5;
+    -fx-background-color: rgba(66, 165, 245, 0.8);
+    -fx-background-radius: 6px;
 }
 
 .transparent-scrollpane .scroll-bar:vertical .track {
-    -fx-background-color: rgba(30, 30, 50, 0.5);
-    -fx-background-radius: 5;
+    -fx-background-color: rgba(15, 25, 45, 0.5);
+    -fx-background-radius: 6px;
 }
 
 .transparent-scrollpane .scroll-bar .increment-button,
@@ -258,32 +313,114 @@
     -fx-background-color: rgba(255, 255, 255, 0.7);
 }
 
-/* Estilo para los botones de personajes */
+/* Botones de personajes - Estilo moderno de galería */
 .character-button {
     -fx-background-color: transparent;
-    -fx-padding: 5px;
+    -fx-padding: 8px;
     -fx-border-color: transparent;
-    -fx-border-width: 2px;
-    -fx-border-radius: 10px;
-    -fx-background-radius: 10px;
+    -fx-border-width: 2.5px;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+    -fx-transition: all 0.3s ease;
 }
 
 .character-button:hover {
-    -fx-border-color: rgba(255, 180, 0, 0.7);
-    -fx-effect: dropshadow(gaussian, rgba(255, 180, 0, 0.7), 10, 0, 0, 0);
+    -fx-border-color: linear-gradient(to bottom, #ffb300, #fb8c00);
+    -fx-effect: dropshadow(gaussian, rgba(255, 179, 0, 0.6), 12, 0.4, 0, 0);
     -fx-cursor: hand;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 .character-button.selected-character {
-    -fx-border-color: rgba(0, 200, 255, 0.9);
-    -fx-effect: dropshadow(gaussian, rgba(0, 150, 255, 0.8), 15, 0, 0, 0);
+    -fx-border-color: linear-gradient(to bottom, #29b6f6, #0288d1);
+    -fx-effect: dropshadow(gaussian, rgba(41, 182, 246, 0.6), 15, 0.5, 0, 0);
 }
 
-/* Estilo para el FlowPane de selección de personajes */
+/* Panel de personajes seleccionables - Aspecto más Marvel moderno */
 #characterSelectionPane {
-    -fx-background-color: rgba(20, 30, 40, 0.4);
+    -fx-background-color: rgba(10, 20, 35, 0.7);
+    -fx-background-radius: 15px;
+    -fx-border-color: linear-gradient(to bottom, rgba(100, 150, 255, 0.4), rgba(70, 120, 220, 0.4));
+    -fx-border-radius: 15px;
+    -fx-border-width: 1.5px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 50, 150, 0.3), 10, 0.3, 0, 0);
+}
+
+/* Tarjetas de ataques y pasivas con estilo futurista */
+.attack-card, .pasiva-card {
+    -fx-background-color: linear-gradient(to bottom, rgba(30, 50, 90, 0.4), rgba(20, 40, 70, 0.4));
+    -fx-background-radius: 8px;
+    -fx-border-color: linear-gradient(to bottom, rgba(100, 150, 255, 0.5), rgba(70, 120, 220, 0.5));
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+    -fx-padding: 8px 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 100, 200, 0.3), 5, 0.2, 0, 0);
+}
+
+.attack-card:hover, .pasiva-card:hover {
+    -fx-background-color: linear-gradient(to bottom, rgba(40, 70, 120, 0.5), rgba(30, 60, 100, 0.5));
+    -fx-border-color: rgba(120, 170, 255, 0.7);
+    -fx-effect: dropshadow(gaussian, rgba(0, 100, 200, 0.4), 8, 0.3, 0, 0);
+}
+
+/* Fondo "holográfico" para algunos elementos clave - Estilo tecnología Stark */
+.holo-background {
+    -fx-background-color: linear-gradient(to bottom, rgba(30, 50, 90, 0.5), rgba(20, 40, 70, 0.5));
     -fx-background-radius: 10px;
-    -fx-border-color: rgba(100, 150, 255, 0.4);
-    -fx-border-radius: 10px;
+    -fx-border-color: linear-gradient(to bottom, rgba(41, 182, 246, 0.6), rgba(2, 136, 209, 0.6));
     -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-effect: dropshadow(gaussian, rgba(41, 182, 246, 0.4), 8, 0.3, 0, 0);
+}
+
+/* Mensaje informativo y de error con estilo cinemático */
+.info-message {
+    -fx-background-color: rgba(10, 20, 40, 0.9);
+    -fx-background-radius: 10px;
+    -fx-border-color: linear-gradient(to right, #2196f3, #0d47a1);
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-padding: 10px 15px;
+    -fx-effect: dropshadow(gaussian, rgba(33, 150, 243, 0.5), 10, 0.4, 0, 0);
+}
+
+.error-message {
+    -fx-background-color: rgba(10, 20, 40, 0.9);
+    -fx-background-radius: 10px;
+    -fx-border-color: linear-gradient(to right, #f44336, #b71c1c);
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-padding: 10px 15px;
+    -fx-effect: dropshadow(gaussian, rgba(244, 67, 54, 0.5), 10, 0.4, 0, 0);
+}
+
+/* Estilos para los mensajes de texto */
+.info-text {
+    -fx-fill: white;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Roboto", sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 2, 0.5, 0, 0);
+}
+
+/* Para el botón de luchar - Estilo destacado */
+#onLucharButton {
+    -fx-background-color: linear-gradient(to bottom, #f44336, #d32f2f);
+    -fx-border-color: linear-gradient(to bottom, #ff5252, #e53935);
+    -fx-effect: dropshadow(gaussian, rgba(244, 67, 54, 0.6), 12, 0.5, 0, 0);
+}
+
+#onLucharButton:hover {
+    -fx-background-color: linear-gradient(to bottom, #ef5350, #e53935);
+    -fx-border-color: #ff8a80;
+    -fx-effect: dropshadow(gaussian, rgba(244, 67, 54, 0.8), 15, 0.6, 0, 0);
+}
+
+#onLucharButton:disabled {
+    -fx-background-color: linear-gradient(to bottom, #bdbdbd, #9e9e9e);
+    -fx-border-color: #e0e0e0;
+    -fx-text-fill: #f5f5f5;
+    -fx-opacity: 0.8;
+    -fx-effect: none;
 }

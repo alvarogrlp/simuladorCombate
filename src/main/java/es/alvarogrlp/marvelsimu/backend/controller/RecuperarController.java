@@ -1,20 +1,14 @@
 package es.alvarogrlp.marvelsimu.backend.controller;
 
-import java.sql.SQLException;
-
-import es.alvarogrlp.marvelsimu.PrincipalApplication;
 import es.alvarogrlp.marvelsimu.backend.config.ConfigManager;
-import es.alvarogrlp.marvelsimu.backend.config.ThemeManager;
 import es.alvarogrlp.marvelsimu.backend.controller.abstracts.AbstractController;
 import es.alvarogrlp.marvelsimu.backend.model.UsuarioModel;
+import es.alvarogrlp.marvelsimu.backend.util.AlertUtils;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 public class RecuperarController extends AbstractController {
     
@@ -43,20 +37,46 @@ public class RecuperarController extends AbstractController {
 
     @FXML
     protected void onClickRecuperar() {
+        try {
+            if (textFieldEmail == null || textFieldEmail.getText().isEmpty()) {
+                textAviso.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeEmailVacio", "¡El email no puede estar vacío!") + " ❌");
+                textAviso.setStyle("-fx-fill: red;");
+                return;
+            }
 
-        if (textFieldEmail == null || textFieldEmail.getText().isEmpty()) {
-            textAviso.setText("¡El password no puede ser vacio!");
-            return;
+            // Usar el nuevo método para trabajar con marvelSimu.db
+            UsuarioModel usuarioEntity = getUsuarioServiceModel().obtenerCredencialesUsuario(textFieldEmail.getText());
+
+            if (usuarioEntity == null) {
+                textAviso.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeUsuarioNoExiste", "El usuario no existe") + " ❌");
+                textAviso.setStyle("-fx-fill: red;");
+                return;
+            }
+
+            // Aquí podría ir un código para enviar un email real de recuperación
+            // Por ahora solo mostramos un mensaje de confirmación
+            textAviso.setText("✅ " + ConfigManager.ConfigProperties.getProperty("mensajeRecuperacionEnviada", "Recuperación enviada") + " ✅");
+            textAviso.setStyle("-fx-fill: green;");
+            
+            // Opcional: Redirigir al usuario a la pantalla de login después de un tiempo
+            new Thread(() -> {
+                try {
+                    Thread.sleep(3000); // Esperar 3 segundos
+                    Platform.runLater(() -> openVolverClick());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            textAviso.setText("❌ " + ConfigManager.ConfigProperties.getProperty("mensajeErrorSistema", "Error en el sistema") + " ❌");
+            textAviso.setStyle("-fx-fill: red;");
+            
+            // Registrar el error detallado en la consola
+            System.err.println("Error en recuperación de contraseña: " + e.getMessage());
+            AlertUtils.mostrarError("Error", "Ha ocurrido un error: " + e.getMessage());
         }
-
-        UsuarioModel usuarioEntity = getUsuarioServiceModel().obtenerCredencialesUsuario(textFieldEmail.getText());
-
-        if (usuarioEntity == null) {
-            textAviso.setText("El usuario no existe");
-            return;
-        }
-
-        textAviso.setText("Recuperación enviada");
     }
 
     @FXML

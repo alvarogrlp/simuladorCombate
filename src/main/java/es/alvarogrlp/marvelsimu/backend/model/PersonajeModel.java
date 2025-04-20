@@ -1,344 +1,149 @@
 package es.alvarogrlp.marvelsimu.backend.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public class PersonajeModel {
+    // Propiedades básicas
     private int id;
     private String nombre;
     private String nombreCodigo;
     private String descripcion;
+    private boolean esTransformacion;
+    
+    // Transformación
+    private Integer personajeBaseId;
+    private int duracionTurnos;   // 0 = permanente
     
     // Estadísticas básicas
     private int vida;
     private int fuerza;
     private int velocidad;
-    private int resistencia;
-    private int poderMagico;
-    
-    // Nuevas estadísticas
-    private int resistenciaFisica;
-    private int resistenciaMagica;
-    private int evasion;
-    private int probabilidadCritico;
-    private double multiplicadorCritico;
-    
-    // Habilidad pasiva
-    private String pasivaNombre;
-    private String pasivaDescripcion;
-    private String pasivaTipo;
-    private int pasivaValor;
-    
-    // Ataques con su tipo
-    private int ataqueMelee;
-    private int ataqueLejano;
-    private int habilidad1Poder;
-    private int habilidad2Poder;
-    
-    private String ataqueMeleeNombre;
-    private String ataqueLejanoNombre;
-    private String habilidad1Nombre;
-    private String habilidad2Nombre;
-    
-    private String ataqueMeleeTipo;
-    private String ataqueLejanoTipo;
-    private String habilidad1Tipo;
-    private String habilidad2Tipo;
+    private int poder;  // Antes era poderMagico
     
     // Rutas de imágenes
     private String imagenCombate;
     private String imagenMiniatura;
-    private String imagenCompleta;
     
     // Propiedades para el estado durante el combate
     private int vidaActual;
     private boolean derrotado;
     
-    // Usos de habilidades
-    private Map<String, Integer> usosHabilidad = new HashMap<>();
-    private int habilidad1Usos;
-    private int habilidad2Usos;
+    // Ataques y pasivas (nuevo modelo)
+    private List<AtaqueModel> ataques;
+    private List<PasivaModel> pasivas;
+    
+    // Para buffs y debuffs temporales
+    private Map<String, Integer> buffsActivos;
+    private Map<String, Integer> debuffsActivos;
     
     // Constructor vacío
     public PersonajeModel() {
-    }
-    
-    // Constructor completo
-    public PersonajeModel(int id, String nombre, String nombreCodigo, String descripcion, 
-                         int vida, int fuerza, int velocidad, int resistencia, int poderMagico,
-                         int ataqueMelee, int ataqueLejano, int habilidad1Poder, int habilidad2Poder,
-                         String ataqueMeleeNombre, String ataqueLejanoNombre, String habilidad1Nombre, String habilidad2Nombre,
-                         String imagenCombate, String imagenMiniatura) {
-        this.id = id;
-        this.nombre = nombre;
-        this.nombreCodigo = nombreCodigo;
-        this.descripcion = descripcion;
-        this.vida = vida;
-        this.fuerza = fuerza;
-        this.velocidad = velocidad;
-        this.resistencia = resistencia;
-        this.poderMagico = poderMagico;
-        this.ataqueMelee = ataqueMelee;
-        this.ataqueLejano = ataqueLejano;
-        this.habilidad1Poder = habilidad1Poder;
-        this.habilidad2Poder = habilidad2Poder;
-        this.ataqueMeleeNombre = ataqueMeleeNombre;
-        this.ataqueLejanoNombre = ataqueLejanoNombre;
-        this.habilidad1Nombre = habilidad1Nombre;
-        this.habilidad2Nombre = habilidad2Nombre;
-        this.imagenCombate = imagenCombate;
-        this.imagenMiniatura = imagenMiniatura;
-    }
-    
-    // Getters y setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-    
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
-    
-    public String getNombreCodigo() { return nombreCodigo; }
-    public void setNombreCodigo(String nombreCodigo) { this.nombreCodigo = nombreCodigo; }
-    
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-    
-    public int getVida() { return vida; }
-    public void setVida(int vida) { this.vida = vida; }
-    
-    public int getFuerza() { return fuerza; }
-    public void setFuerza(int fuerza) { this.fuerza = fuerza; }
-    
-    public int getVelocidad() { return velocidad; }
-    public void setVelocidad(int velocidad) { this.velocidad = velocidad; }
-    
-    public int getResistencia() { return resistencia; }
-    public void setResistencia(int resistencia) { this.resistencia = resistencia; }
-    
-    public int getPoderMagico() { return poderMagico; }
-    public void setPoderMagico(int poderMagico) { this.poderMagico = poderMagico; }
-    
-    public int getAtaqueMelee() { return ataqueMelee; }
-    public void setAtaqueMelee(int ataqueMelee) { this.ataqueMelee = ataqueMelee; }
-    
-    public int getAtaqueLejano() { return ataqueLejano; }
-    public void setAtaqueLejano(int ataqueLejano) { this.ataqueLejano = ataqueLejano; }
-    
-    public int getHabilidad1Poder() { return habilidad1Poder; }
-    public void setHabilidad1Poder(int habilidad1Poder) { this.habilidad1Poder = habilidad1Poder; }
-    
-    public int getHabilidad2Poder() { return habilidad2Poder; }
-    public void setHabilidad2Poder(int habilidad2Poder) { this.habilidad2Poder = habilidad2Poder; }
-    
-    public String getAtaqueMeleeNombre() { return ataqueMeleeNombre; }
-    public void setAtaqueMeleeNombre(String ataqueMeleeNombre) { this.ataqueMeleeNombre = ataqueMeleeNombre; }
-    
-    public String getAtaqueLejanoNombre() { return ataqueLejanoNombre; }
-    public void setAtaqueLejanoNombre(String ataqueLejanoNombre) { this.ataqueLejanoNombre = ataqueLejanoNombre; }
-    
-    public String getHabilidad1Nombre() { return habilidad1Nombre; }
-    public void setHabilidad1Nombre(String habilidad1Nombre) { this.habilidad1Nombre = habilidad1Nombre; }
-    
-    public String getHabilidad2Nombre() { return habilidad2Nombre; }
-    public void setHabilidad2Nombre(String habilidad2Nombre) { this.habilidad2Nombre = habilidad2Nombre; }
-    
-    public String getImagenCombate() { 
-        return imagenCombate; 
-    }
-    
-    public void setImagenCombate(String imagenCombate) { this.imagenCombate = imagenCombate; }
-    
-    public String getImagenMiniatura() { 
-        return imagenMiniatura; 
-    }
-    
-    public void setImagenMiniatura(String imagenMiniatura) { this.imagenMiniatura = imagenMiniatura; }
-    
-    public String getImagenCompleta() {
-        return imagenCompleta;
-    }
-    
-    public void setImagenCompleta(String imagenCompleta) {
-        this.imagenCompleta = imagenCompleta;
-    }
-    
-    public int getVidaActual() {
-        return vidaActual;
-    }
-    
-    public void setVidaActual(int vidaActual) {
-        this.vidaActual = vidaActual;
-        // Actualizar estado de derrotado si la vida llega a 0
-        if (vidaActual <= 0) {
-            this.derrotado = true;
-        }
-    }
-    
-    public boolean isDerrotado() {
-        return derrotado;
-    }
-    
-    public void setDerrotado(boolean derrotado) {
-        this.derrotado = derrotado;
-    }
-    
-    public int getResistenciaFisica() { return resistenciaFisica; }
-    public void setResistenciaFisica(int resistenciaFisica) { this.resistenciaFisica = resistenciaFisica; }
-    
-    public int getResistenciaMagica() { return resistenciaMagica; }
-    public void setResistenciaMagica(int resistenciaMagica) { this.resistenciaMagica = resistenciaMagica; }
-    
-    public int getEvasion() { return evasion; }
-    public void setEvasion(int evasion) { this.evasion = evasion; }
-    
-    public int getProbabilidadCritico() { return probabilidadCritico; }
-    public void setProbabilidadCritico(int probabilidadCritico) { this.probabilidadCritico = probabilidadCritico; }
-    
-    public double getMultiplicadorCritico() { return multiplicadorCritico; }
-    public void setMultiplicadorCritico(double multiplicadorCritico) { this.multiplicadorCritico = multiplicadorCritico; }
-    
-    public String getPasivaNombre() { return pasivaNombre; }
-    public void setPasivaNombre(String pasivaNombre) { this.pasivaNombre = pasivaNombre; }
-    
-    public String getPasivaDescripcion() { return pasivaDescripcion; }
-    public void setPasivaDescripcion(String pasivaDescripcion) { this.pasivaDescripcion = pasivaDescripcion; }
-    
-    public String getPasivaTipo() { return pasivaTipo; }
-    public void setPasivaTipo(String pasivaTipo) { this.pasivaTipo = pasivaTipo; }
-    
-    public int getPasivaValor() { return pasivaValor; }
-    public void setPasivaValor(int pasivaValor) { this.pasivaValor = pasivaValor; }
-    
-    public String getAtaqueMeleeTipo() { return ataqueMeleeTipo; }
-    public void setAtaqueMeleeTipo(String ataqueMeleeTipo) { this.ataqueMeleeTipo = ataqueMeleeTipo; }
-    
-    public String getAtaqueLejanoTipo() { return ataqueLejanoTipo; }
-    public void setAtaqueLejanoTipo(String ataqueLejanoTipo) { this.ataqueLejanoTipo = ataqueLejanoTipo; }
-    
-    public String getHabilidad1Tipo() { return habilidad1Tipo; }
-    public void setHabilidad1Tipo(String habilidad1Tipo) { this.habilidad1Tipo = habilidad1Tipo; }
-    
-    public String getHabilidad2Tipo() { return habilidad2Tipo; }
-    public void setHabilidad2Tipo(String habilidad2Tipo) { this.habilidad2Tipo = habilidad2Tipo; }
-    
-    public int getHabilidad1Usos() {
-        return habilidad1Usos;
-    }
-    
-    public void setHabilidad1Usos(int habilidad1Usos) {
-        this.habilidad1Usos = habilidad1Usos;
-    }
-    
-    public int getHabilidad2Usos() {
-        return habilidad2Usos;
-    }
-    
-    public void setHabilidad2Usos(int habilidad2Usos) {
-        this.habilidad2Usos = habilidad2Usos;
+        ataques = new ArrayList<>();
+        pasivas = new ArrayList<>();
+        buffsActivos = new HashMap<>();
+        debuffsActivos = new HashMap<>();
+        derrotado = false;
     }
     
     /**
-     * Inicializa la vida del personaje al máximo
+     * Inicializa la vida del personaje al máximo y resetea el estado de combate
      */
     public void inicializarVida() {
         this.vidaActual = this.vida;
         this.derrotado = false;
         
-        // Inicializar usos de habilidades
-        inicializarUsosHabilidades();
+        // Reiniciar ataques y pasivas para combate
+        if (ataques != null) {
+            for (AtaqueModel ataque : ataques) {
+                ataque.resetearEstadoCombate();
+            }
+        }
+        
+        if (pasivas != null) {
+            for (PasivaModel pasiva : pasivas) {
+                pasiva.resetearEstadoCombate();
+            }
+        }
+        
+        // Limpiar buffs y debuffs
+        buffsActivos.clear();
+        debuffsActivos.clear();
     }
     
     /**
      * Método para que el personaje reciba daño
      * @param cantidad Cantidad de daño a recibir
+     * @param tipoAtaque Tipo de ataque (para resistencias)
+     * @param aplicarCritico Si debe aplicarse daño crítico
      * @return Verdadero si el personaje queda derrotado
      */
-    public boolean recibirDaño(int cantidad) {
-        // Aplicar resistencia al daño (ejemplo simple)
-        int dañoReducido = (int)(cantidad * (1.0 - (resistencia / 1000.0)));
-        dañoReducido = Math.max(1, dañoReducido); // Al menos 1 de daño
-        
-        vidaActual -= dañoReducido;
-        
-        if (vidaActual <= 0) {
-            vidaActual = 0;
-            derrotado = true;
-            return true;
-        }
-        
-        return false;
-    }
-    
-    // Método actualizado para recibir daño con todas las nuevas mecánicas
     public boolean recibirDaño(int cantidad, String tipoAtaque, boolean aplicarCritico) {
         // Verificar derrotado
         if (isDerrotado()) {
             return true;
         }
         
-        // CORREGIR: Verificar si tipoAtaque es null para prevenir NullPointerException
-        if (tipoAtaque == null) {
-            tipoAtaque = "fisico"; // Valor por defecto
+        // Comprobar buff de inmunidad
+        if (buffsActivos.containsKey("inmunidad") && buffsActivos.get("inmunidad") > 0) {
+            return false;
         }
         
-        // Variables para tracking de efectos
-        boolean ataqueEvadido = false;
-        boolean ataqueReducido = false;
+        // Comprobar posibles pasivas (escudo, reducción, etc)
         int dañoFinal = cantidad;
-        
-        // Comprobación de evasión (solo para personajes con evasión)
-        if (evasion > 0 && Math.random() * 100 < evasion) {
-            // Evasión exitosa
-            ataqueEvadido = true;
-            dañoFinal = 0;
-        } else if ("daño_verdadero".equals(tipoAtaque)) {
-            // El daño verdadero ignora todas las reducciones y defensas
-            dañoFinal = cantidad;
-        } else {
-            // Calcular daño recibido según tipo de ataque
-            if (tipoAtaque.equals("fisico")) {
-                // Aplicar resistencia física (reducida)
-                dañoFinal = (int)(cantidad * (1.0 - (resistenciaFisica / 200.0)));
-            } else {
-                // Aplicar resistencia mágica para ataques mágicos (reducida)
-                dañoFinal = (int)(cantidad * (1.0 - (resistenciaMagica / 200.0)));
-            }
-            
-            // Aplicar habilidad pasiva según su tipo (con menor probabilidad)
-            if (!ataqueEvadido) {
-                switch (pasivaTipo) {
-                    case "reduccion":
-                    case "barrera":
-                    case "armadura":
-                        // Probabilidad máxima del 30% de reducir el daño
-                        int probabilidadMaxReduccion = 30;
-                        if (pasivaValor > probabilidadMaxReduccion) {
-                            pasivaValor = probabilidadMaxReduccion;
-                        }
-                        
-                        // Intentar reducir el daño
-                        if (Math.random() * 100 < pasivaValor) {
-                            dañoFinal = (int)(dañoFinal * 0.7);  // Reduce sólo un 30% del daño
-                            ataqueReducido = true;
-                        }
-                        break;
+        for (PasivaModel pasiva : pasivas) {
+            if (pasiva.estaDisponible() && pasiva.getTriggerTipo().equals("on_damage_taken")) {
+                if (pasiva.getEfectoTipo().equals("reduce_damage_pct")) {
+                    dañoFinal = dañoFinal * (100 - pasiva.getEfectoValor()) / 100;
+                    pasiva.activar();
                 }
-            }
-            
-            // Aplicar crítico si procede (aumentado)
-            if (aplicarCritico) {
-                dañoFinal = (int)(dañoFinal * multiplicadorCritico);
-            }
-            
-            // Asegurar al menos 1 de daño si no fue evadido
-            if (!ataqueEvadido && dañoFinal < 1) {
-                dañoFinal = 1;
             }
         }
         
         // Aplicar el daño final
         vidaActual -= dañoFinal;
+        
+        // Comprobar si el personaje ha sido derrotado
+        if (vidaActual <= 0) {
+            // Comprobar pasiva de supervivencia
+            boolean revivido = false;
+            for (PasivaModel pasiva : pasivas) {
+                if (pasiva.estaDisponible() && pasiva.getTriggerTipo().equals("on_fatal_damage")) {
+                    if (pasiva.getEfectoTipo().equals("revive_pct")) {
+                        vidaActual = vida * pasiva.getEfectoValor() / 100;
+                        pasiva.activar();
+                        revivido = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (!revivido) {
+                vidaActual = 0;
+                derrotado = true;
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Método simplificado para que el personaje reciba daño
+     * @param cantidad Cantidad de daño a recibir
+     * @return Verdadero si el personaje queda derrotado
+     */
+    public boolean recibirDano(int cantidad) {
+        // Verificar derrotado
+        if (isDerrotado()) {
+            return true;
+        }
+        
+        // Aplicar el daño
+        vidaActual -= cantidad;
         
         // Comprobar si el personaje ha sido derrotado
         if (vidaActual <= 0) {
@@ -350,113 +155,8 @@ public class PersonajeModel {
         return false;
     }
     
-    // Método para aplicar pasivas que se activan al inicio del turno
-    public void aplicarPasivasIniciaTurno() {
-        if (derrotado) return;
-        
-        switch (pasivaTipo) {
-            case "regeneracion":
-                int cantidadRegeneracion = (vida * pasivaValor) / 100;
-                vidaActual += cantidadRegeneracion;
-                if (vidaActual > vida) vidaActual = vida;
-                break;
-            // Otras pasivas de inicio de turno
-        }
-    }
-    
-    /**
-     * Inicializa los usos de habilidades
-     */
-    public void inicializarUsosHabilidades() {
-        // Inicializar usos de habilidades
-        usosHabilidad.put("habilidad1", 3); // 3 usos para la habilidad 1
-        usosHabilidad.put("habilidad2", 2); // 2 usos para la habilidad 2 (más poderosa)
-    }
-    
-    /**
-     * Verifica si una habilidad tiene usos disponibles
-     */
-    public boolean tieneUsosDisponibles(String habilidad) {
-        if (!usosHabilidad.containsKey(habilidad)) {
-            return true; // Los ataques básicos no tienen límite
-        }
-        return usosHabilidad.get(habilidad) > 0;
-    }
-    
-    /**
-     * Consume un uso de la habilidad
-     */
-    public void consumirUsoHabilidad(String habilidad) {
-        if (usosHabilidad.containsKey(habilidad) && usosHabilidad.get(habilidad) > 0) {
-            usosHabilidad.put(habilidad, usosHabilidad.get(habilidad) - 1);
-        }
-    }
-    
-    /**
-     * Retorna los usos restantes de una habilidad
-     */
-    public int getUsosRestantes(String habilidad) {
-        if (!usosHabilidad.containsKey(habilidad)) {
-            return -1; // Los ataques básicos no tienen límite
-        }
-        return usosHabilidad.get(habilidad);
-    }
-    
-    // Método para determinar si un ataque es crítico
-    public boolean esGolpeCritico() {
-        return Math.random() * 100 < probabilidadCritico;
-    }
-    
-    // Método para obtener el poder de un tipo de ataque específico
-    public int getPoderAtaque(String tipoAtaque) {
-        switch (tipoAtaque) {
-            case "melee": return ataqueMelee;
-            case "lejano": return ataqueLejano;
-            case "habilidad1": return habilidad1Poder;
-            case "habilidad2": return habilidad2Poder;
-            default: return 0;
-        }
-    }
-    
-    /**
-     * Obtiene el nombre del ataque según su tipo
-     */
-    public String getNombreAtaque(String tipoAtaque) {
-        switch (tipoAtaque) {
-            case "melee":
-                return ataqueMeleeNombre;
-            case "lejano":
-                return ataqueLejanoNombre;
-            case "habilidad1":
-                return habilidad1Nombre;
-            case "habilidad2":
-                return habilidad2Nombre;
-            default:
-                return "Ataque";
-        }
-    }
-    
-    /**
-     * Obtiene el tipo de daño del ataque según su tipo
-     */
-    public String getTipoAtaque(String tipoAtaque) {
-        switch (tipoAtaque) {
-            case "melee":
-                return ataqueMeleeTipo;
-            case "lejano":
-                return ataqueLejanoTipo;
-            case "habilidad1":
-                return habilidad1Tipo;
-            case "habilidad2":
-                return habilidad2Tipo;
-            default:
-                return "fisico";
-        }
-    }
-
     /**
      * Regenera una cantidad de puntos de vida sin exceder el máximo
-     * 
      * @param cantidad Cantidad de vida a regenerar
      * @return Vida actual después de la regeneración
      */
@@ -472,10 +172,33 @@ public class PersonajeModel {
         
         return vidaActual;
     }
-
+    
     /**
-     * Crea una copia completa de este personaje
-     * @return Una nueva instancia con los mismos datos
+     * Obtiene un ataque específico por su tipo
+     */
+    public AtaqueModel getAtaquePorTipo(String tipoAtaque) {
+        for (AtaqueModel ataque : ataques) {
+            if (ataque.getTipoAtaqueClave().equals(tipoAtaque)) {
+                return ataque;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Obtiene una pasiva específica por su nombre
+     */
+    public PasivaModel getPasivaPorNombre(String nombre) {
+        for (PasivaModel pasiva : pasivas) {
+            if (pasiva.getNombre().equals(nombre)) {
+                return pasiva;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Crea una copia completa de este personaje para usarla en combate
      */
     public PersonajeModel clonar() {
         PersonajeModel clon = new PersonajeModel();
@@ -485,62 +208,546 @@ public class PersonajeModel {
         clon.setNombre(this.nombre);
         clon.setNombreCodigo(this.nombreCodigo);
         clon.setDescripcion(this.descripcion);
+        clon.setEsTransformacion(this.esTransformacion);
+        
+        // Transformación
+        clon.setPersonajeBaseId(this.personajeBaseId);
+        clon.setDuracionTurnos(this.duracionTurnos);
         
         // Estadísticas
         clon.setVida(this.vida);
         clon.setFuerza(this.fuerza);
         clon.setVelocidad(this.velocidad);
-        clon.setResistencia(this.resistencia);
-        clon.setPoderMagico(this.poderMagico);
-        
-        // Ataques
-        clon.setAtaqueMelee(this.ataqueMelee);
-        clon.setAtaqueLejano(this.ataqueLejano);
-        clon.setHabilidad1Poder(this.habilidad1Poder);
-        clon.setHabilidad2Poder(this.habilidad2Poder);
-        clon.setAtaqueMeleeNombre(this.ataqueMeleeNombre);
-        clon.setAtaqueLejanoNombre(this.ataqueLejanoNombre);
-        clon.setHabilidad1Nombre(this.habilidad1Nombre);
-        clon.setHabilidad2Nombre(this.habilidad2Nombre);
+        clon.setPoder(this.poder);
         
         // Imágenes
         clon.setImagenCombate(this.imagenCombate);
         clon.setImagenMiniatura(this.imagenMiniatura);
-        clon.setImagenCompleta(this.imagenCompleta);
         
-        // Resistencias
-        clon.setResistenciaFisica(this.resistenciaFisica);
-        clon.setResistenciaMagica(this.resistenciaMagica);
-        clon.setEvasion(this.evasion);
-        clon.setProbabilidadCritico(this.probabilidadCritico);
-        clon.setMultiplicadorCritico(this.multiplicadorCritico);
+        // Clonar ataques
+        List<AtaqueModel> ataquesClon = new ArrayList<>();
+        for (AtaqueModel ataque : this.ataques) {
+            AtaqueModel ataqueClon = new AtaqueModel(
+                ataque.getId(),
+                ataque.getPersonajeId(),
+                ataque.getTipoAtaqueId(),
+                ataque.getTipoAtaqueClave(),
+                ataque.getNombre(),
+                ataque.getDanoBase(),
+                ataque.getUsosMaximos(),
+                ataque.getCooldownTurnos()
+            );
+            ataquesClon.add(ataqueClon);
+        }
+        clon.setAtaques(ataquesClon);
         
-        // Pasiva
-        clon.setPasivaNombre(this.pasivaNombre);
-        clon.setPasivaDescripcion(this.pasivaDescripcion);
-        clon.setPasivaTipo(this.pasivaTipo);
-        clon.setPasivaValor(this.pasivaValor);
-        
-        // Tipos de ataque
-        clon.setAtaqueMeleeTipo(this.ataqueMeleeTipo);
-        clon.setAtaqueLejanoTipo(this.ataqueLejanoTipo);
-        clon.setHabilidad1Tipo(this.habilidad1Tipo);
-        clon.setHabilidad2Tipo(this.habilidad2Tipo);
-        
-        // Usos de habilidades
-        clon.setHabilidad1Usos(this.habilidad1Usos);
-        clon.setHabilidad2Usos(this.habilidad2Usos);
+        // Clonar pasivas
+        List<PasivaModel> pasivasClon = new ArrayList<>();
+        for (PasivaModel pasiva : this.pasivas) {
+            PasivaModel pasivaClon = new PasivaModel(
+                pasiva.getId(),
+                pasiva.getPersonajeId(),
+                pasiva.getNombre(),
+                pasiva.getDescripcion(),
+                pasiva.getTriggerTipo(),
+                pasiva.getEfectoTipo(),
+                pasiva.getEfectoValor(),
+                pasiva.getUsosMaximos(),
+                pasiva.getCooldownTurnos()
+            );
+            pasivasClon.add(pasivaClon);
+        }
+        clon.setPasivas(pasivasClon);
         
         // Estado
-        clon.setVidaActual(this.vida);
-        clon.setDerrotado(false);
-        
-        // Inicializar usos de habilidades
-        clon.usosHabilidad = new HashMap<>(this.usosHabilidad);
+        clon.inicializarVida();
         
         return clon;
     }
+    
+    // Getters y setters
+    
+    public int getId() {
+        return id;
+    }
+    
+    public void setId(int id) {
+        this.id = id;
+    }
+    
+    public String getNombre() {
+        return nombre;
+    }
+    
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+    
+    public String getNombreCodigo() {
+        return nombreCodigo;
+    }
+    
+    public void setNombreCodigo(String nombreCodigo) {
+        this.nombreCodigo = nombreCodigo;
+    }
+    
+    public String getDescripcion() {
+        return descripcion;
+    }
+    
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+    
+    public boolean isEsTransformacion() {
+        return esTransformacion;
+    }
+    
+    public void setEsTransformacion(boolean esTransformacion) {
+        this.esTransformacion = esTransformacion;
+    }
+    
+    public Integer getPersonajeBaseId() {
+        return personajeBaseId;
+    }
+    
+    public void setPersonajeBaseId(Integer personajeBaseId) {
+        this.personajeBaseId = personajeBaseId;
+    }
+    
+    public int getDuracionTurnos() {
+        return duracionTurnos;
+    }
+    
+    public void setDuracionTurnos(int duracionTurnos) {
+        this.duracionTurnos = duracionTurnos;
+    }
+    
+    public int getVida() {
+        return vida;
+    }
+    
+    public void setVida(int vida) {
+        this.vida = vida;
+    }
+    
+    public int getFuerza() {
+        return fuerza;
+    }
+    
+    public void setFuerza(int fuerza) {
+        this.fuerza = fuerza;
+    }
+    
+    public int getVelocidad() {
+        return velocidad;
+    }
+    
+    public void setVelocidad(int velocidad) {
+        this.velocidad = velocidad;
+    }
+    
+    public int getPoder() {
+        return poder;
+    }
+    
+    public void setPoder(int poder) {
+        this.poder = poder;
+    }
+    
+    public String getImagenCombate() {
+        return imagenCombate;
+    }
+    
+    public void setImagenCombate(String imagenCombate) {
+        this.imagenCombate = imagenCombate;
+    }
+    
+    public String getImagenMiniatura() {
+        return imagenMiniatura;
+    }
+    
+    public void setImagenMiniatura(String imagenMiniatura) {
+        this.imagenMiniatura = imagenMiniatura;
+    }
+    
+    public int getVidaActual() {
+        return vidaActual;
+    }
+    
+    public void setVidaActual(int vidaActual) {
+        this.vidaActual = vidaActual;
+        
+        // Actualizar estado de derrotado si la vida llega a 0
+        if (vidaActual <= 0) {
+            this.derrotado = true;
+        }
+    }
+    
+    public boolean isDerrotado() {
+        return derrotado;
+    }
+    
+    public void setDerrotado(boolean derrotado) {
+        this.derrotado = derrotado;
+    }
+    
+    public List<AtaqueModel> getAtaques() {
+        return ataques;
+    }
+    
+    public void setAtaques(List<AtaqueModel> ataques) {
+        this.ataques = ataques;
+    }
+    
+    public List<PasivaModel> getPasivas() {
+        return pasivas;
+    }
+    
+    public void setPasivas(List<PasivaModel> pasivas) {
+        this.pasivas = pasivas;
+    }
+    
+    public Map<String, Integer> getBuffsActivos() {
+        return buffsActivos;
+    }
+    
+    public void setBuffsActivos(Map<String, Integer> buffsActivos) {
+        this.buffsActivos = buffsActivos;
+    }
+    
+    public Map<String, Integer> getDebuffsActivos() {
+        return debuffsActivos;
+    }
+    
+    public void setDebuffsActivos(Map<String, Integer> debuffsActivos) {
+        this.debuffsActivos = debuffsActivos;
+    }
+    
+    // Métodos de compatibilidad para facilitar la transición al nuevo modelo
+    // Estos métodos mapean las propiedades antiguas a las nuevas estructuras
+    
+    public int getAtaqueMelee() {
+        AtaqueModel ataque = getAtaquePorTipo("ACC");
+        return ataque != null ? ataque.getDanoBase() : 0;
+    }
 
+    public void setAtaqueMelee(int ataqueMelee) {
+        AtaqueModel ataque = getAtaquePorTipo("ACC");
+        if (ataque != null) {
+            ataque.setDanoBase(ataqueMelee);
+        } else {
+            // Crear un nuevo ataque si no existe
+            AtaqueModel nuevoAtaque = new AtaqueModel();
+            nuevoAtaque.setPersonajeId(this.id);
+            nuevoAtaque.setTipoAtaqueClave("ACC");
+            nuevoAtaque.setNombre("Ataque Cuerpo a Cuerpo");
+            nuevoAtaque.setDanoBase(ataqueMelee);
+            nuevoAtaque.resetearEstadoCombate();
+            if (this.ataques == null) {
+                this.ataques = new ArrayList<>();
+            }
+            this.ataques.add(nuevoAtaque);
+        }
+    }
+
+    public int getAtaqueLejano() {
+        AtaqueModel ataque = getAtaquePorTipo("AAD");
+        return ataque != null ? ataque.getDanoBase() : 0;
+    }
+
+    public void setAtaqueLejano(int ataqueLejano) {
+        AtaqueModel ataque = getAtaquePorTipo("AAD");
+        if (ataque != null) {
+            ataque.setDanoBase(ataqueLejano);
+        } else {
+            // Crear un nuevo ataque si no existe
+            AtaqueModel nuevoAtaque = new AtaqueModel();
+            nuevoAtaque.setPersonajeId(this.id);
+            nuevoAtaque.setTipoAtaqueClave("AAD");
+            nuevoAtaque.setNombre("Ataque a Distancia");
+            nuevoAtaque.setDanoBase(ataqueLejano);
+            nuevoAtaque.resetearEstadoCombate();
+            if (this.ataques == null) {
+                this.ataques = new ArrayList<>();
+            }
+            this.ataques.add(nuevoAtaque);
+        }
+    }
+
+    public int getHabilidad1Poder() {
+        AtaqueModel ataque = getAtaquePorTipo("habilidad_mas_poderosa");
+        return ataque != null ? ataque.getDanoBase() : 0;
+    }
+
+    public void setHabilidad1Poder(int habilidad1Poder) {
+        AtaqueModel ataque = getAtaquePorTipo("habilidad_mas_poderosa");
+        if (ataque != null) {
+            ataque.setDanoBase(habilidad1Poder);
+        } else {
+            // Crear un nuevo ataque si no existe
+            AtaqueModel nuevoAtaque = new AtaqueModel();
+            nuevoAtaque.setPersonajeId(this.id);
+            nuevoAtaque.setTipoAtaqueClave("habilidad_mas_poderosa");
+            nuevoAtaque.setNombre("Habilidad 1");
+            nuevoAtaque.setDanoBase(habilidad1Poder);
+            nuevoAtaque.setUsosMaximos(3);
+            nuevoAtaque.setCooldownTurnos(1);
+            nuevoAtaque.resetearEstadoCombate();
+            if (this.ataques == null) {
+                this.ataques = new ArrayList<>();
+            }
+            this.ataques.add(nuevoAtaque);
+        }
+    }
+
+    public int getHabilidad2Poder() {
+        AtaqueModel ataque = getAtaquePorTipo("habilidad_caracteristica");
+        return ataque != null ? ataque.getDanoBase() : 0;
+    }
+
+    public void setHabilidad2Poder(int habilidad2Poder) {
+        AtaqueModel ataque = getAtaquePorTipo("habilidad_caracteristica");
+        if (ataque != null) {
+            ataque.setDanoBase(habilidad2Poder);
+        } else {
+            // Crear un nuevo ataque si no existe
+            AtaqueModel nuevoAtaque = new AtaqueModel();
+            nuevoAtaque.setPersonajeId(this.id);
+            nuevoAtaque.setTipoAtaqueClave("habilidad_caracteristica");
+            nuevoAtaque.setNombre("Habilidad 2");
+            nuevoAtaque.setDanoBase(habilidad2Poder);
+            nuevoAtaque.setUsosMaximos(2);
+            nuevoAtaque.setCooldownTurnos(2);
+            nuevoAtaque.resetearEstadoCombate();
+            if (this.ataques == null) {
+                this.ataques = new ArrayList<>();
+            }
+            this.ataques.add(nuevoAtaque);
+        }
+    }
+
+    public String getAtaqueMeleeNombre() {
+        AtaqueModel ataque = getAtaquePorTipo("ACC");
+        return ataque != null ? ataque.getNombre() : "";
+    }
+
+    public void setAtaqueMeleeNombre(String ataqueMeleeNombre) {
+        AtaqueModel ataque = getAtaquePorTipo("ACC");
+        if (ataque != null) {
+            ataque.setNombre(ataqueMeleeNombre);
+        } else {
+            // Crear un nuevo ataque si no existe
+            AtaqueModel nuevoAtaque = new AtaqueModel();
+            nuevoAtaque.setPersonajeId(this.id);
+            nuevoAtaque.setTipoAtaqueClave("ACC");
+            nuevoAtaque.setNombre(ataqueMeleeNombre);
+            nuevoAtaque.setDanoBase(50); // Valor por defecto
+            nuevoAtaque.resetearEstadoCombate();
+            if (this.ataques == null) {
+                this.ataques = new ArrayList<>();
+            }
+            this.ataques.add(nuevoAtaque);
+        }
+    }
+
+    public String getAtaqueLejanoNombre() {
+        AtaqueModel ataque = getAtaquePorTipo("AAD");
+        return ataque != null ? ataque.getNombre() : "";
+    }
+
+    public void setAtaqueLejanoNombre(String ataqueLejanoNombre) {
+        AtaqueModel ataque = getAtaquePorTipo("AAD");
+        if (ataque != null) {
+            ataque.setNombre(ataqueLejanoNombre);
+        } else {
+            // Crear un nuevo ataque si no existe
+            AtaqueModel nuevoAtaque = new AtaqueModel();
+            nuevoAtaque.setPersonajeId(this.id);
+            nuevoAtaque.setTipoAtaqueClave("AAD");
+            nuevoAtaque.setNombre(ataqueLejanoNombre);
+            nuevoAtaque.setDanoBase(40); // Valor por defecto
+            nuevoAtaque.resetearEstadoCombate();
+            if (this.ataques == null) {
+                this.ataques = new ArrayList<>();
+            }
+            this.ataques.add(nuevoAtaque);
+        }
+    }
+
+    public String getHabilidad1Nombre() {
+        AtaqueModel ataque = getAtaquePorTipo("habilidad_mas_poderosa");
+        return ataque != null ? ataque.getNombre() : "";
+    }
+
+    public void setHabilidad1Nombre(String habilidad1Nombre) {
+        AtaqueModel ataque = getAtaquePorTipo("habilidad_mas_poderosa");
+        if (ataque != null) {
+            ataque.setNombre(habilidad1Nombre);
+        } else {
+            // Crear un nuevo ataque si no existe
+            AtaqueModel nuevoAtaque = new AtaqueModel();
+            nuevoAtaque.setPersonajeId(this.id);
+            nuevoAtaque.setTipoAtaqueClave("habilidad_mas_poderosa");
+            nuevoAtaque.setNombre(habilidad1Nombre);
+            nuevoAtaque.setDanoBase(100); // Valor por defecto
+            nuevoAtaque.setUsosMaximos(3);
+            nuevoAtaque.setCooldownTurnos(1);
+            nuevoAtaque.resetearEstadoCombate();
+            if (this.ataques == null) {
+                this.ataques = new ArrayList<>();
+            }
+            this.ataques.add(nuevoAtaque);
+        }
+    }
+
+    public String getHabilidad2Nombre() {
+        AtaqueModel ataque = getAtaquePorTipo("habilidad_caracteristica");
+        return ataque != null ? ataque.getNombre() : "";
+    }
+
+    public void setHabilidad2Nombre(String habilidad2Nombre) {
+        AtaqueModel ataque = getAtaquePorTipo("habilidad_caracteristica");
+        if (ataque != null) {
+            ataque.setNombre(habilidad2Nombre);
+        } else {
+            // Crear un nuevo ataque si no existe
+            AtaqueModel nuevoAtaque = new AtaqueModel();
+            nuevoAtaque.setPersonajeId(this.id);
+            nuevoAtaque.setTipoAtaqueClave("habilidad_caracteristica");
+            nuevoAtaque.setNombre(habilidad2Nombre);
+            nuevoAtaque.setDanoBase(150); // Valor por defecto
+            nuevoAtaque.setUsosMaximos(2);
+            nuevoAtaque.setCooldownTurnos(2);
+            nuevoAtaque.resetearEstadoCombate();
+            if (this.ataques == null) {
+                this.ataques = new ArrayList<>();
+            }
+            this.ataques.add(nuevoAtaque);
+        }
+    }
+
+    // Estos métodos son menos importantes pero se mantienen por compatibilidad
+    
+    public String getAtaqueMeleeTipo() {
+        return "fisico"; // Valor por defecto para compatibilidad
+    }
+
+    public void setAtaqueMeleeTipo(String ataqueMeleeTipo) {
+        // Los tipos de ataques ahora se gestionan de otra manera
+    }
+
+    public String getAtaqueLejanoTipo() {
+        return "fisico"; // Valor por defecto para compatibilidad
+    }
+
+    public void setAtaqueLejanoTipo(String ataqueLejanoTipo) {
+        // Los tipos de ataques ahora se gestionan de otra manera
+    }
+
+    public String getHabilidad1Tipo() {
+        return "fisico"; // Valor por defecto para compatibilidad
+    }
+
+    public void setHabilidad1Tipo(String habilidad1Tipo) {
+        // Los tipos de ataques ahora se gestionan de otra manera
+    }
+
+    public String getHabilidad2Tipo() {
+        return "fisico"; // Valor por defecto para compatibilidad
+    }
+
+    public void setHabilidad2Tipo(String habilidad2Tipo) {
+        // Los tipos de ataques ahora se gestionan de otra manera
+    }
+
+    public String getPasivaNombre() {
+        if (pasivas != null && !pasivas.isEmpty()) {
+            return pasivas.get(0).getNombre();
+        }
+        return "";
+    }
+
+    public void setPasivaNombre(String pasivaNombre) {
+        if (pasivas == null || pasivas.isEmpty()) {
+            PasivaModel nuevaPasiva = new PasivaModel();
+            nuevaPasiva.setPersonajeId(this.id);
+            nuevaPasiva.setNombre(pasivaNombre);
+            nuevaPasiva.setEfectoTipo("other");
+            nuevaPasiva.setTriggerTipo("passive");
+            nuevaPasiva.setEfectoValor(0);
+            List<PasivaModel> nuevasPasivas = new ArrayList<>();
+            nuevasPasivas.add(nuevaPasiva);
+            this.pasivas = nuevasPasivas;
+        } else {
+            pasivas.get(0).setNombre(pasivaNombre);
+        }
+    }
+
+    public String getPasivaDescripcion() {
+        if (pasivas != null && !pasivas.isEmpty()) {
+            return pasivas.get(0).getDescripcion();
+        }
+        return "";
+    }
+
+    public void setPasivaDescripcion(String pasivaDescripcion) {
+        if (pasivas != null && !pasivas.isEmpty()) {
+            pasivas.get(0).setDescripcion(pasivaDescripcion);
+        }
+    }
+
+    public String getPasivaTipo() {
+        if (pasivas != null && !pasivas.isEmpty()) {
+            return pasivas.get(0).getEfectoTipo();
+        }
+        return "other";
+    }
+
+    public void setPasivaTipo(String pasivaTipo) {
+        if (pasivas != null && !pasivas.isEmpty()) {
+            // Convertir el tipo antiguo al nuevo formato
+            switch (pasivaTipo) {
+                case "armadura":
+                    pasivas.get(0).setTriggerTipo("on_damage_taken");
+                    pasivas.get(0).setEfectoTipo("reduce_damage_pct");
+                    break;
+                case "barrera":
+                    pasivas.get(0).setTriggerTipo("on_start_combat");
+                    pasivas.get(0).setEfectoTipo("shield_pct");
+                    break;
+                case "regeneracion":
+                    pasivas.get(0).setTriggerTipo("on_turn_start");
+                    pasivas.get(0).setEfectoTipo("heal_pct");
+                    break;
+                case "contraataque":
+                    pasivas.get(0).setTriggerTipo("on_damage_taken");
+                    pasivas.get(0).setEfectoTipo("counter_pct");
+                    break;
+                case "critico":
+                    pasivas.get(0).setTriggerTipo("on_attack");
+                    pasivas.get(0).setEfectoTipo("critical_chance_pct");
+                    break;
+                default:
+                    pasivas.get(0).setTriggerTipo("passive");
+                    pasivas.get(0).setEfectoTipo("other");
+            }
+        }
+    }
+
+    public int getPasivaValor() {
+        if (pasivas != null && !pasivas.isEmpty()) {
+            return pasivas.get(0).getEfectoValor();
+        }
+        return 0;
+    }
+
+    public void setPasivaValor(int pasivaValor) {
+        if (pasivas != null && !pasivas.isEmpty()) {
+            pasivas.get(0).setEfectoValor(pasivaValor);
+        }
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

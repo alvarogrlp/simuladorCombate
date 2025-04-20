@@ -1,6 +1,8 @@
 package es.alvarogrlp.marvelsimu.backend.combat.logic;
 
 import es.alvarogrlp.marvelsimu.backend.combat.ui.MessageDisplayManager;
+import es.alvarogrlp.marvelsimu.backend.model.AtaqueModel;
+import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
 
@@ -31,36 +33,56 @@ public class TurnManager {
         combatManager.getUIManager().enablePlayerControls();
     }
     
-    public void finishPlayerTurn(boolean executeAITurn) {
-        // Deshabilitar los controles del jugador al terminar su turno
-        combatManager.getUIManager().disablePlayerControls();
-        if (executeAITurn) {
-            startAITurn();
+    /**
+     * Finaliza el turno del jugador
+     */
+    public void finishPlayerTurn(boolean playerActed) {
+        if (isPlayerTurn) {
+            isPlayerTurn = false;
+            
+            // Actualizar indicador visual del turno
+            combatManager.getUIManager().setPlayerTurnIndicator(false);
+            
+            // Si el jugador realizó una acción, comenzar el turno de la IA
+            // Si no, simplemente devolver el turno al jugador (útil para cancelaciones)
+            if (playerActed) {
+                // Actualizar cooldowns de ataques del personaje del jugador
+                PersonajeModel playerCharacter = combatManager.getCurrentPlayerCharacter();
+                for (AtaqueModel ataque : playerCharacter.getAtaques()) {
+                    ataque.finalizarTurno();
+                }
+                
+                startAITurn();
+            } else {
+                startPlayerTurn();
+            }
         }
     }
     
+    /**
+     * Comienza el turno de la IA
+     */
     public void startAITurn() {
-        isPlayerTurn = false;
-        // Asegurarnos de que los controles estén deshabilitados durante el turno de la IA
-        combatManager.getUIManager().disablePlayerControls();
-        combatManager.getUIManager().setPlayerTurnIndicator(false);
-        
-        PauseTransition aiDelay = new PauseTransition(Duration.millis(1200));
-        aiDelay.setOnFinished(e -> combatManager.aiTurn());
-        aiDelay.play();
+        if (!isPlayerTurn) {
+            // Pequeña pausa antes de que la IA actúe
+            messageManager.displayMessage("Turno de la IA", false, () -> {
+                if (!combatManager.isCombatFinished()) {
+                    combatManager.aiTurn();
+                }
+            });
+        }
     }
     
+    /**
+     * Finaliza el turno de la IA
+     */
     public void finishAITurn() {
-        // Asegurarnos de añadir un pequeño retraso antes de habilitar los controles 
-        // para evitar clic accidental
-        PauseTransition endTurnDelay = new PauseTransition(Duration.millis(800));
-        endTurnDelay.setOnFinished(e -> {
-            // IMPORTANTE: Explícitamente habilitamos los controles aquí
+        if (!isPlayerTurn) {
             isPlayerTurn = true;
-            combatManager.getUIManager().setPlayerTurnIndicator(true);
-            combatManager.getUIManager().enablePlayerControls();
-        });
-        endTurnDelay.play();
+            
+            // Iniciar el siguiente turno del jugador
+            startPlayerTurn();
+        }
     }
     
     public boolean isPlayerTurn() {
