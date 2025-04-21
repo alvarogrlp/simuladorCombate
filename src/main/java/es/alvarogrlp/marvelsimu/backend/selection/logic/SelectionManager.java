@@ -781,15 +781,36 @@ public class SelectionManager {
             if (teamBuilder.canAddToPlayerTeam()) {
                 teamBuilder.addCharacterToTeam(randomCharacter, button, true, uiManager);
                 button.setDisable(true);
+                // Mostrar mensaje informativo
+                uiManager.showInfoMessage(randomCharacter.getNombre() + " añadido a tu equipo");
             } else if (teamBuilder.canAddToAITeam()) {
                 teamBuilder.addCharacterToTeam(randomCharacter, button, false, uiManager);
                 button.setDisable(true);
+                // Mostrar mensaje informativo
+                uiManager.showInfoMessage(randomCharacter.getNombre() + " añadido al equipo IA");
             } else {
                 uiManager.showErrorMessage("Ambos equipos están completos");
             }
             
             // Actualizar estado del botón de luchar
             updateFightButtonState();
+        } else {
+            // Si no se encontró el botón, intentar usar findCharacterButton
+            button = findCharacterButton(randomCharacter);
+            if (button != null) {
+                if (teamBuilder.canAddToPlayerTeam()) {
+                    teamBuilder.addCharacterToTeam(randomCharacter, button, true, uiManager);
+                    button.setDisable(true);
+                    uiManager.showInfoMessage(randomCharacter.getNombre() + " añadido a tu equipo");
+                } else if (teamBuilder.canAddToAITeam()) {
+                    teamBuilder.addCharacterToTeam(randomCharacter, button, false, uiManager);
+                    button.setDisable(true);
+                    uiManager.showInfoMessage(randomCharacter.getNombre() + " añadido al equipo IA");
+                }
+                updateFightButtonState();
+            } else {
+                uiManager.showErrorMessage("No se pudo encontrar el botón para " + randomCharacter.getNombre());
+            }
         }
     }
     

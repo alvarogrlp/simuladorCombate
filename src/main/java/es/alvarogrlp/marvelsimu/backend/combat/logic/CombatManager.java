@@ -141,7 +141,10 @@ public class CombatManager {
         
         if (!puedeUsar) {
             messageManager.displayMessage("¡Ataque no disponible!", true, 
-                    () -> turnManager.finishPlayerTurn(false));
+                    () -> {
+                        uiManager.enablePlayerControls();
+                        turnManager.finishPlayerTurn(false);
+                    });
             return;
         }
         
@@ -150,32 +153,31 @@ public class CombatManager {
             ataque.consumirUso();
         }
         
-        // Calcular poder de ataque y nombre
-        int multiplicadorAtaque = 1;
-        String attackName = "Ataque";
+        // Obtener daño base del ataque
+        int danioBase = 100; // Valor por defecto
+        final String attackName; // Ahora es FINAL para usarse en la lambda
         
         if (ataque != null) {
-            // Usar danoBase como multiplicador
-            multiplicadorAtaque = ataque.getDanoBase() / 50; // Factor de escala
-            if (multiplicadorAtaque < 1) multiplicadorAtaque = 1;
-            
+            danioBase = ataque.getDanoBase();
             attackName = ataque.getNombre();
+        } else {
+            attackName = "Ataque"; // Asignación en bloque else para mantenerla final
         }
         
         // Mensaje de ataque
         messageManager.displayMessage(attacker.getNombre() + " usa " + attackName, true);
         
-        // Factor final para el cálculo de daño
-        final int factorAtaque = multiplicadorAtaque;
+        // Variables finales para la lambda
+        final int danioBaseFinal = danioBase;
         
         // Animar ataque
         animationManager.animatePlayerAttack(attackType, () -> {
             // Obtener vida antes del ataque
             int previousHealth = defender.getVidaActual();
             
-            // Calcular daño con el nuevo sistema
+            // Calcular daño con la nueva fórmula
             int damageToInflict = DamageCalculator.calcularDano(
-                attacker.getFuerza() * factorAtaque, 
+                danioBaseFinal, 
                 attacker.getPoder(), 
                 defender.getPoder()
             );
@@ -197,6 +199,9 @@ public class CombatManager {
         });
     }
 
+    /**
+     * Procesa el resultado de un ataque
+     */
     private void processAttackResult(
             PersonajeModel defender, 
             int damage, 
@@ -221,14 +226,27 @@ public class CombatManager {
         } else {
             // Continuar con el siguiente turno
             if (isPlayerAttack) {
-                turnManager.startAITurn();
+                // Terminar el turno del jugador explícitamente
+                turnManager.finishPlayerTurn(true);
             } else {
+                // Terminar el turno de la IA
                 turnManager.finishAITurn();
             }
         }
     }
-    
+
+    /**
+     * Maneja el turno de la IA
+     */
     public void aiTurn() {
+        // Asegurarnos de que no es el turno del jugador
+        if (turnManager.isPlayerTurn()) {
+            System.err.println("ERROR: Intentando ejecutar AI Turn durante el turno del jugador");
+            return;
+        }
+        
+        System.out.println("Iniciando turno de la IA...");
+        
         // Obtener personajes actuales
         PersonajeModel attacker = aiCharacters.get(aiCharacterIndex);
         PersonajeModel defender = playerCharacters.get(playerCharacterIndex);
@@ -240,6 +258,7 @@ public class CombatManager {
         
         // Seleccionar el mejor ataque
         String attackType = aiSelector.selectBestAttack(attacker, defender);
+        System.out.println("IA seleccionó ataque: " + attackType);
         
         // Obtener el ataque según el tipo seleccionado
         AtaqueModel ataque = null;
@@ -264,35 +283,38 @@ public class CombatManager {
             ataque.consumirUso();
         }
         
-        // Calcular poder de ataque y nombre
-        int multiplicadorAtaque = 1;
-        String attackName = "Ataque";
+        // Obtener daño base del ataque
+        int danioBase = 100; // Valor por defecto
+        final String attackName; // Ahora es FINAL para usarse en la lambda
         
         if (ataque != null) {
-            // Usar danoBase como multiplicador
-            multiplicadorAtaque = ataque.getDanoBase() / 50; // Factor de escala
-            if (multiplicadorAtaque < 1) multiplicadorAtaque = 1;
-            
+            danioBase = ataque.getDanoBase();
             attackName = ataque.getNombre();
+        } else {
+            attackName = "Ataque"; // Asignación en bloque else para mantenerla final
         }
         
         // Mostrar mensaje de ataque
         messageManager.displayMessage(attacker.getNombre() + " usa " + attackName, false);
         
-        // Factor final para el cálculo de daño
-        final int factorAtaque = multiplicadorAtaque;
+        // Variables finales para la lambda
+        final int danioBaseFinal = danioBase;
         
         // Animar ataque
         animationManager.animateAIAttack(attackType, () -> {
+            System.out.println("Ejecutando daño de IA: " + attackName);
+            
             // Obtener vida antes del ataque
             int previousHealth = defender.getVidaActual();
             
-            // Calcular daño con el nuevo sistema
+            // Calcular daño con la nueva fórmula
             int damageToInflict = DamageCalculator.calcularDano(
-                attacker.getFuerza() * factorAtaque, 
+                danioBaseFinal, 
                 attacker.getPoder(), 
                 defender.getPoder()
             );
+            
+            System.out.println("Daño calculado: " + damageToInflict + " (base: " + danioBaseFinal + ")");
             
             // Aplicar daño
             defender.setVidaActual(defender.getVidaActual() - damageToInflict);
@@ -339,28 +361,46 @@ public class CombatManager {
         }
     }
     
+    /**
+     * Cambia al siguiente personaje de la IA que no esté derrotado
+     */
     private void changeAICharacter() {
         int originalIndex = aiCharacterIndex;
-        aiCharacterIndex = (aiCharacterIndex + 1) % aiCharacters.size();
         
-        while (aiCharacters.get(aiCharacterIndex).isDerrotado() && aiCharacterIndex != originalIndex) {
+        // Buscar el siguiente personaje no derrotado, comenzando desde el siguiente índice
+        do {
             aiCharacterIndex = (aiCharacterIndex + 1) % aiCharacters.size();
-        }
+        } while (aiCharacters.get(aiCharacterIndex).isDerrotado() && aiCharacterIndex != originalIndex);
         
-        messageManager.displayMessage("La IA cambia a " + 
-            aiCharacters.get(aiCharacterIndex).getNombre() + "!", false, () -> {
-                uiManager.updateCharacterViews(
-                    playerCharacters.get(playerCharacterIndex),
-                    aiCharacters.get(aiCharacterIndex),
-                    playerCharacters,
-                    aiCharacters,
-                    playerCharacterIndex,
-                    aiCharacterIndex
-                );
-                
-                uiManager.showAICharacter();
-                turnManager.finishAITurn();
-            });
+        // Verificar si realmente encontramos un personaje no derrotado
+        if (!aiCharacters.get(aiCharacterIndex).isDerrotado()) {
+            // El personaje ya está oculto, por lo que preparamos el cambio directamente
+            
+            messageManager.displayMessage("La IA cambia a " + 
+                aiCharacters.get(aiCharacterIndex).getNombre(), false, () -> {
+                    // Actualizar la interfaz de usuario
+                    uiManager.updateCharacterViews(
+                        playerCharacters.get(playerCharacterIndex),
+                        aiCharacters.get(aiCharacterIndex),
+                        playerCharacters,
+                        aiCharacters,
+                        playerCharacterIndex,
+                        aiCharacterIndex
+                    );
+                    
+                    uiManager.showAICharacter();
+                    
+                    // Habilitar controles de jugador después de mostrar el nuevo personaje
+                    uiManager.enablePlayerControls();
+                    
+                    // Continuar con el turno del jugador
+                    turnManager.startPlayerTurn();
+                });
+        } else {
+            // Este caso no debería ocurrir, pero por seguridad
+            System.err.println("Error: No hay personajes disponibles en el equipo de la IA");
+            endCombat(true); // Victoria del jugador por error
+        }
     }
     
     public void endCombat(boolean playerWon) {
@@ -562,50 +602,46 @@ public class CombatManager {
         
         // Animar la derrota
         if (isPlayerAttack) {
-            // Si es un personaje de la IA el derrotado
+            // La IA perdió un personaje
             animationManager.animateDefeat(defeated, false, () -> {
-                // Mostrar mensaje de derrota
-                messageManager.displayMessage("¡" + defeated.getNombre() + " ha sido derrotado!", true, () -> {
-                    // Verificar si todos los personajes de la IA están derrotados
-                    boolean allAIDefeated = true;
-                    for (PersonajeModel aiChar : aiCharacters) {
-                        if (!aiChar.isDerrotado()) {
-                            allAIDefeated = false;
-                            break;
-                        }
+                // Comprobar si todos los personajes de la IA están derrotados
+                boolean allAIDefeated = true;
+                for (PersonajeModel aiChar : aiCharacters) {
+                    if (!aiChar.isDerrotado()) {
+                        allAIDefeated = false;
+                        break;
                     }
-                    
-                    // Si todos los personajes de la IA están derrotados, victoria del jugador
-                    if (allAIDefeated) {
-                        endCombat(true); // Victoria del jugador
-                    } else {
-                        // Cambiar al siguiente personaje de la IA
-                        changeAICharacter();
-                    }
-                });
+                }
+                
+                // Si todos los personajes de la IA están derrotados, victoria del jugador
+                if (allAIDefeated) {
+                    endCombat(true); // Victoria del jugador
+                } else {
+                    // Cambiar al siguiente personaje de la IA
+                    uiManager.hideAICharacter(); // Ocultar personaje actual
+                    changeAICharacter();
+                }
             });
         } else {
-            // Si es un personaje del jugador el derrotado
+            // El jugador perdió un personaje
             animationManager.animateDefeat(defeated, true, () -> {
-                // Mostrar mensaje de derrota
-                messageManager.displayMessage("¡" + defeated.getNombre() + " ha sido derrotado!", false, () -> {
-                    // Verificar si todos los personajes del jugador están derrotados
-                    boolean allPlayerDefeated = true;
-                    for (PersonajeModel playerChar : playerCharacters) {
-                        if (!playerChar.isDerrotado()) {
-                            allPlayerDefeated = false;
-                            break;
-                        }
+                // Comprobar si todos los personajes del jugador están derrotados
+                boolean allPlayerDefeated = true;
+                for (PersonajeModel playerChar : playerCharacters) {
+                    if (!playerChar.isDerrotado()) {
+                        allPlayerDefeated = false;
+                        break;
                     }
-                    
-                    // Si todos los personajes del jugador están derrotados, victoria de la IA
-                    if (allPlayerDefeated) {
-                        endCombat(false); // Derrota del jugador
-                    } else {
-                        // Mostrar diálogo para seleccionar el siguiente personaje
-                        showCharacterSelectionDialog();
-                    }
-                });
+                }
+                
+                // Si todos los personajes del jugador están derrotados, victoria de la IA
+                if (allPlayerDefeated) {
+                    endCombat(false); // Victoria de la IA
+                } else {
+                    // Mostrar diálogo para seleccionar el siguiente personaje
+                    uiManager.hidePlayerCharacter(); // Ocultar personaje derrotado
+                    showCharacterSelectionDialog();
+                }
             });
         }
     }

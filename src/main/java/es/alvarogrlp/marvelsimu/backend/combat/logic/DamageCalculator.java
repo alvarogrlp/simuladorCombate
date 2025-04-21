@@ -16,28 +16,24 @@ public class DamageCalculator {
     public static int calcularDano(int fuerzaAtacante, int poderAtacante, int poderDefensor) {
         // Validación básica
         if (fuerzaAtacante <= 0) return 1;
+        if (poderDefensor <= 0) poderDefensor = 1; // Evitar división por cero
         
-        // Factor de escala para evitar valores extremos
-        double factorEscala = 100.0;
+        // 1) Calcular ratio de poderes
+        double ratio = (double) poderAtacante / poderDefensor;
         
-        // Base del daño determinada por la fuerza del atacante
-        double danoBase = fuerzaAtacante * 0.8;
+        // 2) Suavizar con raíz cuadrada para reducir volatilidad
+        double multiplicador = Math.sqrt(ratio);
         
-        // Modificador por poder del atacante (más poder = más daño)
-        double modificadorPoderAtacante = 1.0 + (poderAtacante / factorEscala);
+        // 3) Limitar el multiplicador a un rango razonable (0.1 a 5.0)
+        multiplicador = Math.max(0.1, Math.min(multiplicador, 5.0));
         
-        // Reducción por poder del defensor (más poder = menos daño recibido)
-        // Usamos función logarítmica para evitar que poder alto reduzca el daño a 0
-        double reduccionDefensa = Math.log10(1 + (poderDefensor / factorEscala)) * 0.5;
-        reduccionDefensa = Math.min(reduccionDefensa, 0.75); // Máximo 75% de reducción
+        // 4) Calcular daño final basado en la fuerza y el multiplicador
+        int danoFinal = (int) Math.max(1, Math.round(fuerzaAtacante * multiplicador));
         
-        // Cálculo final con aleatoriedad suave (±10%)
-        double factorAleatorio = 0.9 + (Math.random() * 0.2);
+        // 5) Añadir ligera aleatoriedad para que no sea siempre el mismo
+        double factorAleatorio = 0.9 + (Math.random() * 0.2); // Entre 0.9 y 1.1
+        danoFinal = (int) Math.max(1, Math.round(danoFinal * factorAleatorio));
         
-        // Daño final
-        double danoFinal = danoBase * modificadorPoderAtacante * (1 - reduccionDefensa) * factorAleatorio;
-        
-        // Asegurar un daño mínimo de 1
-        return Math.max(1, (int)Math.round(danoFinal));
+        return danoFinal;
     }
 }

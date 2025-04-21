@@ -16,6 +16,7 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -24,6 +25,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import javafx.geometry.Insets;
 
 /**
  * Clase encargada de gestionar la interfaz de usuario para la selección de personajes
@@ -186,13 +188,17 @@ public class SelectionUIManager {
         characterInfoContainer = new AnimatedVBox(animationsInfo);
         characterInfoContainer.setAlignment(Pos.CENTER);
         characterInfoContainer.setSpacing(10);
-        characterInfoContainer.setMaxWidth(520);
+        characterInfoContainer.setMaxWidth(580);
         characterInfoContainer.setVisible(false);
+        characterInfoContainer.setOpacity(0);
         
-        // Centrar exactamente en la pantalla
+        // Centrar considerando la posición de la barra de desplazamiento
+        // La ventana es 896px de ancho, el panel 580px
+        // Para centrar: (896 - 580) / 2 = 158, pero ajustamos a 153 para compensar la barra
         AnchorPane.setTopAnchor(characterInfoContainer, 50.0);
-        AnchorPane.setLeftAnchor(characterInfoContainer, 188.0); // (896 - 520) / 2 = 188
-        AnchorPane.setRightAnchor(characterInfoContainer, 188.0);
+        AnchorPane.setLeftAnchor(characterInfoContainer, 153.0); 
+        AnchorPane.setRightAnchor(characterInfoContainer, 163.0); // Ajustado para compensar la barra
+        
         rootPane.getChildren().add(characterInfoContainer);
     }
     
@@ -472,17 +478,25 @@ public class SelectionUIManager {
         AnimatedVBox container = isPlayerTeam ? playerTeamContainer : aiTeamContainer;
         
         if (container == null || character == null) {
+            System.err.println("Container o personaje nulo en addCharacterToTeamDisplay");
             return;
         }
         
-        // Crear tarjeta directamente con la fábrica
-        VBox characterCard = cardFactory.createCharacterCard(character, sourceButton, isPlayerTeam);
+        // Crear tarjeta directamente con la fábrica, pasando null como botón fuente
+        VBox characterCard = cardFactory.createCharacterCard(character, null, isPlayerTeam);
         
-        // Configurar tamaño
+        // Configurar tamaño explícitamente
         characterCard.setPrefSize(160, 180);
         characterCard.setMaxSize(160, 180);
+        characterCard.setMinSize(160, 180);
         
-        // Añadir la tarjeta al contenedor sin animaciones complejas
+        // Verificación de debug
+        System.out.println("Añadiendo personaje al equipo " + (isPlayerTeam ? "del jugador" : "de la IA") + ": " + character.getNombre());
+        
+        // Establecer el manejador de clic para permitir eliminar personajes
+        setupCharacterCardClickHandler(characterCard, character, isPlayerTeam);
+        
+        // Añadir la tarjeta al contenedor
         container.getChildren().add(characterCard);
         
         // Asegurar que sea visible
@@ -497,49 +511,47 @@ public class SelectionUIManager {
      * @param isPlayerTeam Si es del equipo del jugador
      */
     private void setupCharacterCardClickHandler(VBox card, PersonajeModel character, boolean isPlayerTeam) {
-        // Solo permitir eliminar personajes del equipo del jugador con clic
-        if (isPlayerTeam) {
-            // Añadir clase para estilos específicos
-            card.getStyleClass().add("character-card");
+        // Permitir eliminar personajes de ambos equipos
+        // Añadir clase para estilos específicos
+        card.getStyleClass().add("character-card");
+        
+        // Configurar efecto hover
+        card.setOnMouseEntered(e -> {
+            card.setStyle("-fx-cursor: hand;");
+            // Efecto de escala
+            ScaleTransition scale = new ScaleTransition(Duration.millis(150), card);
+            scale.setToX(1.05);
+            scale.setToY(1.05);
+            scale.play();
+        });
+        
+        card.setOnMouseExited(e -> {
+            // Restaurar escala
+            ScaleTransition scale = new ScaleTransition(Duration.millis(150), card);
+            scale.setToX(1.0);
+            scale.setToY(1.0);
+            scale.play();
+        });
+        
+        // Configurar evento de clic
+        card.setOnMouseClicked(e -> {
+            // Encontrar el botón original
+            Button originalButton = findCharacterButton(character);
             
-            // Configurar efecto hover
-            card.setOnMouseEntered(e -> {
-                card.setStyle("-fx-cursor: hand;");
-                // Efecto de escala
-                ScaleTransition scale = new ScaleTransition(Duration.millis(150), card);
-                scale.setToX(1.05);
-                scale.setToY(1.05);
-                scale.play();
-            });
+            // Habilitar el botón original
+            if (originalButton != null) {
+                originalButton.setDisable(false);
+            }
             
-            card.setOnMouseExited(e -> {
-                // Restaurar escala
-                ScaleTransition scale = new ScaleTransition(Duration.millis(150), card);
-                scale.setToX(1.0);
-                scale.setToY(1.0);
-                scale.play();
-            });
+            // Eliminar del equipo
+            selectionManager.removeCharacterFromTeam(character, isPlayerTeam);
             
-            // Configurar evento de clic
-            card.setOnMouseClicked(e -> {
-                // Encontrar el botón original
-                Button originalButton = findCharacterButton(character);
-                
-                // Habilitar el botón original
-                if (originalButton != null) {
-                    originalButton.setDisable(false);
-                }
-                
-                // Eliminar del equipo
-                selectionManager.removeCharacterFromTeam(character, true);
-                
-                // Mostrar mensaje de confirmación
-                showInfoMessage(character.getNombre() + " eliminado de tu equipo");
-                
-                // Actualizar estado del botón de luchar
-                updateFightButtonState();
-            });
-        }
+            // Mostrar mensaje de confirmación
+            showInfoMessage(character.getNombre() + " eliminado del " + (isPlayerTeam ? "equipo del jugador" : "equipo IA"));
+            
+            // Actualizar estado del botón de luchar
+            updateFightButtonState();
+        });
     }
 
     /**
@@ -720,33 +732,11 @@ public class SelectionUIManager {
     }
 
     /**
-     * Reorganiza la visualización del equipo después de eliminar una tarjeta
+     * Reorganiza la visualización del equipo si es necesario
      */
     private void reorganizeTeamDisplay(boolean isPlayerTeam) {
-        AnimatedVBox container = isPlayerTeam ? playerTeamContainer : aiTeamContainer;
-       
-        // Aseguramos que no haya más de 3 tarjetas
-        while (container.getChildren().size() > 3) {
-            container.getChildren().remove(container.getChildren().size() - 1);
-        }
-       
-        // Reposicionar las tarjetas existentes
-        for (int i = 0; i < container.getChildren().size(); i++) {
-            javafx.scene.Node card = container.getChildren().get(i);
-           
-            // Asegurar que cada tarjeta sea visible y tenga las propiedades correctas
-            card.setVisible(true);
-            card.setOpacity(1.0);
-            card.setScaleX(1.0);
-            card.setScaleY(1.0);
-           
-            // Si la tarjeta es un VBox, aplicar estilos adicionales si es necesario
-            if (card instanceof VBox) {
-                VBox cardBox = (VBox) card;
-                cardBox.setAlignment(Pos.CENTER);
-                cardBox.setPrefWidth(180);
-            }
-        }
+        // Este método queda simplificado
+        // Al eliminar directamente, JavaFX actualiza el layout automáticamente
     }
     
     /**
@@ -932,34 +922,108 @@ public class SelectionUIManager {
      * @param isPlayerTeam Si es del equipo del jugador
      */
     public void animateRemoveCharacterCard(int index, boolean isPlayerTeam) {
-        VBox container = isPlayerTeam ? playerTeamContainer : aiTeamContainer;
+        AnimatedVBox container = isPlayerTeam ? playerTeamContainer : aiTeamContainer;
         
         if (container == null || index < 0 || index >= container.getChildren().size()) {
             updateFightButtonState();
             return;
         }
         
+        // Obtener la tarjeta a eliminar
         VBox cardToRemove = (VBox) container.getChildren().get(index);
         
-        // Sacar la tarjeta del flujo de layout para evitar reordenamientos durante la animación
-        cardToRemove.setManaged(false);
+        // Crear una copia exacta de la tarjeta que será animada
+        VBox cardCopy = new VBox();
+        cardCopy.getStyleClass().addAll(cardToRemove.getStyleClass());
+        
+        // Copiar los hijos (contenido) de la tarjeta original
+        for (Node child : cardToRemove.getChildren()) {
+            try {
+                // Intentar clonar o copiar cada nodo hijo
+                Node clone = CloneUtils.cloneNode(child);
+                if (clone != null) {
+                    cardCopy.getChildren().add(clone);
+                }
+            } catch (Exception e) {
+                // Si no se puede clonar, simplemente añadir la referencia
+                cardCopy.getChildren().add(child);
+            }
+        }
+        
+        // Copiar el tamaño y estilo
+        cardCopy.setMinSize(cardToRemove.getMinWidth(), cardToRemove.getMinHeight());
+        cardCopy.setPrefSize(cardToRemove.getPrefWidth(), cardToRemove.getPrefHeight());
+        cardCopy.setMaxSize(cardToRemove.getMaxWidth(), cardToRemove.getMaxHeight());
+        cardCopy.setStyle(cardToRemove.getStyle());
+        
+        // Posicionar la copia exactamente en la misma posición
+        AnchorPane root = (AnchorPane) rootPane;
+        
+        // Convertir coordenadas del VBox al AnchorPane
+        javafx.geometry.Bounds bounds = cardToRemove.localToScene(cardToRemove.getBoundsInLocal());
+        javafx.geometry.Point2D point = root.sceneToLocal(bounds.getMinX(), bounds.getMinY());
+        
+        cardCopy.setLayoutX(point.getX());
+        cardCopy.setLayoutY(point.getY());
+        cardCopy.setManaged(false);
+        
+        // Eliminar la tarjeta original del contenedor sin animación
+        container.getChildren().remove(cardToRemove);
+        
+        // Añadir la copia al rootPane (no al contenedor) para animarla independientemente
+        root.getChildren().add(cardCopy);
         
         // Crear animación de desvanecimiento
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), cardToRemove);
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), cardCopy);
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.0);
         
-        // Al finalizar la animación, eliminar la tarjeta completamente
-        fadeOut.setOnFinished(e -> {
-            // Eliminar del contenedor (esto es seguro ahora que está fuera del flujo de layout)
-            Platform.runLater(() -> {
-                container.getChildren().remove(cardToRemove);
-                updateFightButtonState();
-            });
+        // Añadir efecto de escala para hacerlo más suave
+        ScaleTransition scaleOut = new ScaleTransition(Duration.millis(300), cardCopy);
+        scaleOut.setFromX(1.0);
+        scaleOut.setFromY(1.0);
+        scaleOut.setToX(0.9);
+        scaleOut.setToY(0.9);
+        
+        // Combinar animaciones
+        ParallelTransition exitAnimation = new ParallelTransition(fadeOut, scaleOut);
+        
+        // Al finalizar la animación, eliminar la copia
+        exitAnimation.setOnFinished(e -> {
+            // Eliminar la copia del rootPane
+            root.getChildren().remove(cardCopy);
+            
+            // Actualizar el estado del botón de luchar
+            updateFightButtonState();
         });
         
         // Iniciar la animación
-        fadeOut.play();
+        exitAnimation.play();
+    }
+
+    /**
+     * Utilidad para clonar nodos JavaFX (simplificada)
+     */
+    private static class CloneUtils {
+        public static Node cloneNode(Node node) {
+            if (node instanceof ImageView) {
+                ImageView original = (ImageView) node;
+                ImageView clone = new ImageView();
+                clone.setImage(original.getImage());
+                clone.setFitWidth(original.getFitWidth());
+                clone.setFitHeight(original.getFitHeight());
+                clone.setPreserveRatio(original.isPreserveRatio());
+                return clone;
+            } else if (node instanceof Label) {
+                Label original = (Label) node;
+                Label clone = new Label(original.getText());
+                clone.setStyle(original.getStyle());
+                clone.getStyleClass().addAll(original.getStyleClass());
+                return clone;
+            }
+            // Para otros tipos de nodos, se pueden implementar clonaciones específicas
+            return null;
+        }
     }
 
     /**

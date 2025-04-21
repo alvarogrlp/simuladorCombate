@@ -145,9 +145,80 @@ public class CombatUIManager {
         }
     }
     
+    /**
+     * Oculta temporalmente el personaje del jugador para transiciones
+     */
+    public void hidePlayerCharacter() {
+        ImageView playerImage = (ImageView) rootPane.lookup("#imgPersonajeJugador");
+        if (playerImage != null) {
+            playerImage.setVisible(false);
+            // Importante: eliminar cualquier efecto o clase que indique que está derrotado
+            playerImage.getStyleClass().removeAll("character-defeated");
+            playerImage.setEffect(null);
+            playerImage.setOpacity(1.0);
+        }
+    }
+
+    /**
+     * Muestra el personaje del jugador después de una transición
+     */
+    public void showPlayerCharacter() {
+        ImageView playerImage = (ImageView) rootPane.lookup("#imgPersonajeJugador");
+        if (playerImage != null) {
+            // Asegurarse de que no tenga efectos de "derrotado"
+            playerImage.getStyleClass().removeAll("character-defeated");
+            playerImage.setEffect(null);
+            playerImage.setOpacity(1.0);
+            playerImage.setVisible(true);
+            
+            // Aplicar animación de entrada
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), playerImage);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+            fadeIn.play();
+        }
+    }
+
+    /**
+     * Oculta temporalmente el personaje de la IA para transiciones
+     */
+    public void hideAICharacter() {
+        ImageView aiImage = (ImageView) rootPane.lookup("#imgPersonajeIA");
+        if (aiImage != null) {
+            // Limpiar cualquier efecto o clase de derrota antes de ocultar
+            aiImage.setEffect(null);
+            aiImage.getStyleClass().removeAll("character-defeated");
+            aiImage.setOpacity(1.0);
+            aiImage.setVisible(false);
+        }
+    }
+
+    /**
+     * Muestra el personaje de la IA después de una transición
+     */
+    public void showAICharacter() {
+        ImageView aiImage = (ImageView) rootPane.lookup("#imgPersonajeIA");
+        if (aiImage != null) {
+            // Asegurar que no tenga efectos visuales de derrota
+            aiImage.setEffect(null);
+            aiImage.getStyleClass().removeAll("character-defeated");
+            aiImage.setOpacity(1.0);
+            aiImage.setVisible(true);
+            
+            // Aplicar animación de entrada
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), aiImage);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+            fadeIn.play();
+        }
+    }
+
+    /**
+     * Actualiza las vistas de personajes, limpiando efectos visuales primero
+     */
     public void updateCharacterViews(
         PersonajeModel playerCharacter, 
-        PersonajeModel aiCharacter, 
+        PersonajeModel aiCharacter,
         List<PersonajeModel> playerTeam,
         List<PersonajeModel> aiTeam,
         int playerIndex,
@@ -159,16 +230,42 @@ public class CombatUIManager {
         this.playerCharacterIndex = playerIndex;
         this.aiCharacterIndex = aiIndex;
         
-        // Cargar imágenes basadas directamente en las rutas de los personajes
-        Image playerImage = loadImageFromMultipleSources(playerCharacter.getImagenCombate());
-        Image aiImage = loadImageFromMultipleSources(aiCharacter.getImagenCombate());
+        // Limpiar efectos visuales primero
+        ImageView playerCharacterImage = (ImageView) rootPane.lookup("#imgPersonajeJugador");
+        ImageView aiCharacterImage = (ImageView) rootPane.lookup("#imgPersonajeIA");
         
-        // Configurar las imágenes
-        playerCharacterImage.setImage(playerImage);
-        playerCharacterImage.setScaleX(1);
+        if (playerCharacterImage != null) {
+            playerCharacterImage.getStyleClass().removeAll("character-defeated");
+            playerCharacterImage.setEffect(null);
+            playerCharacterImage.setOpacity(1.0);
+        }
         
-        aiCharacterImage.setImage(aiImage);
-        aiCharacterImage.setScaleX(-1);
+        if (aiCharacterImage != null) {
+            aiCharacterImage.getStyleClass().removeAll("character-defeated");
+            aiCharacterImage.setEffect(null);
+            aiCharacterImage.setOpacity(1.0);
+        }
+        
+        // Cargar imágenes
+        if (playerCharacterImage != null && aiCharacterImage != null) {
+            try {
+                // Cargar imágenes de los personajes
+                Image playerImage = loadImageFromMultipleSources(playerCharacter.getImagenCombate());
+                Image aiImage = loadImageFromMultipleSources(aiCharacter.getImagenCombate());
+                
+                if (playerImage != null) {
+                    playerCharacterImage.setImage(playerImage);
+                    playerCharacterImage.setScaleX(1);
+                }
+                
+                if (aiImage != null) {
+                    aiCharacterImage.setImage(aiImage);
+                    aiCharacterImage.setScaleX(-1);
+                }
+            } catch (Exception e) {
+                System.err.println("Error al cargar imágenes: " + e.getMessage());
+            }
+        }
         
         // Actualizar barras de vida
         updateCharacterHealth(playerCharacter, aiCharacter);
@@ -176,7 +273,7 @@ public class CombatUIManager {
         // Actualizar miniaturas del equipo
         updateTeamThumbnails(playerTeam, aiTeam, playerIndex, aiIndex);
         
-        // AÑADIR: Actualizar los botones de ataque con los nombres específicos
+        // Actualizar los botones de ataque
         updateAttackButtons(playerCharacter);
     }
     
@@ -375,80 +472,96 @@ public class CombatUIManager {
     }
     
     /**
-     * Actualiza los botones de ataques con los nombres correctos y valores del personaje actual
+     * Actualiza los botones de ataque con la información del personaje actual
      */
     public void updateAttackButtons(PersonajeModel character) {
-        try {
-            // Configurar el botón de ataque melee con el nombre real
-            if (meleeAttackButton != null) {
-                AtaqueModel ataqueCC = character.getAtaquePorTipo("ACC");
-                if (ataqueCC != null) {
-                    meleeAttackButton.setText(ataqueCC.getNombre());
-                    meleeAttackButton.setTooltip(new Tooltip("Daño: " + ataqueCC.getDanoBase()));
-                    meleeAttackButton.setDisable(!ataqueCC.estaDisponible());
-                } else {
-                    // Fallback simple si no está en el nuevo modelo
-                    meleeAttackButton.setText("Ataque Cuerpo a Cuerpo");
-                    meleeAttackButton.setTooltip(new Tooltip("Daño Base"));
-                    meleeAttackButton.setDisable(false);
-                }
-            }
+        // Obtener los ataques del personaje
+        AtaqueModel ataqueCC = character.getAtaquePorTipo("ACC");
+        AtaqueModel ataqueAD = character.getAtaquePorTipo("AAD");
+        AtaqueModel habilidad1 = character.getAtaquePorTipo("habilidad_mas_poderosa");
+        AtaqueModel habilidad2 = character.getAtaquePorTipo("habilidad_caracteristica");
+        
+        // Obtener referencias a los botones
+        Button btnMelee = (Button) rootPane.lookup("#btnMelee");
+        Button btnRanged = (Button) rootPane.lookup("#btnRanged");
+        Button btnAbility1 = (Button) rootPane.lookup("#btnAbility1");
+        Button btnAbility2 = (Button) rootPane.lookup("#btnAbility2");
+        
+        // Actualizar textos y disponibilidad de los botones
+        if (btnMelee != null && ataqueCC != null) {
+            btnMelee.setText(ataqueCC.getNombre());
+            boolean disponible = ataqueCC.estaDisponible();
+            btnMelee.setDisable(!disponible);
             
-            // Configurar el botón de ataque a distancia
-            if (rangedAttackButton != null) {
-                AtaqueModel ataqueAD = character.getAtaquePorTipo("AAD");
-                if (ataqueAD != null) {
-                    rangedAttackButton.setText(ataqueAD.getNombre());
-                    rangedAttackButton.setTooltip(new Tooltip("Daño: " + ataqueAD.getDanoBase()));
-                    rangedAttackButton.setDisable(!ataqueAD.estaDisponible());
-                } else {
-                    // Fallback simple
-                    rangedAttackButton.setText("Ataque a Distancia");
-                    rangedAttackButton.setTooltip(new Tooltip("Daño Base"));
-                    rangedAttackButton.setDisable(false);
+            if (!disponible) {
+                // Añadir información sobre por qué no está disponible
+                if (ataqueCC.getCooldownActual() > 0) {
+                    btnMelee.setText(ataqueCC.getNombre() + " (CD: " + ataqueCC.getCooldownActual() + ")");
+                } else if (ataqueCC.getUsosMaximos() > 0 && ataqueCC.getUsosRestantes() <= 0) {
+                    btnMelee.setText(ataqueCC.getNombre() + " (No usos)");
                 }
+                
+                btnMelee.setStyle("-fx-opacity: 0.6; -fx-background-color: #555555;");
+            } else {
+                btnMelee.setStyle("-fx-opacity: 1.0; -fx-background-color: #4a7ba7;");
             }
+        }
+        
+        if (btnRanged != null && ataqueAD != null) {
+            btnRanged.setText(ataqueAD.getNombre());
+            boolean disponible = ataqueAD.estaDisponible();
+            btnRanged.setDisable(!disponible);
             
-            // Configurar el botón de la primera habilidad
-            if (ability1Button != null) {
-                AtaqueModel habilidad1 = character.getAtaquePorTipo("habilidad_mas_poderosa");
-                if (habilidad1 != null) {
-                    ability1Button.setText(habilidad1.getNombre());
-                    ability1Button.setTooltip(new Tooltip(
-                        "Daño: " + habilidad1.getDanoBase() + 
-                        "\nUsos: " + habilidad1.getUsosRestantes() + "/" + habilidad1.getUsosMaximos() +
-                        (habilidad1.getCooldownActual() > 0 ? "\nEnfriamiento: " + habilidad1.getCooldownActual() + " turnos" : "")
-                    ));
-                    ability1Button.setDisable(!habilidad1.estaDisponible());
-                } else {
-                    // Fallback simple
-                    ability1Button.setText("Habilidad 1");
-                    ability1Button.setTooltip(new Tooltip("No disponible"));
-                    ability1Button.setDisable(true);
+            if (!disponible) {
+                // Añadir información sobre por qué no está disponible
+                if (ataqueAD.getCooldownActual() > 0) {
+                    btnRanged.setText(ataqueAD.getNombre() + " (CD: " + ataqueAD.getCooldownActual() + ")");
+                } else if (ataqueAD.getUsosMaximos() > 0 && ataqueAD.getUsosRestantes() <= 0) {
+                    btnRanged.setText(ataqueAD.getNombre() + " (No usos)");
                 }
+                
+                btnRanged.setStyle("-fx-opacity: 0.6; -fx-background-color: #555555;");
+            } else {
+                btnRanged.setStyle("-fx-opacity: 1.0; -fx-background-color: #4a7ba7;");
             }
+        }
+        
+        if (btnAbility1 != null && habilidad1 != null) {
+            btnAbility1.setText(habilidad1.getNombre());
+            boolean disponible = habilidad1.estaDisponible();
+            btnAbility1.setDisable(!disponible);
             
-            // Configurar el botón de la segunda habilidad
-            if (ability2Button != null) {
-                AtaqueModel habilidad2 = character.getAtaquePorTipo("habilidad_caracteristica");
-                if (habilidad2 != null) {
-                    ability2Button.setText(habilidad2.getNombre());
-                    ability2Button.setTooltip(new Tooltip(
-                        "Daño: " + habilidad2.getDanoBase() + 
-                        "\nUsos: " + habilidad2.getUsosRestantes() + "/" + habilidad2.getUsosMaximos() +
-                        (habilidad2.getCooldownActual() > 0 ? "\nEnfriamiento: " + habilidad2.getCooldownActual() + " turnos" : "")
-                    ));
-                    ability2Button.setDisable(!habilidad2.estaDisponible());
-                } else {
-                    // Fallback simple
-                    ability2Button.setText("Habilidad 2");
-                    ability2Button.setTooltip(new Tooltip("No disponible"));
-                    ability2Button.setDisable(true);
+            if (!disponible) {
+                // Añadir información sobre por qué no está disponible
+                if (habilidad1.getCooldownActual() > 0) {
+                    btnAbility1.setText(habilidad1.getNombre() + " (CD: " + habilidad1.getCooldownActual() + ")");
+                } else if (habilidad1.getUsosMaximos() > 0 && habilidad1.getUsosRestantes() <= 0) {
+                    btnAbility1.setText(habilidad1.getNombre() + " (No usos)");
                 }
+                
+                btnAbility1.setStyle("-fx-opacity: 0.6; -fx-background-color: #555555;");
+            } else {
+                btnAbility1.setStyle("-fx-opacity: 1.0; -fx-background-color: #4a7ba7;");
             }
-        } catch (Exception e) {
-            System.err.println("Error actualizando botones de ataque: " + e.getMessage());
-            e.printStackTrace();
+        }
+        
+        if (btnAbility2 != null && habilidad2 != null) {
+            btnAbility2.setText(habilidad2.getNombre());
+            boolean disponible = habilidad2.estaDisponible();
+            btnAbility2.setDisable(!disponible);
+            
+            if (!disponible) {
+                // Añadir información sobre por qué no está disponible
+                if (habilidad2.getCooldownActual() > 0) {
+                    btnAbility2.setText(habilidad2.getNombre() + " (CD: " + habilidad2.getCooldownActual() + ")");
+                } else if (habilidad2.getUsosMaximos() > 0 && habilidad2.getUsosRestantes() <= 0) {
+                    btnAbility2.setText(habilidad2.getNombre() + " (No usos)");
+                }
+                
+                btnAbility2.setStyle("-fx-opacity: 0.6; -fx-background-color: #555555;");
+            } else {
+                btnAbility2.setStyle("-fx-opacity: 1.0; -fx-background-color: #4a7ba7;");
+            }
         }
     }
     
@@ -546,22 +659,6 @@ public class CombatUIManager {
             e.printStackTrace();
             AlertUtils.mostrarError("Error", "No se pudo volver a la pantalla de selección");
         }
-    }
-    
-    public void hidePlayerCharacter() {
-        playerCharacterImage.setVisible(false);
-    }
-    
-    public void showPlayerCharacter() {
-        playerCharacterImage.setVisible(true);
-    }
-    
-    public void hideAICharacter() {
-        aiCharacterImage.setVisible(false);
-    }
-    
-    public void showAICharacter() {
-        aiCharacterImage.setVisible(true);
     }
     
     public void setPlayerTurnIndicator(boolean isPlayerTurn) {

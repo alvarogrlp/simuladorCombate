@@ -2,7 +2,9 @@ package es.alvarogrlp.marvelsimu.backend.selection.animation;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.TranslateTransition;
+import javafx.geometry.Insets;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
@@ -24,27 +26,43 @@ public class MessageDisplayManager {
      * @param isError Si es un mensaje de error
      */
     public void showMessage(String message, boolean isError) {
+        // Crear el texto del mensaje con estilos directos
         Text messageText = new Text(message);
-        messageText.getStyleClass().add("mensaje-flotante");
+        messageText.setStyle(
+            "-fx-fill: " + (isError ? "#ff5252" : "#ffffff") + ";" +
+            "-fx-font-size: 16px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-font-family: 'Roboto', sans-serif;" +
+            "-fx-effect: dropshadow(gaussian, " + (isError ? "rgba(255, 0, 0, 0.4)" : "rgba(0, 0, 0, 0.7)") + ", 3, 0.5, 0, 1);"
+        );
         
-        if (isError) {
-            messageText.getStyleClass().add("mensaje-error");
-        }
+        // Contenedor con fondo
+        StackPane messageContainer = new StackPane();
+        messageContainer.getChildren().add(messageText);
+        messageContainer.setPadding(new Insets(10, 15, 10, 15));
+        messageContainer.setStyle(
+            "-fx-background-color: " + (isError ? "rgba(80, 20, 20, 0.9)" : "rgba(40, 70, 120, 0.9)") + ";" +
+            "-fx-background-radius: 8px;" +
+            "-fx-border-color: " + (isError ? "rgba(255, 100, 100, 0.7)" : "rgba(100, 150, 255, 0.7)") + ";" +
+            "-fx-border-width: 1px;" +
+            "-fx-border-radius: 8px;"
+        );
         
-        // Posición fija en la pantalla en coordenadas absolutas
-        messageText.setLayoutX(448 - 150); // Centro de la pantalla (896/2) menos la mitad del ancho del texto
-        messageText.setLayoutY(640); // Posición Y fija, encima del botón volver
+        // Posicionar mucho más abajo en la pantalla - debajo del selector de personajes
+        messageContainer.setLayoutX(285); // Centrado (896/2 - 150)
+        messageContainer.setLayoutY(650); // Posición Y mucho más abajo (ajustado)
         
         // Configuración del texto
         messageText.setTextAlignment(TextAlignment.CENTER);
         messageText.setWrappingWidth(300);
         
-        // Añadir al rootPane
-        rootPane.getChildren().add(messageText);
+        // Añadir directamente al rootPane
+        rootPane.getChildren().add(messageContainer);
         
-        // Si es un error, añadir animación de sacudida
+        // Animaciones
         if (isError) {
-            TranslateTransition shake = new TranslateTransition(Duration.millis(50), messageText);
+            // Animación de sacudida para errores
+            TranslateTransition shake = new TranslateTransition(Duration.millis(50), messageContainer);
             shake.setFromX(-5);
             shake.setToX(5);
             shake.setCycleCount(6);
@@ -52,14 +70,20 @@ public class MessageDisplayManager {
             shake.play();
         }
         
-        // Desvanecimiento
-        FadeTransition fadeOut = new FadeTransition(Duration.seconds(isError ? 2.5 : 2.0), messageText);
+        // Aparecer con animación
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), messageContainer);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
+        fadeIn.play();
+        
+        // Desaparecer con animación
+        FadeTransition fadeOut = new FadeTransition(Duration.seconds(isError ? 2.5 : 2.0), messageContainer);
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.0);
-        if (isError) {
-            fadeOut.setDelay(Duration.seconds(1));
-        }
-        fadeOut.setOnFinished(e -> rootPane.getChildren().remove(messageText));
+        fadeOut.setDelay(Duration.seconds(isError ? 2.0 : 1.5)); // Demorar la desaparición
+        
+        // Eliminar al terminar
+        fadeOut.setOnFinished(e -> rootPane.getChildren().remove(messageContainer));
         fadeOut.play();
     }
 }

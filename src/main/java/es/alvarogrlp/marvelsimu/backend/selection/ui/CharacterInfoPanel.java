@@ -7,11 +7,11 @@ import es.alvarogrlp.marvelsimu.backend.model.AtaqueModel;
 import es.alvarogrlp.marvelsimu.backend.model.PasivaModel;
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
 import es.alvarogrlp.marvelsimu.backend.selection.logic.SelectionManager;
-import es.alvarogrlp.marvelsimu.backend.selection.util.CharacterDescriptionFormatter;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -25,11 +25,9 @@ import javafx.scene.text.Text;
 public class CharacterInfoPanel {
     
     private SelectionManager selectionManager;
-    private CharacterDescriptionFormatter formatter;
     
     public CharacterInfoPanel(SelectionManager selectionManager) {
         this.selectionManager = selectionManager;
-        this.formatter = new CharacterDescriptionFormatter();
     }
     
     /**
@@ -38,34 +36,40 @@ public class CharacterInfoPanel {
      * @return Panel de información
      */
     public VBox createInfoPanel(PersonajeModel character) {
-        // Contenedor principal
-        VBox panel = new VBox(8);
-        panel.setPrefWidth(520);
+        // Contenedor principal - Aumentar ancho para compensar la barra de desplazamiento
+        VBox panel = new VBox(10);
+        panel.setPrefWidth(580);  
         panel.setPrefHeight(650);
         panel.getStyleClass().add("character-info-container");
-        panel.setPadding(new Insets(15));
+        panel.setPadding(new Insets(20));
         
         // Crear header con botón de cierre
         HBox header = createHeaderWithCloseButton(character.getNombre());
         
-        // Crear un ScrollPane para poder desplazarse por el contenido
+        // Crear un ScrollPane solo con scroll vertical
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setHbarPolicy(ScrollBarPolicy.NEVER); // Desactivar scroll horizontal
         scrollPane.getStyleClass().add("info-scrollpane");
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
         
-        // Contenedor para el contenido desplazable
-        VBox contentBox = new VBox(12);
-        contentBox.setPadding(new Insets(5, 10, 10, 10));
+        // Contenedor para el contenido desplazable - AJUSTADO PARA LA BARRA DE DESPLAZAMIENTO
+        VBox contentBox = new VBox(16);  
+        contentBox.setPadding(new Insets(5, 15, 5, 5)); // Aumentar padding derecho
         contentBox.setStyle("-fx-background-color: transparent;");
-        contentBox.setPrefWidth(480);
-        contentBox.setMaxWidth(480);
+        contentBox.setPrefWidth(520);  // Reducido para dejar espacio a la barra
+        contentBox.setMaxWidth(520);   // Reducido para dejar espacio a la barra
         
-        // Añadir imagen y estadísticas básicas
-        HBox characterBasicInfo = createCharacterImageAndBasicStats(character);
+        // SIMPLIFICADO: Solo mantener los stats principales con números grandes
+        VBox mainStats = createMainStatsBox(character);
         
-        // Crear contenido resto del panel
-        VBox characterDetails = createCharacterDetails(character);
-        contentBox.getChildren().addAll(characterBasicInfo, characterDetails);
+        // Crear secciones para pasivas y ataques
+        VBox pasivasSection = createPasivasSection(character);
+        VBox attacksSection = createAttacksSection(character);
+        
+        // Añadir componentes al contenedor principal en orden
+        contentBox.getChildren().addAll(mainStats, pasivasSection, attacksSection);
         
         // Configurar el ScrollPane
         scrollPane.setContent(contentBox);
@@ -74,9 +78,16 @@ public class CharacterInfoPanel {
         Button selectButton = new Button("SELECCIONAR");
         selectButton.getStyleClass().add("select-button");
         selectButton.setOnAction(e -> selectionManager.confirmSelection());
+        selectButton.setPrefWidth(200);  // Ancho fijo para el botón
+        
+        // Centrar el botón
+        HBox buttonContainer = new HBox();
+        buttonContainer.setAlignment(Pos.CENTER);
+        buttonContainer.getChildren().add(selectButton);
+        buttonContainer.setPadding(new Insets(10, 0, 5, 0));
         
         // Añadir componentes al panel principal
-        panel.getChildren().addAll(header, scrollPane, selectButton);
+        panel.getChildren().addAll(header, scrollPane, buttonContainer);
         
         return panel;
     }
@@ -107,14 +118,14 @@ public class CharacterInfoPanel {
     }
     
     /**
-     * Crea un panel con la imagen y estadísticas básicas
+     * Crea la caja principal con las estadísticas grandes
      */
-    private HBox createCharacterImageAndBasicStats(PersonajeModel character) {
-        HBox container = new HBox(15);
+    private VBox createMainStatsBox(PersonajeModel character) {
+        VBox container = new VBox(12);
         container.setAlignment(Pos.CENTER);
-        container.setPadding(new Insets(10, 0, 20, 0));
+        container.setPadding(new Insets(5));
         
-        // Cargar imagen del personaje
+        // Cargar imagen del personaje centrada
         ImageView charImage = new ImageView();
         charImage.setFitHeight(180);
         charImage.setFitWidth(140);
@@ -126,8 +137,6 @@ public class CharacterInfoPanel {
                 Image image = new Image(is);
                 if (!image.isError()) {
                     charImage.setImage(image);
-                    
-                    // Aplicar efecto de borde a la imagen
                     charImage.setStyle("-fx-effect: dropshadow(gaussian, rgba(0, 150, 255, 0.6), 10, 0.5, 0, 0);");
                 }
             }
@@ -135,44 +144,25 @@ public class CharacterInfoPanel {
             System.err.println("Error cargando imagen de personaje: " + e.getMessage());
         }
         
-        // Contenedor para las estadísticas principales
-        VBox statsContainer = new VBox(15);
-        statsContainer.setAlignment(Pos.CENTER);
+        // Contenedor para la imagen
+        HBox imageContainer = new HBox();
+        imageContainer.setAlignment(Pos.CENTER);
+        imageContainer.getChildren().add(charImage);
         
-        // Crear las cajas de estadísticas principales - CORREGIDO
-        HBox mainStatsBox = new HBox(10);
+        // Estadísticas principales en formato grande
+        HBox mainStatsBox = new HBox(15);
         mainStatsBox.setAlignment(Pos.CENTER);
+        mainStatsBox.setPadding(new Insets(10, 0, 0, 0));
         
-        // Usamos las propiedades que sí existen en PersonajeModel
         VBox vida = createStatBox("VIDA", character.getVida());
         VBox fuerza = createStatBox("FUE", character.getFuerza());
         VBox velocidad = createStatBox("VEL", character.getVelocidad());
-        mainStatsBox.getChildren().addAll(vida, fuerza, velocidad);
-        
-        // Segunda fila de estadísticas - CORREGIDO
-        HBox secondaryStatsBox = new HBox(10);
-        secondaryStatsBox.setAlignment(Pos.CENTER);
-        
-        // Mostramos poder y otros valores derivados o calculados
         VBox poder = createStatBox("POD", character.getPoder());
         
-        // Podemos mostrar valores de ataque como estadísticas adicionales
-        AtaqueModel ataqueCC = character.getAtaquePorTipo("ACC");
-        int valorAtaqueCC = ataqueCC != null ? ataqueCC.getDanoBase() : 0;
-        VBox ataqueBox = createStatBox("ATQ", valorAtaqueCC);
+        mainStatsBox.getChildren().addAll(vida, fuerza, velocidad, poder);
         
-        // Para la tercera estadística, podemos usar un valor derivado o un espacio en blanco
-        VBox vidaActual = createStatBox("ACT", character.getVidaActual() > 0 ? 
-                                              character.getVidaActual() : 
-                                              character.getVida());
-        
-        secondaryStatsBox.getChildren().addAll(poder, ataqueBox, vidaActual);
-        
-        // Añadir las cajas de estadísticas al contenedor
-        statsContainer.getChildren().addAll(mainStatsBox, secondaryStatsBox);
-        
-        // Añadir imagen y estadísticas al contenedor principal
-        container.getChildren().addAll(charImage, statsContainer);
+        // Añadir ambos a un contenedor
+        container.getChildren().addAll(imageContainer, mainStatsBox);
         
         return container;
     }
@@ -195,98 +185,6 @@ public class CharacterInfoPanel {
         statBox.getChildren().addAll(valueText, nameText);
         
         return statBox;
-    }
-    
-    /**
-     * Crea una miniatura para el personaje - versión simplificada
-     */
-    private ImageView createCharacterThumbnail(PersonajeModel character) {
-        ImageView miniatura = new ImageView();
-        miniatura.setFitWidth(100);
-        miniatura.setFitHeight(100);
-        miniatura.setPreserveRatio(true);
-        
-        try {
-            // Simplemente cargar la imagen directamente de la ruta proporcionada
-            InputStream is = getClass().getClassLoader().getResourceAsStream(character.getImagenMiniatura());
-            if (is != null) {
-                Image image = new Image(is);
-                if (!image.isError()) {
-                    miniatura.setImage(image);
-                    return miniatura;
-                }
-            }
-            
-            // Si la imagen no se encuentra, usar la imagen por defecto
-            System.err.println("No se pudo cargar la miniatura: " + character.getImagenMiniatura());
-            InputStream defaultIs = getClass().getClassLoader().getResourceAsStream("images/Personajes/random.png");
-            if (defaultIs != null) {
-                miniatura.setImage(new Image(defaultIs));
-            }
-        } catch (Exception e) {
-            System.err.println("Error al crear la miniatura: " + e.getMessage());
-            try {
-                InputStream defaultIs = getClass().getClassLoader().getResourceAsStream("images/Personajes/random.png");
-                if (defaultIs != null) {
-                    miniatura.setImage(new Image(defaultIs));
-                }
-            } catch (Exception ex) {
-                // No se puede hacer nada más
-            }
-        }
-        
-        return miniatura;
-    }
-    
-    /**
-     * Crea el panel de estadísticas básicas
-     */
-    private VBox createStatsPanel(PersonajeModel character) {
-        VBox statsBox = new VBox(8);
-        statsBox.setAlignment(Pos.CENTER_LEFT);
-        statsBox.setPadding(new Insets(3));
-        
-        // Agregar estadísticas
-        statsBox.getChildren().addAll(
-            formatter.createStatRow("VIDA", character.getVida()),
-            formatter.createStatRow("FUERZA", character.getFuerza()),
-            formatter.createStatRow("VELOCIDAD", character.getVelocidad()),
-            formatter.createStatRow("PODER", character.getPoder())
-        );
-        
-        return statsBox;
-    }
-    
-    /**
-     * Crea los detalles del personaje
-     */
-    private VBox createCharacterDetails(PersonajeModel character) {
-        VBox characterDetails = new VBox(15);
-        characterDetails.setAlignment(Pos.TOP_CENTER);
-        
-        // Contenedor para miniatura y estadísticas
-        HBox miniStatContainer = new HBox(15);
-        miniStatContainer.setAlignment(Pos.CENTER);
-        miniStatContainer.setPadding(new Insets(5));
-        
-        // Miniatura del personaje
-        ImageView miniatura = createCharacterThumbnail(character);
-        
-        // Panel de estadísticas básicas
-        VBox statsBox = createStatsPanel(character);
-        
-        miniStatContainer.getChildren().addAll(miniatura, statsBox);
-        
-        // Sección de pasivas
-        VBox pasivasSection = createPasivasSection(character);
-        
-        // Sección de ataques 
-        VBox attacksSection = createAttacksSection(character);
-        
-        // Añadir todos los componentes al contenedor de detalles
-        characterDetails.getChildren().addAll(miniStatContainer, pasivasSection, attacksSection);
-        
-        return characterDetails;
     }
     
     /**
@@ -337,10 +235,10 @@ public class CharacterInfoPanel {
         Text nombreText = new Text(pasiva.getNombre());
         nombreText.getStyleClass().add("ability-name");
         
-        // Descripción de la pasiva
+        // Descripción de la pasiva - Ajustado ancho para la barra de desplazamiento
         Text descripcionText = new Text(pasiva.getDescripcion());
-        descripcionText.getStyleClass().add("stat-text");
-        descripcionText.setWrappingWidth(500);
+        descripcionText.getStyleClass().add("ability-description");
+        descripcionText.setWrappingWidth(480); // Reducido de 500 a 480
         
         // Información adicional (tipo de trigger, cooldown, etc.)
         StringBuilder infoBuilder = new StringBuilder();
@@ -410,9 +308,9 @@ public class CharacterInfoPanel {
         Text nombreText = new Text(ataque.getNombre() + " (" + formatTipoAtaque(ataque.getTipoAtaqueClave()) + ")");
         nombreText.getStyleClass().add("attack-name");
         
-        // Daño base
+        // Daño base - Aplicar clase CSS correcta para que se muestre en color adecuado
         Text danoText = new Text("Daño base: " + ataque.getDanoBase());
-        danoText.getStyleClass().add("attack-power");
+        danoText.getStyleClass().add("attack-damage"); // Usar attack-damage en lugar de attack-power
         
         // Información adicional (usos, cooldown)
         StringBuilder infoBuilder = new StringBuilder();

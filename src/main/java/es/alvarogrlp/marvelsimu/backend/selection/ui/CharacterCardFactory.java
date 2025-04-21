@@ -32,92 +32,49 @@ public class CharacterCardFactory {
     
     /**
      * Crea una tarjeta para un personaje
-     * @param character Personaje para la tarjeta
-     * @param sourceButton Botón origen (puede ser null)
+     * @param character Personaje a mostrar
+     * @param sourceButton Botón fuente (puede ser null)
      * @param isPlayerTeam Si es para el equipo del jugador
-     * @return VBox con la tarjeta del personaje
+     * @return VBox con la tarjeta
      */
     public VBox createCharacterCard(PersonajeModel character, Button sourceButton, boolean isPlayerTeam) {
-        VBox card = new VBox(8);
-        card.setPrefSize(160, 160);
-        card.setMaxSize(160, 160);
-        card.setAlignment(Pos.CENTER);
-        card.setPadding(new Insets(8));
-        card.getStyleClass().add("character-card");
+        VBox cardBox = new VBox(8);
+        cardBox.setAlignment(Pos.CENTER);
+        cardBox.setPadding(new Insets(5));
+        cardBox.getStyleClass().add("character-card");
         
-        // Crear contenedor para la miniatura con efecto de borde
-        StackPane imageContainer = new StackPane();
-        imageContainer.setPrefSize(120, 120);
-        imageContainer.setMaxSize(120, 120);
-        imageContainer.getStyleClass().add("image-container");
+        // Crear contenedor para la imagen
+        StackPane imagePane = new StackPane();
+        imagePane.setMaxSize(120, 120);
+        imagePane.setPrefSize(120, 120);
+        imagePane.setMinSize(120, 120);
+        imagePane.getStyleClass().add("character-image-container");
         
-        // Crear miniatura
-        ImageView thumbnail = new ImageView();
-        thumbnail.setFitWidth(120);
-        thumbnail.setFitHeight(120);
-        thumbnail.setPreserveRatio(true);
+        // Crear imagen del personaje con tamaño consistente
+        ImageView characterImageView = createCharacterImageView(character);
+        characterImageView.setFitWidth(110);
+        characterImageView.setFitHeight(110);
+        characterImageView.setPreserveRatio(true);
         
-        // Cargar imagen
-        try {
-            InputStream is = getClass().getClassLoader().getResourceAsStream(character.getImagenMiniatura());
-            if (is != null) {
-                Image image = new Image(is);
-                thumbnail.setImage(image);
-                
-                // Aplicar efecto de recorte circular si se desea
-                // Circle clip = new Circle(60, 60, 60);
-                // thumbnail.setClip(clip);
-            } else {
-                System.err.println("No se pudo cargar la imagen: " + character.getImagenMiniatura());
-                // Cargar imagen por defecto
-                is = getClass().getClassLoader().getResourceAsStream("images/Personajes/random.png");
-                if (is != null) {
-                    thumbnail.setImage(new Image(is));
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error cargando imagen: " + e.getMessage());
-        }
+        // Añadir al contenedor de imagen
+        imagePane.getChildren().add(characterImageView);
         
-        // Añadir miniatura al contenedor
-        imageContainer.getChildren().add(thumbnail);
-        
-        // Configurar nombre del personaje
+        // Crear etiqueta para el nombre
         Label nameLabel = new Label(character.getNombre());
         nameLabel.getStyleClass().add("character-name-label");
         nameLabel.setWrapText(true);
-        nameLabel.setTextAlignment(TextAlignment.CENTER);
-        nameLabel.setAlignment(Pos.CENTER);
         nameLabel.setMaxWidth(150);
+        nameLabel.setAlignment(Pos.CENTER);
         
-        // Añadir elementos a la tarjeta
-        card.getChildren().addAll(imageContainer, nameLabel);
+        // Añadir componentes a la tarjeta
+        cardBox.getChildren().addAll(imagePane, nameLabel);
         
-        // Permitir eliminar con clic para AMBOS equipos
-        card.setOnMouseClicked(e -> {
-            // Eliminar directamente sin confirmación
-            selectionManager.removeCharacterFromTeam(character, isPlayerTeam);
-            
-            // Reactivar el botón asociado
-            Button button = selectionManager.findCharacterButton(character);
-            if (button != null) {
-                button.setDisable(false);
-            }
-        });
+        // Configurar tamaño de la tarjeta
+        cardBox.setPrefSize(160, 180);
+        cardBox.setMaxSize(160, 180);
+        cardBox.setMinSize(160, 180);
         
-        // Añadir efecto de hover para ambos equipos
-        card.setOnMouseEntered(e -> {
-            card.setStyle("-fx-cursor: hand;");
-        });
-        
-        card.setOnMouseExited(e -> {
-            card.setStyle("");
-        });
-        
-        // Guardar el personaje como datos del componente para acceso rápido
-        card.setUserData(character);
-        
-        return card;
+        return cardBox;
     }
     
     /**
@@ -187,5 +144,93 @@ public class CharacterCardFactory {
         } catch (Exception e) {
             return new WritableImage(100, 100);
         }
+    }
+    
+    /**
+     * Crea la vista de imagen para un personaje
+     */
+    private ImageView createCharacterImageView(PersonajeModel character) {
+        ImageView imageView = new ImageView();
+        
+        try {
+            // Intentar primero con la ruta del modelo
+            String imagePath = character.getImagenMiniatura();
+            InputStream is = getClass().getClassLoader().getResourceAsStream(imagePath);
+            
+            // Si no funciona, intentar con la ruta construida
+            if (is == null) {
+                imagePath = "images/Personajes/" + character.getNombreCodigo() + ".png";
+                is = getClass().getClassLoader().getResourceAsStream(imagePath);
+            }
+            
+            // Si todavía es nulo, intentar con otra variación de la ruta
+            if (is == null) {
+                imagePath = "/images/Personajes/" + character.getNombreCodigo() + ".png";
+                is = getClass().getResourceAsStream(imagePath);
+            }
+            
+            if (is != null) {
+                Image image = new Image(is);
+                imageView.setImage(image);
+                imageView.setFitWidth(110);
+                imageView.setFitHeight(110);
+                imageView.setPreserveRatio(true);
+                imageView.setSmooth(true);
+                imageView.getStyleClass().add("character-image");
+                imageView.setCache(true);
+            } else {
+                System.err.println("No se pudo cargar la imagen para: " + character.getNombreCodigo());
+                // Cargar imagen placeholder
+                loadPlaceholderImage(imageView);
+            }
+        } catch (Exception e) {
+            System.err.println("Error cargando imagen para " + character.getNombreCodigo() + ": " + e.getMessage());
+            // Cargar imagen placeholder
+            loadPlaceholderImage(imageView);
+        }
+        
+        return imageView;
+    }
+    
+    /**
+     * Carga una imagen placeholder cuando no se puede cargar la original
+     */
+    private void loadPlaceholderImage(ImageView imageView) {
+        try {
+            // Intentar múltiples rutas para la imagen placeholder
+            InputStream is = getClass().getResourceAsStream("/images/Personajes/random.png");
+            if (is == null) {
+                is = getClass().getClassLoader().getResourceAsStream("images/Personajes/random.png");
+            }
+            
+            if (is != null) {
+                Image placeholderImage = new Image(is);
+                imageView.setImage(placeholderImage);
+            } else {
+                System.err.println("No se pudo cargar ni siquiera la imagen placeholder");
+            }
+        } catch (Exception ex) {
+            System.err.println("No se pudo cargar la imagen placeholder: " + ex.getMessage());
+        }
+    }
+    
+    /**
+     * Método de diagnóstico para verificar si un recurso existe
+     */
+    private boolean resourceExists(String path) {
+        boolean exists = false;
+        try {
+            // Intentar varias formas de acceder al recurso
+            exists = getClass().getResource(path) != null;
+            if (!exists) {
+                exists = getClass().getClassLoader().getResource(path) != null;
+            }
+            if (!exists) {
+                exists = getClass().getResourceAsStream(path) != null;
+            }
+        } catch (Exception e) {
+            // Ignorar errores
+        }
+        return exists;
     }
 }

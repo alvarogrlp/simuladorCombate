@@ -45,30 +45,8 @@ public class SeleccionPersonajesController extends AbstractController {
                     System.out.println("CSS específico cargado correctamente: " + cssResource.toExternalForm());
                 }
                 
-                // Cargar también el CSS del tema actual manualmente
-                String themeCssPath = es.alvarogrlp.marvelsimu.backend.config.ThemeManager.isDarkMode() ?
-                    "/es/alvarogrlp/marvelsimu/dark-mode.css" :
-                    "/es/alvarogrlp/marvelsimu/light-mode.css";
-                    
-                java.net.URL themeCssResource = getClass().getResource(themeCssPath);
-                if (themeCssResource != null && !rootPane.getStylesheets().contains(themeCssResource.toExternalForm())) {
-                    rootPane.getStylesheets().add(themeCssResource.toExternalForm());
-                    System.out.println("CSS del tema cargado correctamente: " + themeCssResource.toExternalForm());
-                }
+                // ELIMINADO: Ya no cargamos CSS del tema ni configuramos el fondo
                 
-                // Configurar el fondo manualmente
-                if (fondo != null) {
-                    String imagePath = es.alvarogrlp.marvelsimu.backend.config.ThemeManager.isDarkMode() ?
-                        "/images/fondoNegro.png" :
-                        "/images/fondoBlanco.png";
-                    
-                    try {
-                        javafx.scene.image.Image image = new javafx.scene.image.Image(getClass().getResourceAsStream(imagePath));
-                        fondo.setImage(image);
-                    } catch (Exception e) {
-                        System.err.println("Error cargando la imagen de fondo: " + e.getMessage());
-                    }
-                }
             } else {
                 System.err.println("Error: No se pudo encontrar el CSS específico en: " + cssPath);
             }
@@ -80,6 +58,12 @@ public class SeleccionPersonajesController extends AbstractController {
             if (txtTitulo != null) txtTitulo.getStyleClass().add("title-text");
             if (txtTitulo1 != null) txtTitulo1.getStyleClass().add("title-text");
             if (txtTitulo11 != null) txtTitulo11.getStyleClass().add("title-text");
+            
+            // Ocultar el ImageView de fondo si existe para evitar problemas con transparencia
+            if (fondo != null) {
+                fondo.setVisible(false);
+            }
+            
         } catch (Exception e) {
             System.err.println("Error cargando CSS en el controlador: " + e.getMessage());
         }

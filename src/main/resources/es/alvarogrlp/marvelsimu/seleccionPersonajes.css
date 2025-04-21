@@ -70,12 +70,59 @@
 
 /* Panel de información de personajes - Estilo holográfico moderno */
 .character-info-container {
-    -fx-background-color: rgba(15, 25, 45, 0.92);
+    -fx-background-color: rgba(10, 20, 40, 0.92);
     -fx-background-radius: 20px;
     -fx-border-color: linear-gradient(to right, #2157b0, #4a8aff, #2157b0);
     -fx-border-width: 2px;
     -fx-border-radius: 20px;
-    -fx-effect: dropshadow(gaussian, rgba(50, 150, 255, 0.5), 20, 0.5, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(50, 150, 255, 0.7), 20, 0.5, 0, 0);
+}
+
+.character-info-container .text {
+    -fx-fill: #e0e0e0 !important;
+}
+
+/* ScrollPane dentro del panel de información - Barra más delgada */
+.info-scrollpane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0 5 0 0; /* Dar un poco de espacio a la derecha */
+}
+
+.info-scrollpane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.info-scrollpane .scroll-bar:vertical {
+    -fx-background-color: rgba(20, 40, 80, 0.3);
+    -fx-background-radius: 6px;
+    -fx-min-width: 10px; /* Barra más delgada */
+    -fx-pref-width: 10px;
+    -fx-max-width: 10px;
+}
+
+.info-scrollpane .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(66, 165, 245, 0.6); /* Menos opaco */
+    -fx-background-radius: 6px;
+}
+
+.info-scrollpane .scroll-bar:vertical .track {
+    -fx-background-color: transparent; /* Fondo de la pista transparente */
+}
+
+.info-scrollpane .scroll-bar .increment-button,
+.info-scrollpane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-opacity: 0.6;
+    -fx-padding: 0 3 0 3; /* Botones más pequeños */
+}
+
+.info-scrollpane .scroll-bar .increment-button .increment-arrow,
+.info-scrollpane .scroll-bar .decrement-button .decrement-arrow {
+    -fx-background-color: rgba(255, 255, 255, 0.5);
+    -fx-scale-x: 0.8;
+    -fx-scale-y: 0.8;
 }
 
 /* Efecto de resplandor para elementos interactivos */
@@ -85,12 +132,14 @@
 
 /* Nombre del personaje en el panel de información */
 .character-name {
-    -fx-fill: white !important;
-    -fx-font-size: 26px !important;
+    -fx-fill: #ffffff !important;
+    -fx-font-size: 28px !important;
     -fx-font-weight: bold !important;
     -fx-font-family: "Roboto Condensed", "Segoe UI", sans-serif !important;
     -fx-effect: dropshadow(gaussian, rgba(0, 150, 255, 0.7), 8, 0.5, 0, 0) !important;
     -fx-letter-spacing: 1px !important;
+    -fx-alignment: center !important;
+    -fx-text-alignment: center !important;
 }
 
 /* Títulos de sección más elegantes */
@@ -113,16 +162,18 @@
     -fx-border-color: linear-gradient(to bottom, rgba(100, 150, 255, 0.6), rgba(70, 120, 220, 0.6));
     -fx-border-width: 1.5px;
     -fx-border-radius: 12px;
-    -fx-min-width: 85px;
+    -fx-min-width: 90px;
+    -fx-min-height: 80px;
     -fx-effect: dropshadow(gaussian, rgba(0, 100, 200, 0.4), 5, 0.3, 0, 0);
+    -fx-padding: 5px;
 }
 
 .stat-value {
-    -fx-fill: #ffd54f;
-    -fx-font-size: 30px;
+    -fx-fill: #ff5252;
+    -fx-font-size: 32px;
     -fx-font-weight: bold;
     -fx-font-family: "Roboto Condensed", "Segoe UI", sans-serif;
-    -fx-effect: dropshadow(gaussian, rgba(255, 213, 79, 0.7), 3, 0.3, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(255, 82, 82, 0.7), 3, 0.3, 0, 0);
 }
 
 .stat-name {
@@ -158,35 +209,101 @@
     -fx-effect: dropshadow(gaussian, rgba(255, 158, 128, 0.4), 2, 0.3, 0, 0) !important;
 }
 
+/* Mejorar la visibilidad del texto de descripción de las pasivas */
+.ability-description {
+    -fx-fill: #ffffff !important; /* Blanco puro */
+    -fx-font-size: 13px !important;
+    -fx-font-family: "Roboto", sans-serif !important;
+    -fx-text-alignment: justify !important;
+    -fx-wrap-text: true !important;
+    -fx-line-spacing: 2px !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 1.5, 0.5, 0, 0) !important;
+}
+
+/* Valores de daño y otros textos pequeños */
+.attack-damage, .attack-description, .damage-text, .small-text {
+    -fx-fill: #eeeeee !important; /* Un blanco ligeramente menos brillante */
+    -fx-font-size: 12px !important;
+    -fx-font-family: "Roboto", sans-serif !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 1, 0.5, 0, 0) !important;
+}
+
+/* Descripción del ataque */
+.attack-description {
+    -fx-fill: #e0e0e0 !important;
+    -fx-font-size: 13px !important;
+    -fx-wrap-text: true !important;
+    -fx-text-alignment: justify !important;
+}
+
+/* Texto de daño específico - destacar un poco */
+.attack-damage {
+    -fx-fill: #ffcc80 !important; /* Naranja claro para resaltar daño */
+    -fx-font-weight: bold !important;
+}
+
+/* Cualquier otro texto que pueda estar negro */
+.text {
+    -fx-fill: #e0e0e0 !important;
+}
+
+/* Texto genérico dentro de tarjetas de ataques y pasivas */
+.attack-card .text, .pasiva-card .text {
+    -fx-fill: #ffffff !important;
+}
+
+/* Etiquetas de tipos de ataque */
+.attack-type-label {
+    -fx-fill: #90caf9 !important; /* Azul claro */
+    -fx-font-size: 12px !important;
+    -fx-font-style: italic !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 1, 0.5, 0, 0) !important;
+}
+
+/* Para cualquier estadística o texto de valor numérico */
+.numeric-value {
+    -fx-fill: #ffeb3b !important; /* Amarillo */
+    -fx-font-weight: bold !important;
+    -fx-font-family: "Roboto Condensed", sans-serif !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 1, 0.5, 0, 0) !important;
+}
+
+/* Color más claro para el tipo de pasiva */
 .ability-type {
-    -fx-fill: #81c784 !important;
+    -fx-fill: #8aff9e !important; /* Verde más brillante */
     -fx-font-size: 12px !important;
     -fx-font-style: italic !important;
     -fx-font-family: "Roboto", sans-serif !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 1, 0.5, 0, 0) !important;
 }
 
-.attack-power, .ability-power {
-    -fx-fill: #ffb74d !important;
+/* Color más claro para el poder de la pasiva */
+.ability-power {
+    -fx-fill: #ffcc60 !important; /* Amarillo más brillante */
     -fx-font-size: 13px !important;
     -fx-font-family: "Roboto", sans-serif !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 1, 0.5, 0, 0) !important;
 }
 
+/* Mejorar la legibilidad de información especial de pasivas */
 .special-ability-info {
-    -fx-fill: #ce93d8;
-    -fx-font-size: 13px;
-    -fx-font-style: italic;
-    -fx-font-weight: bold;
-    -fx-font-family: "Roboto", sans-serif;
+    -fx-fill: #e0aaff !important; /* Púrpura más claro */
+    -fx-font-size: 13px !important;
+    -fx-font-style: italic !important;
+    -fx-font-weight: bold !important;
+    -fx-font-family: "Roboto", sans-serif !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 1, 0.5, 0, 0) !important;
 }
 
 /* Descripción del personaje con mejor legibilidad */
 .description-text {
-    -fx-fill: #e0e0e0;
-    -fx-font-size: 14px;
-    -fx-font-family: "Roboto", sans-serif;
-    -fx-text-alignment: justify;
-    -fx-wrap-text: true;
-    -fx-line-spacing: 3px;
+    -fx-fill: #f0f0f0 !important; /* Casi blanco */
+    -fx-font-size: 14px !important;
+    -fx-font-family: "Roboto", sans-serif !important;
+    -fx-text-alignment: justify !important;
+    -fx-wrap-text: true !important;
+    -fx-line-spacing: 3px !important;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 1, 0.5, 0, 0) !important;
 }
 
 /* Botón para cerrar la ventana de información */
@@ -226,7 +343,7 @@
     -fx-border-width: 2px !important;
     -fx-border-radius: 10px !important;
     -fx-background-radius: 10px !important;
-    -fx-padding: 10px 20px !important;
+    -fx-padding: 12px 25px !important;
     -fx-effect: dropshadow(gaussian, rgba(76, 175, 80, 0.5), 7, 0.3, 0, 0) !important;
     -fx-letter-spacing: 0.8px !important;
     -fx-text-transform: uppercase !important;
@@ -257,6 +374,8 @@
     -fx-padding: 12px !important;
     -fx-effect: dropshadow(gaussian, rgba(0, 100, 255, 0.5), 8, 0.3, 0, 0) !important;
     -fx-transition: all 0.3s ease !important;
+    -fx-shape-clip: true; /* Asegura que el contenido no se desborde */
+    -fx-background-color: rgba(30, 50, 90, 0.8);
 }
 
 .character-card:hover {
@@ -266,15 +385,18 @@
     -fx-cursor: hand !important;
 }
 
-/* Nombre del personaje en la tarjeta */
+/* Nombre del personaje en la tarjeta - Modificado para ser más claro */
 .character-name-label {
-    -fx-text-fill: white;
+    -fx-text-fill: #ffffff; /* Blanco puro */
+    -fx-stroke: #1a1a1a; /* Borde oscuro muy sutil */
+    -fx-stroke-width: 0.2px; /* Muy fino */
+    -fx-stroke-type: outside;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-font-family: "Roboto Condensed", sans-serif;
     -fx-alignment: center;
     -fx-text-alignment: center;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 1, 0.5, 0, 0);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 1.5, 0.5, 0, 1); /* Sombra más marcada para mejor legibilidad */
 }
 
 /* ScrollPane transparente mejorado */
@@ -364,6 +486,10 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 100, 200, 0.4), 8, 0.3, 0, 0);
 }
 
+.attack-card .text, .pasiva-card .text {
+    -fx-fill: #ffffff !important;
+}
+
 /* Fondo "holográfico" para algunos elementos clave - Estilo tecnología Stark */
 .holo-background {
     -fx-background-color: linear-gradient(to bottom, rgba(30, 50, 90, 0.5), rgba(20, 40, 70, 0.5));
@@ -423,4 +549,49 @@
     -fx-text-fill: #f5f5f5;
     -fx-opacity: 0.8;
     -fx-effect: none;
+}
+
+/* Añadir estas reglas para asegurar la transparencia en imágenes */
+.image-view {
+    -fx-background-color: transparent;
+    -fx-preserve-ratio: true;
+}
+
+/* Asegurarnos que los contenedores de imágenes sean transparentes */
+.character-image-container {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.image-stack-pane {
+    -fx-background-color: transparent;
+}
+
+/* Add/modify these rules */
+.character-image {
+    -fx-background-color: transparent;
+}
+
+.image-container {
+    -fx-background-color: transparent;
+}
+
+/* Estilos para mensajes flotantes */
+.mensaje-flotante {
+    -fx-fill: #ffffff;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Roboto", sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 3, 0.5, 0, 1);
+    -fx-text-alignment: center;
+    -fx-background-color: rgba(40, 70, 120, 0.8);
+    -fx-padding: 10px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+
+.mensaje-error {
+    -fx-fill: #ff5252;
+    -fx-effect: dropshadow(gaussian, rgba(255, 0, 0, 0.4), 3, 0.5, 0, 1);
+    -fx-background-color: rgba(80, 20, 20, 0.8);
 }

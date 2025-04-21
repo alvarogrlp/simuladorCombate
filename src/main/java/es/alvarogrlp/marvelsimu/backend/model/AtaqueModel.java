@@ -37,45 +37,61 @@ public class AtaqueModel {
     }
     
     /**
-     * Reinicia el estado de combate del ataque
+     * Reiniciar el estado del ataque para un nuevo combate
      */
     public void resetearEstadoCombate() {
-        this.usosRestantes = this.usosMaximos;
-        this.cooldownActual = 0;
+        usosRestantes = usosMaximos;
+        cooldownActual = 0;
     }
     
     /**
-     * Verifica si el ataque está disponible para usar
+     * Verifica si el ataque está disponible para usarse
+     * @return true si está disponible
      */
     public boolean estaDisponible() {
-        // Si es un ataque sin límite de usos
-        if (usosMaximos == 0) {
-            return cooldownActual == 0;
+        // Si ambos son 0, siempre está disponible (infinito)
+        if (usosMaximos == 0 && cooldownTurnos == 0) {
+            return true;
         }
         
-        // Si es un ataque con límite de usos
-        return usosRestantes > 0 && cooldownActual == 0;
+        // Verificar usos si el ataque tiene límite de usos
+        if (usosMaximos > 0 && usosRestantes <= 0) {
+            return false;
+        }
+        
+        // Verificar cooldown si tiene cooldown
+        if (cooldownTurnos > 0 && cooldownActual > 0) {
+            return false;
+        }
+        
+        // Si pasó todas las verificaciones, está disponible
+        return true;
     }
     
     /**
-     * Consume un uso del ataque
+     * Consumir un uso del ataque y activar cooldown
      */
     public void consumirUso() {
-        if (usosRestantes > 0) {
+        // Si tiene límite de usos, reducir contador
+        if (usosMaximos > 0) {
             usosRestantes--;
         }
         
+        // Si tiene cooldown, activarlo
         if (cooldownTurnos > 0) {
             cooldownActual = cooldownTurnos;
         }
+        
+        System.out.println("Ataque " + nombre + " usado. Usos restantes: " + usosRestantes + ", Cooldown actual: " + cooldownActual);
     }
     
     /**
-     * Actualiza el cooldown al finalizar un turno
+     * Finalizar un turno, reduciendo el cooldown actual si es necesario
      */
     public void finalizarTurno() {
         if (cooldownActual > 0) {
             cooldownActual--;
+            System.out.println("Cooldown de " + nombre + " reducido a " + cooldownActual);
         }
     }
     
