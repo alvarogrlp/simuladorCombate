@@ -10,7 +10,6 @@ import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
 import es.alvarogrlp.marvelsimu.backend.selection.logic.SelectionManager;
 import es.alvarogrlp.marvelsimu.backend.util.AlertUtils;
 import es.alvarogrlp.marvelsimu.backend.util.SessionManager;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -60,11 +59,22 @@ public class CombateController extends AbstractController {
                 return;
             }
             
-            // Obtener el SelectionManager actual (posiblemente de SessionManager)
+            // Obtener el SelectionManager actual de SessionManager
             SelectionManager selectionManager = SessionManager.getInstance().getSelectionManager();
             
+            // Verificar que selectionManager no sea null
+            if (selectionManager == null) {
+                System.err.println("Error: SelectionManager es null, creando uno nuevo");
+                selectionManager = new SelectionManager(rootPane);
+            }
+            
             // Inicializar el CombatManager pasando el SelectionManager
-            combatManager = new CombatManager(rootPane, personajesJugadorSeleccionados, personajesIASeleccionados, selectionManager);
+            combatManager = new CombatManager(
+                rootPane, 
+                personajesJugadorSeleccionados, 
+                personajesIASeleccionados,
+                selectionManager
+            );
             
             // Configurar los event handlers
             setupEventHandlers();

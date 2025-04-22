@@ -45,29 +45,29 @@ CREATE INDEX idx_personaje_base ON personaje(personaje_base_id);
 
 -- Base
 INSERT INTO personaje (nombre, nombre_codigo, descripcion, imagen_miniatura, imagen_combate, personaje_base_id, duracion_turnos, vida, fuerza, velocidad, poder) VALUES
-  ('Magik (Forma Base)',      'magik',          'Illyana Rasputin, la hechicera',          'images/magik.png','images/magik_ingame.png',          NULL,0,   800,  400,  800,  1500),
-  ('Thanos (Sin Guantelete)', 'thanos',         'Thanos, el Titán Loco',                   'images/thanos.png','images/thanos_ingame.png',         NULL,0,  8000, 5000, 1500,  5500),
-  ('Scarlet Witch',           'scarlet_witch',  'Wanda Maximoff, Bruja Escarlata',         'images/scarlet.png','images/scarlet_ingame.png',        NULL,0,   500,   80,   70, 25000),
-  ('Legion',                  'legion',         'David Haller, múltiples personalidades',  'images/legion.png','images/legion_ingame.png',         NULL,0,   400,   70,   50, 20000),
-  ('Doctor Strange',          'doctor_strange', 'Stephen Strange, Hechicero Supremo',      'images/strange.png','images/strange_ingame.png',        NULL,0,   350,   20,   30, 20000),
-  ('Silver Surfer',           'silver_surfer',  'Herald of Galactus',                      'images/surfer.png','images/surfer_ingame.png',          NULL,0,  5000, 4500, 9000,  8000),
-  ('Arishem (Celestial)',     'arishem',        'Uno de los Celestiales',                  'images/arishem.png','images/arishem_ingame.png',        NULL,0, 25000,20000,1500, 20000),
-  ('Knull',                   'knull',          'El Dios del Simbionte',                   'images/knull.png','images/knull_ingame.png',          NULL,0, 30000,28000,2500, 28000),
-  ('Hulk (Máximo)',           'hulk',           'Bruce Banner en furia máxima',            'images/hulk.png','images/hulk_ingame.png',            NULL,0,  6500, 7500,1200,  2500),
-  ('Doctor Doom',             'doctor_doom',    'Victor von Doom, monarca de Latveria',    'images/doom.png','images/doom_ingame.png',            NULL,0,  4500, 1500,  500,  8000),
-  ('Iron Man (Mark 85)',      'iron_man',       'Tony Stark en su Mark 85',                'images/iron.png','images/iron_ingame.png',            NULL,0,  1000,  500,  400,   400),
-  ('Wolverine',               'wolverine',      'Logan, el mutante inmortal',              'images/logan.png','images/logan_ingame.png',          NULL,0,  3500, 1200,  500,   300),
-  ('Sebastian Shaw',          'sebastian_shaw','Mutante absorbente de energía',            'images/shaw.png','images/shaw_ingame.png',            NULL,0,  2000, 1500,  400,   250),
-  ('Spider-Man',              'spider_man',     'Peter Parker, el trepamuros',             'images/spider.png','images/spider_ingame.png',        NULL,0,   900, 1000, 1500,   250),
-  ('Black Panther',           'black_panther',  'TChalla, Rey de Wakanda',                 'images/panther.png','images/panther_ingame.png',      NULL,0,   850,  800,  800,   200),
-  ('Captain America',         'captain_america','Steve Rogers, Capitán América',            'images/cap.png','images/cap_ingame.png',              NULL,0,   750,  500,  400,   100),
-  ('Deadpool',                'deadpool',       'El Mercenario Bocazas',                   'images/dead.png','images/dead_ingame.png',            NULL,0,  5000,  300,  500,    80);
+  ('Magik (Forma Base)',      'magik',          'Illyana Rasputin, la hechicera',          'images/Personajes/magik.png','images/Ingame/magik-ingame.png',          NULL,0,   800,  400,  800,  1500),
+  ('Thanos (Sin Guantelete)', 'thanos',         'Thanos, el Titán Loco',                   'images/Personajes/thanos.png','images/Ingame/thanos-ingame.png',         NULL,0,  8000, 5000, 1500,  5500),
+  ('Scarlet Witch',           'scarlet_witch',  'Wanda Maximoff, Bruja Escarlata',         'images/Personajes/scarlet.png','images/Ingame/scarlet-witch-ingame.png',        NULL,0,   500,   80,   70, 25000),
+  ('Legion',                  'legion',         'David Haller, múltiples personalidades',  'images/Personajes/legion.png','images/Ingame/legion-ingame.png',         NULL,0,   400,   70,   50, 20000),
+  ('Doctor Strange',          'doctor_strange', 'Stephen Strange, Hechicero Supremo',      'images/Personajes/doctor-strange.png','images/Ingame/doctorstrange-ingame.png',        NULL,0,   350,   20,   30, 20000),
+  ('Silver Surfer',           'silver_surfer',  'Herald of Galactus',                      'images/Personajes/surfer.png','images/Ingame/silver-surfer-ingame.png',          NULL,0,  5000, 4500, 9000,  8000),
+  ('Arishem (Celestial)',     'arishem',        'Uno de los Celestiales',                  'images/Personajes/arishem.png','images/Ingame/arishem-ingame.png',        NULL,0, 25000,20000,1500, 20000),
+  ('Knull',                   'knull',          'El Dios del Simbionte',                   'images/Personajes/knull.png','images/Ingame/knull-ingame.png',          NULL,0, 30000,28000,2500, 28000),
+  ('Hulk (Máximo)',           'hulk',           'Bruce Banner en furia máxima',            'images/Personajes/hulk.png','images/Ingame/hulk-ingame.png',            NULL,0,  6500, 7500,1200,  2500),
+  ('Doctor Doom',             'doctor_doom',    'Victor von Doom, monarca de Latveria',    'images/Personajes/doom.png','images/Ingame/doom-ingame.png',            NULL,0,  4500, 1500,  500,  8000),
+  ('Iron Man (Mark 85)',      'iron_man',       'Tony Stark en su Mark 85',                'images/Personajes/ironman.png','images/Ingame/ironman-ingame.png',            NULL,0,  1000,  500,  400,   400),
+  ('Wolverine',               'wolverine',      'Logan, el mutante inmortal',              'images/Personajes/logan.png','images/Ingame/logan-ingame.png',          NULL,0,  3500, 1200,  500,   300),
+  ('Sebastian Shaw',          'sebastian_shaw','Mutante absorbente de energía',            'images/Personajes/shaw.png','images/Ingame/sebastian-shaw-ingame.png',            NULL,0,  2000, 1500,  400,   250),
+  ('Spider-Man',              'spider_man',     'Peter Parker, el trepamuros',             'images/Personajes/spiderman.png','images/Ingame/spiderman-ingame.png',        NULL,0,   900, 1000, 1500,   250),
+  ('Black Panther',           'black_panther',  'TChalla, Rey de Wakanda',                 'images/Personajes/panther.png','images/Ingame/balck-panther-ingame.png',      NULL,0,   850,  800,  800,   200),
+  ('Captain America',         'captain_america','Steve Rogers, Capitán América',            'images/Personajes/captain-america.png','images/Ingame/captainamerica-ingame.png',              NULL,0,   750,  500,  400,   100),
+  ('Deadpool',                'deadpool',       'El Mercenario Bocazas',                   'images/Personajes/dead.png','images/Ingame/deadpool-ingame.png',            NULL,0,  5000,  300,  500,    80);
 
 -- Transformaciones
 INSERT INTO personaje (nombre, nombre_codigo, descripcion, imagen_miniatura, imagen_combate, personaje_base_id, duracion_turnos, vida, fuerza, velocidad, poder) VALUES
-  ('Magik (Darkchild)',        'magik_darkchild','Darkchild de Magik',                     'images/dark.png','images/dark_ingame.png',
+  ('Magik (Darkchild)',        'magik_darkchild','Darkchild de Magik',                     'images/Personajes/dark.png','images/Ingame/darkchild-ingame.png',
    (SELECT id FROM personaje WHERE nombre_codigo='magik'),        2, 4500, 3500, 3000, 18000),
-  ('Thanos (Guantelete)',      'thanos_gauntlet','Thanos con Guantelete',                  'images/gaunt.png','images/gaunt_ingame.png',
+  ('Thanos (Guantelete)',      'thanos_gauntlet','Thanos con Guantelete',                  'images/Personajes/gaunt.png','images/Ingame/gauntlet-ingame.png',
    (SELECT id FROM personaje WHERE nombre_codigo='thanos'),      0,40000,35000,30000, 85000);
 
 -- 3) Tipos de ataque

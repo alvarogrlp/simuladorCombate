@@ -1,9 +1,12 @@
 package es.alvarogrlp.marvelsimu.backend.combat.logic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import es.alvarogrlp.marvelsimu.backend.combat.animation.CombatAnimationManager;
+import es.alvarogrlp.marvelsimu.backend.combat.model.CombatMessage;
 import es.alvarogrlp.marvelsimu.backend.combat.ui.CombatUIManager;
 import es.alvarogrlp.marvelsimu.backend.combat.ui.MessageDisplayManager;
 import es.alvarogrlp.marvelsimu.backend.model.AtaqueModel;
@@ -41,7 +44,12 @@ public class CombatManager {
     private AIActionSelector aiSelector;
     private AnchorPane rootPane;
     private es.alvarogrlp.marvelsimu.backend.selection.logic.SelectionManager selectionManager;
+    private final AbilityManager abilityManager;
     
+    // Mapa para recordar la forma base de cada transformación
+    private Map<PersonajeModel, PersonajeModel> originalFormMap = new HashMap<>();
+    private Map<PersonajeModel, Integer> originalHealthMap = new HashMap<>();
+
     public CombatManager(
             AnchorPane rootPane, 
             List<PersonajeModel> playerCharacters, 
@@ -61,12 +69,13 @@ public class CombatManager {
         this.messageManager = new MessageDisplayManager(rootPane);
         this.turnManager = new TurnManager(this, messageManager);
         this.aiSelector = new AIActionSelector();
-        
-        // Inicializar vidas y habilidades
-        initializeCharacters();
+        this.abilityManager = new AbilityManager(this);
         
         // Guardar una referencia a esta instancia para acceder desde la UI
         rootPane.setUserData(this);
+        
+        // Inicializar vidas y habilidades
+        initializeCharacters();
     }
     
     private void initializeCharacters() {
@@ -119,17 +128,27 @@ public class CombatManager {
         AtaqueModel ataque = null;
         
         switch (attackType) {
+            case "habilidad1": {
+                CombatMessage msg = abilityManager.habUnoMagik(attacker, defender);
+                messageManager.displayMessage(
+                  msg.getText(),
+                  msg.getType() == CombatMessage.MessageType.ABILITY
+                );
+                turnManager.finishPlayerTurn(msg.isSuccess());
+                return;
+            }
+            case "habilidad2": {
+                CombatMessage msg = abilityManager.habDosMagik(attacker, defender);
+                messageManager.displayMessage(msg.getText(),
+                    msg.getType() == CombatMessage.MessageType.ABILITY);
+                turnManager.finishPlayerTurn(msg.isSuccess());
+                return;
+            }
             case "melee":
                 ataque = attacker.getAtaquePorTipo("ACC");
                 break;
             case "lejano":
                 ataque = attacker.getAtaquePorTipo("AAD");
-                break;
-            case "habilidad1":
-                ataque = attacker.getAtaquePorTipo("habilidad_mas_poderosa");
-                break;
-            case "habilidad2":
-                ataque = attacker.getAtaquePorTipo("habilidad_caracteristica");
                 break;
         }
         
@@ -264,17 +283,23 @@ public class CombatManager {
         AtaqueModel ataque = null;
         
         switch (attackType) {
+            case "habilidad1": {
+                CombatMessage msg = abilityManager.habUnoThanos(attacker, defender);
+                messageManager.displayMessage(msg.getText(), false);
+                turnManager.finishAITurn();
+                return;
+            }
+            case "habilidad2": {
+                CombatMessage msg = abilityManager.habDosThanos(attacker, defender);
+                messageManager.displayMessage(msg.getText(), false);
+                turnManager.finishAITurn();
+                return;
+            }
             case "melee":
                 ataque = attacker.getAtaquePorTipo("ACC");
                 break;
             case "lejano":
                 ataque = attacker.getAtaquePorTipo("AAD");
-                break;
-            case "habilidad1":
-                ataque = attacker.getAtaquePorTipo("habilidad_mas_poderosa");
-                break;
-            case "habilidad2":
-                ataque = attacker.getAtaquePorTipo("habilidad_caracteristica");
                 break;
         }
         
@@ -592,6 +617,13 @@ public class CombatManager {
     }
     
     /**
+     * Permite acceder al AbilityManager desde la UI u otros componentes
+     */
+    public AbilityManager getAbilityManager() {
+        return abilityManager;
+    }
+    
+    /**
      * Maneja la derrota de un personaje y determina las consecuencias
      * @param defeated El personaje derrotado
      * @param isPlayerAttack Indica si fue el jugador quien realizó el ataque
@@ -615,10 +647,10 @@ public class CombatManager {
                 
                 // Si todos los personajes de la IA están derrotados, victoria del jugador
                 if (allAIDefeated) {
-                    endCombat(true); // Victoria del jugador
+                    endCombat(true); 
                 } else {
                     // Cambiar al siguiente personaje de la IA
-                    uiManager.hideAICharacter(); // Ocultar personaje actual
+                    uiManager.hideAICharacter();
                     changeAICharacter();
                 }
             });
@@ -751,66 +783,100 @@ public class CombatManager {
      * @return true si la transformación fue exitosa
      */
     public boolean applyTransformation(PersonajeModel character, String transformationCode) {
-        // Obtener la transformación desde el mapa
-        PersonajeModel transformation = selectionManager.getTransformationsMap().get(transformationCode);
-        
-        if (transformation == null) {
+        // Obtener la transformación base desde el selectionManager
+        PersonajeModel template = selectionManager.getTransformationsMap().get(transformationCode);
+        if (template == null) {
             System.err.println("Transformación no encontrada: " + transformationCode);
             return false;
         }
-        
-        // Guardar referencia al personaje original
-        int originalId = character.getId();
-        String originalName = character.getNombre();
-        
-        // Clonar la transformación
-        PersonajeModel transformedCharacter = transformation.clonar();
-        
-        // Mantener algunos datos del personaje original
-        transformedCharacter.setPersonajeBaseId(originalId);
-        transformedCharacter.setNombre(originalName + " (" + transformation.getNombre() + ")");
-        
-        // Reemplazar el personaje en el equipo
+
+        // Clonar la forma transformada
+        PersonajeModel transformed = template.clonar();
+
+        // Guardar referencia a la forma original y su vida actual
+        originalFormMap.put(transformed, character);
+        originalHealthMap.put(transformed, character.getVidaActual());
+
+        // Ajustar stats de la forma transformada
+        transformed.setPersonajeBaseId(character.getId());
+        transformed.setNombre(character.getNombre() + " → " + template.getNombre());
+        transformed.setVidaActual(transformed.getVida());
+
+        // Reemplazar en el equipo según índice
         if (character == playerCharacters.get(playerCharacterIndex)) {
-            // Es el personaje activo del jugador
-            playerCharacters.set(playerCharacterIndex, transformedCharacter);
-            // Actualizar UI
-            uiManager.updateCharacterViews(
-                transformedCharacter, 
-                aiCharacters.get(aiCharacterIndex),
-                playerCharacters,
-                aiCharacters,
-                playerCharacterIndex,
-                aiCharacterIndex
-            );
+            playerCharacters.set(playerCharacterIndex, transformed);
         } else if (character == aiCharacters.get(aiCharacterIndex)) {
-            // Es el personaje activo de la IA
-            aiCharacters.set(aiCharacterIndex, transformedCharacter);
-            // Actualizar UI
-            uiManager.updateCharacterViews(
-                playerCharacters.get(playerCharacterIndex),
-                transformedCharacter,
-                playerCharacters,
-                aiCharacters,
-                playerCharacterIndex,
-                aiCharacterIndex
-            );
+            aiCharacters.set(aiCharacterIndex, transformed);
         } else {
-            // Buscar en todo el equipo
+            // Buscar en resto del equipo
             for (int i = 0; i < playerCharacters.size(); i++) {
                 if (playerCharacters.get(i) == character) {
-                    playerCharacters.set(i, transformedCharacter);
+                    playerCharacters.set(i, transformed);
                     break;
                 }
             }
             for (int i = 0; i < aiCharacters.size(); i++) {
                 if (aiCharacters.get(i) == character) {
-                    aiCharacters.set(i, transformedCharacter);
+                    aiCharacters.set(i, transformed);
                     break;
                 }
             }
         }
-        
+
+        // Actualizar UI con el nuevo modelo
+        uiManager.updateCharacterViews(
+            playerCharacters.get(playerCharacterIndex),
+            aiCharacters.get(aiCharacterIndex),
+            playerCharacters,
+            aiCharacters,
+            playerCharacterIndex,
+            aiCharacterIndex
+        );
+
         return true;
+    }
+
+    /**
+     * Revierte la transformación y devuelve la forma original
+     */
+    public void revertTransformation(PersonajeModel transformed) {
+        PersonajeModel original = originalFormMap.remove(transformed);
+        if (original == null) return;
+
+        // Restaurar la vida que tenía el original antes de transformarse
+        Integer savedHp = originalHealthMap.remove(transformed);
+        if (savedHp != null) {
+            original.setVidaActual(savedHp);
+        }
+
+        // Reemplazar de nuevo en el equipo
+        if (transformed == playerCharacters.get(playerCharacterIndex)) {
+            playerCharacters.set(playerCharacterIndex, original);
+        } else if (transformed == aiCharacters.get(aiCharacterIndex)) {
+            aiCharacters.set(aiCharacterIndex, original);
+        } else {
+            for (int i = 0; i < playerCharacters.size(); i++) {
+                if (playerCharacters.get(i) == transformed) {
+                    playerCharacters.set(i, original);
+                    break;
+                }
+            }
+            for (int i = 0; i < aiCharacters.size(); i++) {
+                if (aiCharacters.get(i) == transformed) {
+                    aiCharacters.set(i, original);
+                    break;
+                }
+            }
+        }
+
+        // Actualizar la vista
+        uiManager.updateCharacterViews(
+            playerCharacters.get(playerCharacterIndex),
+            aiCharacters.get(aiCharacterIndex),
+            playerCharacters,
+            aiCharacters,
+            playerCharacterIndex,
+            aiCharacterIndex
+        );
     }
 }

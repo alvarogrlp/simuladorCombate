@@ -25,27 +25,32 @@ public class CombatMessage {
     private boolean isPlayerAction;
     private int relatedValue;
     private String additionalInfo;
+    private boolean success; // Nuevo campo
+    
+    /**
+     * Constructor interno ajustado
+     */
+    private CombatMessage(String text, MessageType type, boolean isPlayerAction, int relatedValue, String additionalInfo, boolean success) {
+        this.text = text;
+        this.type = type;
+        this.isPlayerAction = isPlayerAction;
+        this.relatedValue = relatedValue;
+        this.additionalInfo = additionalInfo;
+        this.success = success;
+    }
     
     /**
      * Constructor para mensajes simples
      */
     public CombatMessage(String text, MessageType type, boolean isPlayerAction) {
-        this.text = text;
-        this.type = type;
-        this.isPlayerAction = isPlayerAction;
-        this.relatedValue = 0;
-        this.additionalInfo = null;
+        this(text, type, isPlayerAction, 0, null, true);
     }
     
     /**
      * Constructor completo con información adicional
      */
     public CombatMessage(String text, MessageType type, boolean isPlayerAction, int relatedValue, String additionalInfo) {
-        this.text = text;
-        this.type = type;
-        this.isPlayerAction = isPlayerAction;
-        this.relatedValue = relatedValue;
-        this.additionalInfo = additionalInfo;
+        this(text, type, isPlayerAction, relatedValue, additionalInfo, true);
     }
     
     /**
@@ -105,9 +110,19 @@ public class CombatMessage {
     /**
      * Crea un mensaje de uso de habilidad
      */
-    public static CombatMessage createAbilityMessage(String characterName, String abilityName, boolean isPlayerAction) {
+    public static CombatMessage createAbilityMessage(String characterName, String abilityName, boolean isPlayerAction, boolean success) {
         String text = characterName + " usa " + abilityName;
-        return new CombatMessage(text, MessageType.ABILITY, isPlayerAction, 0, abilityName);
+        return new CombatMessage(text, MessageType.ABILITY, isPlayerAction, 0, abilityName, success);
+    }
+
+    /**
+     * Sobrecarga para crear un mensaje de habilidad (éxito implícito = true).
+     */
+    public static CombatMessage createAbilityMessage(
+            String characterName,
+            String abilityName,
+            boolean isPlayerAction) {
+        return createAbilityMessage(characterName, abilityName, isPlayerAction, true);
     }
     
     /**
@@ -133,6 +148,18 @@ public class CombatMessage {
         return new CombatMessage(text, MessageType.WARNING, isPlayerAction);
     }
     
+    /**
+     * Crea un mensaje de fallo al tratar de usar una habilidad.
+     * El campo 'success' quedará a false.
+     *
+     * @param actor       nombre del personaje que lanza la habilidad
+     * @param abilityName nombre de la habilidad
+     * @return mensaje indicando que no pudo ejecutarse
+     */
+    public static CombatMessage createFailedMessage(String actor, String abilityName) {
+        return createAbilityMessage(actor, abilityName, true, false);
+    }
+    
     // Getters
     
     public String getText() {
@@ -155,6 +182,10 @@ public class CombatMessage {
         return additionalInfo;
     }
     
+    public boolean isSuccess() {
+        return success;
+    }
+    
     @Override
     public String toString() {
         return "CombatMessage{" +
@@ -163,6 +194,7 @@ public class CombatMessage {
                 ", isPlayerAction=" + isPlayerAction +
                 ", relatedValue=" + relatedValue +
                 ", additionalInfo='" + additionalInfo + '\'' +
+                ", success=" + success +
                 '}';
     }
 }

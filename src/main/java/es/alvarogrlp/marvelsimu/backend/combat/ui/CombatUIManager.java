@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.alvarogrlp.marvelsimu.backend.combat.logic.AbilityManager;
 import es.alvarogrlp.marvelsimu.backend.combat.logic.CombatManager;
 import es.alvarogrlp.marvelsimu.backend.model.AtaqueModel;
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
@@ -17,7 +18,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -475,110 +475,36 @@ public class CombatUIManager {
      * Actualiza los botones de ataque con la información del personaje actual
      */
     public void updateAttackButtons(PersonajeModel character) {
-        // Obtener los ataques del personaje
+        // 1) Botones melee y lejano (ataques base)
         AtaqueModel ataqueCC = character.getAtaquePorTipo("ACC");
+        if (ataqueCC != null) {
+            meleeAttackButton.setText(ataqueCC.getNombre());
+            meleeAttackButton.setDisable(!ataqueCC.estaDisponible());
+        }
         AtaqueModel ataqueAD = character.getAtaquePorTipo("AAD");
-        AtaqueModel habilidad1 = character.getAtaquePorTipo("habilidad_mas_poderosa");
-        AtaqueModel habilidad2 = character.getAtaquePorTipo("habilidad_caracteristica");
-        
-        // Obtener referencias a los botones
-        Button btnMelee = (Button) rootPane.lookup("#btnMelee");
-        Button btnRanged = (Button) rootPane.lookup("#btnRanged");
-        Button btnAbility1 = (Button) rootPane.lookup("#btnAbility1");
-        Button btnAbility2 = (Button) rootPane.lookup("#btnAbility2");
-        
-        // Actualizar textos y disponibilidad de los botones
-        if (btnMelee != null && ataqueCC != null) {
-            btnMelee.setText(ataqueCC.getNombre());
-            boolean disponible = ataqueCC.estaDisponible();
-            btnMelee.setDisable(!disponible);
-            
-            if (!disponible) {
-                // Añadir información sobre por qué no está disponible
-                if (ataqueCC.getCooldownActual() > 0) {
-                    btnMelee.setText(ataqueCC.getNombre() + " (CD: " + ataqueCC.getCooldownActual() + ")");
-                } else if (ataqueCC.getUsosMaximos() > 0 && ataqueCC.getUsosRestantes() <= 0) {
-                    btnMelee.setText(ataqueCC.getNombre() + " (No usos)");
-                }
-                
-                btnMelee.setStyle("-fx-opacity: 0.6; -fx-background-color: #555555;");
-            } else {
-                btnMelee.setStyle("-fx-opacity: 1.0; -fx-background-color: #4a7ba7;");
-            }
+        if (ataqueAD != null) {
+            rangedAttackButton.setText(ataqueAD.getNombre());
+            rangedAttackButton.setDisable(!ataqueAD.estaDisponible());
         }
-        
-        if (btnRanged != null && ataqueAD != null) {
-            btnRanged.setText(ataqueAD.getNombre());
-            boolean disponible = ataqueAD.estaDisponible();
-            btnRanged.setDisable(!disponible);
-            
-            if (!disponible) {
-                // Añadir información sobre por qué no está disponible
-                if (ataqueAD.getCooldownActual() > 0) {
-                    btnRanged.setText(ataqueAD.getNombre() + " (CD: " + ataqueAD.getCooldownActual() + ")");
-                } else if (ataqueAD.getUsosMaximos() > 0 && ataqueAD.getUsosRestantes() <= 0) {
-                    btnRanged.setText(ataqueAD.getNombre() + " (No usos)");
-                }
-                
-                btnRanged.setStyle("-fx-opacity: 0.6; -fx-background-color: #555555;");
-            } else {
-                btnRanged.setStyle("-fx-opacity: 1.0; -fx-background-color: #4a7ba7;");
-            }
-        }
-        
-        if (btnAbility1 != null && habilidad1 != null) {
-            btnAbility1.setText(habilidad1.getNombre());
-            boolean disponible = habilidad1.estaDisponible();
-            btnAbility1.setDisable(!disponible);
-            
-            if (!disponible) {
-                // Añadir información sobre por qué no está disponible
-                if (habilidad1.getCooldownActual() > 0) {
-                    btnAbility1.setText(habilidad1.getNombre() + " (CD: " + habilidad1.getCooldownActual() + ")");
-                } else if (habilidad1.getUsosMaximos() > 0 && habilidad1.getUsosRestantes() <= 0) {
-                    btnAbility1.setText(habilidad1.getNombre() + " (No usos)");
-                }
-                
-                btnAbility1.setStyle("-fx-opacity: 0.6; -fx-background-color: #555555;");
-            } else {
-                btnAbility1.setStyle("-fx-opacity: 1.0; -fx-background-color: #4a7ba7;");
-            }
-        }
-        
-        if (btnAbility2 != null && habilidad2 != null) {
-            btnAbility2.setText(habilidad2.getNombre());
-            boolean disponible = habilidad2.estaDisponible();
-            btnAbility2.setDisable(!disponible);
-            
-            if (!disponible) {
-                // Añadir información sobre por qué no está disponible
-                if (habilidad2.getCooldownActual() > 0) {
-                    btnAbility2.setText(habilidad2.getNombre() + " (CD: " + habilidad2.getCooldownActual() + ")");
-                } else if (habilidad2.getUsosMaximos() > 0 && habilidad2.getUsosRestantes() <= 0) {
-                    btnAbility2.setText(habilidad2.getNombre() + " (No usos)");
-                }
-                
-                btnAbility2.setStyle("-fx-opacity: 0.6; -fx-background-color: #555555;");
-            } else {
-                btnAbility2.setStyle("-fx-opacity: 1.0; -fx-background-color: #4a7ba7;");
-            }
-        }
-    }
-    
-    /**
-     * Formatea el tipo de ataque para mostrarlo más legible
-     */
-    private String formatTipoAtaque(String tipo) {
-        if (tipo == null) return "Físico";
-        
-        switch (tipo.toLowerCase()) {
-            case "fisico": return "Físico";
-            case "magico": return "Mágico";
-            case "fisico_penetrante": return "Físico Penetrante";
-            case "magico_penetrante": return "Mágico Penetrante";
-            case "daño_verdadero": return "Daño Verdadero";
-            default: return tipo;
-        }
+
+        // 2) Botones de habilidad: confiar en AbilityManager
+        CombatManager manager = (CombatManager) rootPane.getUserData();
+        AbilityManager am = manager.getAbilityManager();
+        String code = character.getNombreCodigo();
+
+        // Habilidad 1
+        String hab1Text = character.getHabilidad1Nombre();
+        ability1Button.setText(
+            (hab1Text == null || hab1Text.isEmpty()) ? "Habilidad 1" : hab1Text
+        );
+        ability1Button.setDisable(!am.canUse(code + "_hab1"));
+
+        // Habilidad 2
+        String hab2Text = character.getHabilidad2Nombre();
+        ability2Button.setText(
+            (hab2Text == null || hab2Text.isEmpty()) ? "Habilidad 2" : hab2Text
+        );
+        ability2Button.setDisable(!am.canUse(code + "_hab2"));
     }
     
     public void showCharacterSelection(CombatManager manager) {
@@ -758,27 +684,19 @@ public class CombatUIManager {
         meleeAttackButton.setDisable(false);
         rangedAttackButton.setDisable(false);
         
-        // Los botones de habilidad se actualizan según disponibilidad
+        // Verificar disponibilidad con AbilityManager
+        CombatManager manager = (CombatManager) rootPane.getUserData();
+        AbilityManager am = manager.getAbilityManager();
         PersonajeModel playerCharacter = getCurrentPlayerCharacter();
-        if (playerCharacter != null) {
-            // Verificar disponibilidad de habilidades usando el nuevo modelo
-            AtaqueModel habilidad1 = playerCharacter.getAtaquePorTipo("habilidad_mas_poderosa");
-            AtaqueModel habilidad2 = playerCharacter.getAtaquePorTipo("habilidad_caracteristica");
-            
-            if (habilidad1 != null) {
-                ability1Button.setDisable(habilidad1.getUsosRestantes() <= 0);
-            } else {
-                // Si no está en el nuevo modelo, usar el modelo de compatibilidad
-                ability1Button.setDisable(playerCharacter.getHabilidad1Poder() <= 0);
-            }
-            
-            if (habilidad2 != null) {
-                ability2Button.setDisable(habilidad2.getUsosRestantes() <= 0);
-            } else {
-                // Si no está en el nuevo modelo, usar el modelo de compatibilidad
-                ability2Button.setDisable(playerCharacter.getHabilidad2Poder() <= 0);
-            }
-        }
+        String code = playerCharacter.getNombreCodigo();
+
+        // Habilidad 1
+        boolean hab1Usable = am.canUse(code + "_hab1");
+        ability1Button.setDisable(!hab1Usable);
+
+        // Habilidad 2
+        boolean hab2Usable = am.canUse(code + "_hab2");
+        ability2Button.setDisable(!hab2Usable);
     }
     
     // Getters para acceder a los botones y conectarlos con los event handlers

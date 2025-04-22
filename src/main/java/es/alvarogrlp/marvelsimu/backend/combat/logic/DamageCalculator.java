@@ -16,7 +16,7 @@ public class DamageCalculator {
     public static int calcularDano(int fuerzaAtacante, int poderAtacante, int poderDefensor) {
         // Validación básica
         if (fuerzaAtacante <= 0) return 1;
-        if (poderDefensor <= 0) poderDefensor = 1; // Evitar división por cero
+        if (poderDefensor <= 0) poderDefensor = 1;
         
         // 1) Calcular ratio de poderes
         double ratio = (double) poderAtacante / poderDefensor;
