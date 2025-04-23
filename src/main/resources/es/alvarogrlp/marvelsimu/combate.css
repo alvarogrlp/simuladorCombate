@@ -580,6 +580,40 @@
     -fx-padding: 10px;
 }
 
+/* Estilo específico para contenedor de mensaje individual */
+.combat-message-container {
+    -fx-background-color: rgba(0, 0, 0, 0.8); /* Fondo más oscuro */
+    -fx-background-radius: 10px;
+    -fx-padding: 15px 20px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 15, 0.5, 0, 0);
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+}
+
+/* Estilos para mensajes de jugador */
+.player-message-container {
+    -fx-border-color: linear-gradient(to bottom, #42a5f5, #1976d2);
+    -fx-background-color: linear-gradient(to bottom, rgba(0, 70, 120, 0.9), rgba(0, 40, 80, 0.95));
+}
+
+/* Estilos para mensajes de IA */
+.enemy-message-container {
+    -fx-border-color: linear-gradient(to bottom, #ef5350, #c62828);
+    -fx-background-color: linear-gradient(to bottom, rgba(120, 20, 20, 0.9), rgba(80, 10, 10, 0.95));
+}
+
+/* Estilos para texto de mensaje */
+.combat-message-text {
+    -fx-fill: white;
+    -fx-font-family: "Roboto", "Arial", sans-serif;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+    -fx-stroke: black;
+    -fx-stroke-width: 0.5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 2, 0.5, 0, 1);
+}
+
 /* Rediseño de botones principales de combate */
 .combat-primary-button {
     -fx-background-color: linear-gradient(to bottom, rgba(30, 30, 45, 0.9), rgba(15, 15, 25, 0.95));

@@ -2,6 +2,7 @@ package es.alvarogrlp.marvelsimu.backend.combat.logic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +46,8 @@ public class CombatManager {
     private AnchorPane rootPane;
     private es.alvarogrlp.marvelsimu.backend.selection.logic.SelectionManager selectionManager;
     private final AbilityManager abilityManager;
+    private AbilityEffects effectsManager;
+    private List<AbilityEffects.ScheduledEffect> scheduledEffects = new ArrayList<>();
     
     // Mapa para recordar la forma base de cada transformación
     private Map<PersonajeModel, PersonajeModel> originalFormMap = new HashMap<>();
@@ -70,12 +73,16 @@ public class CombatManager {
         this.turnManager = new TurnManager(this, messageManager);
         this.aiSelector = new AIActionSelector();
         this.abilityManager = new AbilityManager(this);
+        this.effectsManager = new AbilityEffects(this);
         
         // Guardar una referencia a esta instancia para acceder desde la UI
         rootPane.setUserData(this);
         
-        // Inicializar vidas y habilidades
+        // Inicializar vidas y recursos de combate
         initializeCharacters();
+        
+        // Añadir esta línea para corregir los códigos
+        fixAbilityCodes();
     }
     
     private void initializeCharacters() {
@@ -129,19 +136,110 @@ public class CombatManager {
         
         switch (attackType) {
             case "habilidad1": {
-                CombatMessage msg = abilityManager.habUnoMagik(attacker, defender);
-                messageManager.displayMessage(
-                  msg.getText(),
-                  msg.getType() == CombatMessage.MessageType.ABILITY
-                );
-                turnManager.finishPlayerTurn(msg.isSuccess());
+                // Obtener el código del personaje actual
+                String characterCode = attacker.getNombreCodigo();
+                String abilityCode = characterCode + "_hab1";
+                
+                // Guardar la vida antes de ejecutar la habilidad para calcular el daño
+                int prevHealth = defender.getVidaActual();
+                
+                // Ejecutar la habilidad usando el nuevo sistema
+                CombatMessage msg = abilityManager.executeAbility(abilityCode, attacker, defender);
+                
+                if (msg != null) {
+                    // Mostrar mensaje de la habilidad con callback
+                    messageManager.displayCombatMessage(msg, () -> {
+                        // Calcular daño realizado para mostrar efectos visuales
+                        int damage = prevHealth - defender.getVidaActual();
+                        
+                        // Verificar si se causó daño
+                        if (damage > 0) {
+                            // Mostrar efecto visual de daño
+                            animationManager.showDamageText(damage, true, false, false);
+                            
+                            // Actualizar barras de vida INMEDIATAMENTE después de mostrar el daño
+                            uiManager.updateCharacterHealth(
+                                playerCharacters.get(playerCharacterIndex),
+                                aiCharacters.get(aiCharacterIndex)
+                            );
+                            
+                            // Verificar si el enemigo fue derrotado después de un breve retraso
+                            javafx.animation.PauseTransition checkDefeatDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(1200));
+                            checkDefeatDelay.setOnFinished(e -> {
+                                // Verificar si el enemigo fue derrotado
+                                boolean defeated = defender.getVidaActual() <= 0;
+                                if (defeated) {
+                                    defender.setVidaActual(0); // Asegurar que no sea negativo
+                                    handleCharacterDefeat(defender, true);
+                                    return;
+                                }
+                                
+                                // Terminar el turno si no está derrotado
+                                turnManager.finishPlayerTurn(msg.isSuccess());
+                            });
+                            checkDefeatDelay.play();
+                        } else {
+                            // Si no causó daño directo, solo terminar el turno
+                            turnManager.finishPlayerTurn(msg.isSuccess());
+                        }
+                    });
+                } else {
+                    // Si no se pudo ejecutar la habilidad
+                    messageManager.displayMessage("No se pudo usar la habilidad", true);
+                    uiManager.enablePlayerControls();
+                }
                 return;
             }
             case "habilidad2": {
-                CombatMessage msg = abilityManager.habDosMagik(attacker, defender);
-                messageManager.displayMessage(msg.getText(),
-                    msg.getType() == CombatMessage.MessageType.ABILITY);
-                turnManager.finishPlayerTurn(msg.isSuccess());
+                // Similar a habilidad1
+                String characterCode = attacker.getNombreCodigo();
+                String abilityCode = characterCode + "_hab2";
+                
+                // Guardar la vida antes de ejecutar la habilidad
+                int prevHealth = defender.getVidaActual();
+                
+                CombatMessage msg = abilityManager.executeAbility(abilityCode, attacker, defender);
+                
+                if (msg != null) {
+                    messageManager.displayCombatMessage(msg, () -> {
+                        // Calcular daño realizado para mostrar efectos visuales
+                        int damage = prevHealth - defender.getVidaActual();
+                        
+                        // Verificar si se causó daño
+                        if (damage > 0) {
+                            // Mostrar efecto visual de daño
+                            animationManager.showDamageText(damage, true, false, false);
+                            
+                            // Actualizar barras de vida INMEDIATAMENTE
+                            uiManager.updateCharacterHealth(
+                                playerCharacters.get(playerCharacterIndex),
+                                aiCharacters.get(aiCharacterIndex)
+                            );
+                            
+                            // Verificar si el enemigo fue derrotado después de un breve retraso
+                            javafx.animation.PauseTransition checkDefeatDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(1200));
+                            checkDefeatDelay.setOnFinished(e -> {
+                                // Verificar si el enemigo fue derrotado
+                                boolean defeated = defender.getVidaActual() <= 0;
+                                if (defeated) {
+                                    defender.setVidaActual(0); // Asegurar que no sea negativo
+                                    handleCharacterDefeat(defender, true);
+                                    return;
+                                }
+                                
+                                // Terminar el turno si no está derrotado
+                                turnManager.finishPlayerTurn(msg.isSuccess());
+                            });
+                            checkDefeatDelay.play();
+                        } else {
+                            // Si no causó daño directo, solo terminar el turno
+                            turnManager.finishPlayerTurn(msg.isSuccess());
+                        }
+                    });
+                } else {
+                    messageManager.displayMessage("No se pudo usar la habilidad", true);
+                    uiManager.enablePlayerControls();
+                }
                 return;
             }
             case "melee":
@@ -233,24 +331,32 @@ public class CombatManager {
             animationManager.showDamageText(damage, isPlayerAttack, false, false);
         }
         
-        // Actualizar UI
+        // Actualizar UI inmediatamente
         uiManager.updateCharacterHealth(
             playerCharacters.get(playerCharacterIndex),
             aiCharacters.get(aiCharacterIndex)
         );
         
-        // Si el personaje fue derrotado
+        // Si el personaje fue derrotado, manejarlo después de un breve retraso
         if (defeated) {
-            handleCharacterDefeat(defender, isPlayerAttack);
+            javafx.animation.PauseTransition defeatDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(1000));
+            defeatDelay.setOnFinished(e -> {
+                handleCharacterDefeat(defender, isPlayerAttack);
+            });
+            defeatDelay.play();
         } else {
-            // Continuar con el siguiente turno
-            if (isPlayerAttack) {
-                // Terminar el turno del jugador explícitamente
-                turnManager.finishPlayerTurn(true);
-            } else {
-                // Terminar el turno de la IA
-                turnManager.finishAITurn();
-            }
+            // Continuar con el siguiente turno después de un breve retraso para que se aprecie la animación
+            javafx.animation.PauseTransition turnDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(800));
+            turnDelay.setOnFinished(e -> {
+                if (isPlayerAttack) {
+                    // Terminar el turno del jugador explícitamente
+                    turnManager.finishPlayerTurn(true);
+                } else {
+                    // Terminar el turno de la IA
+                    turnManager.finishAITurn();
+                }
+            });
+            turnDelay.play();
         }
     }
 
@@ -284,15 +390,40 @@ public class CombatManager {
         
         switch (attackType) {
             case "habilidad1": {
-                CombatMessage msg = abilityManager.habUnoThanos(attacker, defender);
-                messageManager.displayMessage(msg.getText(), false);
-                turnManager.finishAITurn();
+                // Obtener el código del personaje actual
+                String characterCode = attacker.getNombreCodigo();
+                String abilityCode = characterCode + "_hab1";
+                
+                // Ejecutar la habilidad usando el nuevo sistema
+                CombatMessage msg = abilityManager.executeAbility(abilityCode, attacker, defender);
+                
+                if (msg != null) {
+                    messageManager.displayMessage(msg.getText(), false);
+                    turnManager.finishAITurn();
+                } else {
+                    // Si no se pudo ejecutar la habilidad, usar ataque por defecto
+                    messageManager.displayMessage("La IA no pudo usar la habilidad", false);
+                    // Caer al caso por defecto para usar un ataque normal
+                    ataque = attacker.getAtaquePorTipo("ACC");
+                }
                 return;
             }
             case "habilidad2": {
-                CombatMessage msg = abilityManager.habDosThanos(attacker, defender);
-                messageManager.displayMessage(msg.getText(), false);
-                turnManager.finishAITurn();
+                // Similar a habilidad1
+                String characterCode = attacker.getNombreCodigo();
+                String abilityCode = characterCode + "_hab2";
+                
+                CombatMessage msg = abilityManager.executeAbility(abilityCode, attacker, defender);
+                
+                if (msg != null) {
+                    messageManager.displayMessage(msg.getText(), false);
+                    turnManager.finishAITurn();
+                } else {
+                    // Si no se pudo ejecutar la habilidad, usar ataque por defecto
+                    messageManager.displayMessage("La IA no pudo usar la habilidad", false);
+                    // Caer al caso por defecto para usar un ataque normal
+                    ataque = attacker.getAtaquePorTipo("ACC");
+                }
                 return;
             }
             case "melee":
@@ -381,7 +512,10 @@ public class CombatManager {
                     );
                     
                     uiManager.showPlayerCharacter();
-                    turnManager.startAITurn();
+                    
+                    // Finalizar el turno del jugador antes de iniciar el de la IA
+                    turnManager.finishPlayerTurn(true);
+                    // No es necesario llamar a startAITurn() porque finishPlayerTurn ya lo hace
                 });
         }
     }
@@ -878,5 +1012,135 @@ public class CombatManager {
             playerCharacterIndex,
             aiCharacterIndex
         );
+    }
+
+    // Métodos para delegar a AbilityEffects
+    public void applyDamageReduction(PersonajeModel character, double reductionFactor, int duration) {
+        effectsManager.applyDamageReduction(character, reductionFactor, duration);
+        boolean isPlayerAction = isPlayerCharacter(character);
+        messageManager.displayDamageReductionMessage(character.getNombre(), reductionFactor, isPlayerAction);
+    }
+
+    public void applyDamageReflection(PersonajeModel character, double reflectionFactor, int duration) {
+        effectsManager.applyDamageReflection(character, reflectionFactor, duration);
+        boolean isPlayerAction = isPlayerCharacter(character);
+        messageManager.displayReflectionMessage(character.getNombre(), reflectionFactor, isPlayerAction);
+    }
+
+    public void applyDamageBoost(PersonajeModel character, double boostFactor, int duration) {
+        effectsManager.applyDamageBoost(character, boostFactor, duration);
+        boolean isPlayerAction = isPlayerCharacter(character);
+        messageManager.displayDamageBoostMessage(character.getNombre(), boostFactor, isPlayerAction);
+    }
+
+    public void applyHealingInversion(PersonajeModel character, int duration) {
+        effectsManager.applyHealingInversion(character, duration);
+        boolean isPlayerAction = !isPlayerCharacter(character);
+        messageManager.displayHealingBlockMessage(character.getNombre(), isPlayerAction);
+    }
+
+    public void restrictToBasicAttacks(PersonajeModel character, int duration) {
+        effectsManager.restrictToBasicAttacks(character, duration);
+        boolean isPlayerAction = !isPlayerCharacter(character);
+        messageManager.displayRestrictedMessage(character.getNombre(), duration, isPlayerAction);
+    }
+
+    public void skipEnemyTurns(int turns) {
+        effectsManager.skipEnemyTurns(turns);
+    }
+
+    public void scheduleEffect(Runnable effect, int turns) {
+        effectsManager.scheduleEffect(effect, turns);
+    }
+
+    public void addScheduledEffect(AbilityEffects.ScheduledEffect effect) {
+        scheduledEffects.add(effect);
+    }
+
+    // Método para procesar efectos programados al final de cada turno
+    private void processScheduledEffects() {
+        List<AbilityEffects.ScheduledEffect> effectsToExecute = new ArrayList<>();
+        
+        // Identificar efectos que deben ejecutarse
+        Iterator<AbilityEffects.ScheduledEffect> iterator = scheduledEffects.iterator();
+        while (iterator.hasNext()) {
+            AbilityEffects.ScheduledEffect effect = iterator.next();
+            if (effect.getTurnsRemaining() <= 0) {
+                effectsToExecute.add(effect);
+                iterator.remove();
+            } else {
+                effect.decrementTurns();
+            }
+        }
+        
+        // Ejecutar efectos identificados
+        for (AbilityEffects.ScheduledEffect effect : effectsToExecute) {
+            effect.execute();
+        }
+    }
+
+    /**
+     * Corrige los códigos de ataques y asegura que los tipos estén correctamente asignados
+     */
+    public void fixAbilityCodes() {
+        System.out.println("Corrigiendo códigos de ataques para " + playerCharacters.size() + " personajes jugador y " + 
+                          aiCharacters.size() + " personajes IA");
+        
+        // Procesar equipo del jugador
+        for (PersonajeModel personaje : playerCharacters) {
+            fixCharacterAbilityCodes(personaje);
+        }
+        
+        // Procesar equipo de la IA
+        for (PersonajeModel personaje : aiCharacters) {
+            fixCharacterAbilityCodes(personaje);
+        }
+    }
+
+    /**
+     * Corrige los códigos de ataques para un personaje específico
+     */
+    private void fixCharacterAbilityCodes(PersonajeModel personaje) {
+        System.out.println("Corrigiendo ataques para: " + personaje.getNombre());
+        
+        List<AtaqueModel> ataques = personaje.getAtaques();
+        
+        for (AtaqueModel ataque : ataques) {
+            String tipoAtaque = ataque.getTipoAtaqueClave();
+            boolean necesitaFixCodigo = (ataque.getCodigo() == null || ataque.getCodigo().isEmpty());
+            boolean necesitaFixTipo = (ataque.getTipo() == null || ataque.getTipo().isEmpty());
+            
+            // Si necesita corrección del código
+            if (necesitaFixCodigo) {
+                String sufijo = "";
+                
+                if ("ACC".equals(tipoAtaque)) {
+                    sufijo = "_melee";
+                } else if ("AAD".equals(tipoAtaque)) {
+                    sufijo = "_range";
+                } else if ("habilidad_mas_poderosa".equals(tipoAtaque)) {
+                    sufijo = "_hab1";
+                } else if ("habilidad_caracteristica".equals(tipoAtaque)) {
+                    sufijo = "_hab2";
+                }
+                
+                String nuevoCodigo = personaje.getNombreCodigo() + sufijo;
+                ataque.setCodigo(nuevoCodigo);
+                System.out.println("  Código corregido: " + nuevoCodigo);
+            }
+            
+            // Si necesita corrección del tipo
+            if (necesitaFixTipo) {
+                ataque.setTipo(tipoAtaque);
+                System.out.println("  Tipo corregido: " + tipoAtaque);
+            }
+        }
+    }
+
+    /**
+     * Método para determinar si un personaje pertenece al jugador
+     */
+    private boolean isPlayerCharacter(PersonajeModel character) {
+        return playerCharacters.contains(character);
     }
 }

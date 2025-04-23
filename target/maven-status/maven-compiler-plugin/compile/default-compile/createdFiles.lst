@@ -32,9 +32,12 @@ es\alvarogrlp\marvelsimu\backend\selection\ui\CharacterCardFactory.class
 es\alvarogrlp\marvelsimu\backend\controller\LoginController.class
 es\alvarogrlp\marvelsimu\backend\util\AlertUtils.class
 es\alvarogrlp\marvelsimu\backend\selection\animation\SelectionAnimationHandler.class
+es\alvarogrlp\marvelsimu\backend\combat\logic\AbilityHandler.class
+es\alvarogrlp\marvelsimu\backend\combat\logic\AbilityEffects.class
 es\alvarogrlp\marvelsimu\backend\selection\ui\SelectionUIManager.class
 es\alvarogrlp\marvelsimu\backend\combat\ui\MessageDisplayManager.class
 es\alvarogrlp\marvelsimu\backend\model\abtrastas\Conexion.class
+es\alvarogrlp\marvelsimu\backend\combat\logic\AbilityEffects$ScheduledEffect.class
 es\alvarogrlp\marvelsimu\backend\combat\logic\DamageCalculator.class
 es\alvarogrlp\marvelsimu\backend\combat\ui\CharacterSelectionDialog.class
 es\alvarogrlp\marvelsimu\backend\controller\SeleccionPersonajesController.class
@@ -48,6 +51,7 @@ es\alvarogrlp\marvelsimu\backend\combat\logic\AbilityManager.class
 es\alvarogrlp\marvelsimu\backend\combat\logic\AIActionSelector$AttackOption.class
 es\alvarogrlp\marvelsimu\backend\controller\RecuperarController.class
 es\alvarogrlp\marvelsimu\backend\combat\animation\CombatAnimationManager.class
+es\alvarogrlp\marvelsimu\backend\combat\ui\MessageDisplayManager$MessageEntry.class
 es\alvarogrlp\marvelsimu\backend\combat\animation\PlayerAnimationHandler.class
 es\alvarogrlp\marvelsimu\backend\selection\logic\TeamBuilder.class
 es\alvarogrlp\marvelsimu\backend\selection\util\CharacterDescriptionFormatter.class

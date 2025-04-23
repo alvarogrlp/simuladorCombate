@@ -1,13 +1,14 @@
 package es.alvarogrlp.marvelsimu.backend.combat.ui;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import es.alvarogrlp.marvelsimu.backend.combat.model.CombatMessage;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
-import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
@@ -29,11 +30,31 @@ public class MessageDisplayManager {
     private AnchorPane rootPane;
     private StackPane messageContainer;
     private boolean isDisplayingMessage = false;
+
+    // Agregar una cola de mensajes 
+    private Queue<MessageEntry> messageQueue = new LinkedList<>();
+    private boolean isProcessingQueue = false;
     
-    // Duración de mensajes por defecto
-    private static final int DEFAULT_DISPLAY_TIME = 1800;
-    private static final int SHORT_DISPLAY_TIME = 1000;
-    private static final int LONG_DISPLAY_TIME = 2500;
+    // Duración de mensajes aumentada
+    private static final int DEFAULT_DISPLAY_TIME = 2500;  // Aumentado de 1800 a 2500
+    private static final int SHORT_DISPLAY_TIME = 1800;    // Aumentado de 1000 a 1800
+    private static final int LONG_DISPLAY_TIME = 3500;     // Aumentado de 2500 a 3500
+    private static final int EFFECT_DISPLAY_TIME = 2200;   // Nuevo tiempo para mensajes de efectos
+    
+    // Clase interna para entradas en la cola
+    private class MessageEntry {
+        Text messageText;
+        boolean isPlayerAction;
+        int displayTime;
+        Runnable onComplete;
+        
+        public MessageEntry(Text messageText, boolean isPlayerAction, int displayTime, Runnable onComplete) {
+            this.messageText = messageText;
+            this.isPlayerAction = isPlayerAction;
+            this.displayTime = displayTime;
+            this.onComplete = onComplete;
+        }
+    }
     
     public MessageDisplayManager(AnchorPane rootPane) {
         this.rootPane = rootPane;
@@ -42,19 +63,18 @@ public class MessageDisplayManager {
     
     private void initializeMessageContainer() {
         messageContainer = new StackPane();
-        messageContainer.setMinWidth(420);  // Aumentado de 400
-        messageContainer.setMinHeight(70);  // Aumentado de 60
-        messageContainer.setMaxWidth(420);  // Aumentado de 400
-        messageContainer.setPrefWidth(420); // Aumentado de 400
+        messageContainer.setMinWidth(450);  // Aumentado para mejor visibilidad
+        messageContainer.setMinHeight(80);  // Aumentado para mejor visibilidad
+        messageContainer.setMaxWidth(450);  
+        messageContainer.setPrefWidth(450); 
         messageContainer.setAlignment(Pos.CENTER);
-        messageContainer.setPadding(new Insets(10, 15, 10, 15));  // Añadir padding
-        messageContainer.setBackground(new Background(new BackgroundFill(
-                Color.rgb(0, 0, 0, 0.7), new CornerRadii(10), Insets.EMPTY)));
+        messageContainer.setPadding(new Insets(12, 18, 12, 18));  // Padding mejorado
+        messageContainer.getStyleClass().add("combat-message-container"); // Usar clase CSS
         messageContainer.setVisible(false);
         
-        // Centrar en la pantalla
-        AnchorPane.setLeftAnchor(messageContainer, 238.0);  // Ajustado para centrar
-        AnchorPane.setTopAnchor(messageContainer, 200.0);
+        // Posición ajustada para mejor visibilidad
+        AnchorPane.setLeftAnchor(messageContainer, 223.0);  // Centrado
+        AnchorPane.setTopAnchor(messageContainer, 250.0);  // Un poco más abajo para no tapar personajes
         
         rootPane.getChildren().add(messageContainer);
     }
@@ -77,15 +97,19 @@ public class MessageDisplayManager {
      * @param onComplete Acción a ejecutar al finalizar
      */
     public void displayMessage(String message, boolean isPlayerAction, Runnable onComplete) {
-        // Si hay un mensaje mostrándose, esperar un momento
-        if (isDisplayingMessage) {
-            PauseTransition delay = new PauseTransition(Duration.millis(500));
-            delay.setOnFinished(e -> displayMessageImpl(message, isPlayerAction, onComplete));
-            delay.play();
-            return;
-        }
+        // Simplificar el mensaje para que sea más corto
+        String simplifiedMessage = simplifyMessage(message, isPlayerAction);
         
-        displayMessageImpl(message, isPlayerAction, onComplete);
+        Text messageText = new Text(simplifiedMessage);
+        messageText.setFill(Color.WHITE);
+        messageText.setFont(Font.font("System", FontWeight.BOLD, 18));
+        messageText.setTextAlignment(TextAlignment.CENTER);
+        messageText.setWrappingWidth(380);
+        messageText.setStroke(Color.BLACK);
+        messageText.setStrokeWidth(0.5);
+        
+        // Encolar el mensaje en lugar de mostrarlo inmediatamente
+        enqueueMessage(messageText, isPlayerAction, DEFAULT_DISPLAY_TIME, onComplete);
     }
     
     /**
@@ -104,8 +128,6 @@ public class MessageDisplayManager {
         messageText.setFill(Color.WHITE);
         messageText.setFont(Font.font("System", FontWeight.BOLD, 18));
         messageText.setTextAlignment(TextAlignment.CENTER);
-        
-        // Limitar el ancho del texto para asegurar que no se salga del contenedor
         messageText.setWrappingWidth(380);
         
         // Aplicar estilos específicos según el tipo de mensaje
@@ -150,34 +172,15 @@ public class MessageDisplayManager {
             case REDUCTION:
                 displayTime = SHORT_DISPLAY_TIME;
                 break;
+            case ABILITY:
+                displayTime = EFFECT_DISPLAY_TIME;
+                break;
             default:
                 displayTime = DEFAULT_DISPLAY_TIME;
         }
         
-        // Mostrar el mensaje
-        showAnimatedMessage(messageText, isPlayerAction, displayTime, onComplete);
-    }
-    
-    /**
-     * Implementación interna para mostrar mensajes
-     */
-    private void displayMessageImpl(String message, boolean isPlayerAction, Runnable onComplete) {
-        // Simplificar el mensaje para que sea más corto
-        String simplifiedMessage = simplifyMessage(message, isPlayerAction);
-        
-        Text messageText = new Text(simplifiedMessage);
-        messageText.setFill(Color.WHITE);
-        messageText.setFont(Font.font("System", FontWeight.BOLD, 18));
-        messageText.setTextAlignment(TextAlignment.CENTER);
-        
-        // Limitar el ancho del texto para asegurar que no se salga del contenedor
-        messageText.setWrappingWidth(380);
-        
-        // Aplicar borde al texto para mejor visibilidad
-        messageText.setStroke(Color.BLACK);
-        messageText.setStrokeWidth(0.5);
-        
-        showAnimatedMessage(messageText, isPlayerAction, DEFAULT_DISPLAY_TIME, onComplete);
+        // Encolar el mensaje
+        enqueueMessage(messageText, isPlayerAction, displayTime, onComplete);
     }
     
     /**
@@ -263,11 +266,12 @@ public class MessageDisplayManager {
      * @param isCritical Si es golpe crítico
      * @param target Objetivo del ataque
      * @param isPlayerAction Si es acción del jugador
+     * @param onComplete Callback para ejecutar al finalizar
      */
-    public void displayDamageMessage(int damage, boolean isCritical, String target, boolean isPlayerAction) {
+    public void displayDamageMessage(int damage, boolean isCritical, String target, boolean isPlayerAction, Runnable onComplete) {
         String message = damage + " de daño";
         
-        // Añadir indicador de crítico (pero no de daño verdadero)
+        // Añadir indicador de crítico
         if (isCritical) {
             message += " (¡CRÍTICO!)";
         }
@@ -275,8 +279,55 @@ public class MessageDisplayManager {
         // Añadir a quién se le aplicó el daño
         message += " a " + target;
         
-        // Mostrar mensaje
-        displayMessage(message, isPlayerAction);
+        // Mostrar mensaje con callback
+        displayMessage(message, isPlayerAction, onComplete);
+    }
+
+    // Sobrecarga para mantener compatibilidad
+    public void displayDamageMessage(int damage, boolean isCritical, String target, boolean isPlayerAction) {
+        displayDamageMessage(damage, isCritical, target, isPlayerAction, null);
+    }
+    
+    /**
+     * Nuevo método para encolar mensajes
+     */
+    private void enqueueMessage(Text messageText, boolean isPlayerAction, int displayTime, Runnable onComplete) {
+        // Agregar el mensaje a la cola
+        messageQueue.offer(new MessageEntry(messageText, isPlayerAction, displayTime, onComplete));
+        
+        // Si no estamos procesando la cola, comenzar a procesar
+        if (!isProcessingQueue) {
+            processNextMessage();
+        }
+    }
+    
+    /**
+     * Método para procesar el siguiente mensaje en la cola
+     */
+    private void processNextMessage() {
+        if (messageQueue.isEmpty()) {
+            isProcessingQueue = false;
+            return;
+        }
+        
+        isProcessingQueue = true;
+        MessageEntry entry = messageQueue.poll();
+        
+        // Crear un callback que procese el siguiente mensaje cuando termine
+        Runnable nextCallback = () -> {
+            // Ejecutar el callback original si existe
+            if (entry.onComplete != null) {
+                entry.onComplete.run();
+            }
+            
+            // Pequeña pausa entre mensajes para mejor legibilidad
+            PauseTransition pause = new PauseTransition(Duration.millis(250));
+            pause.setOnFinished(e -> processNextMessage());
+            pause.play();
+        };
+        
+        // Mostrar el mensaje con el callback actualizado
+        showAnimatedMessage(entry.messageText, entry.isPlayerAction, entry.displayTime, nextCallback);
     }
     
     /**
@@ -290,11 +341,6 @@ public class MessageDisplayManager {
         String text = messageText.getText();
         if (text.length() > 30) {
             messageText.setFont(Font.font("System", FontWeight.BOLD, 16));
-        }
-        
-        // Eliminar contenido específicamente problemático
-        if (text.contains("Soulsword") && text.contains("CRÍTICO")) {
-            messageText.setText(text.replace("(¡CRÍTICO!)", "!"));
         }
         
         messageContainer.getChildren().add(messageText);
@@ -322,13 +368,13 @@ public class MessageDisplayManager {
         messageContainer.setOpacity(0);
         messageContainer.setVisible(true);
         
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(300), messageContainer);
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(400), messageContainer);
         fadeIn.setFromValue(0);
         fadeIn.setToValue(1);
         
         PauseTransition display = new PauseTransition(Duration.millis(displayTime));
         
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), messageContainer);
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(400), messageContainer);
         fadeOut.setFromValue(1);
         fadeOut.setToValue(0);
         fadeOut.setOnFinished(e -> {
@@ -343,5 +389,55 @@ public class MessageDisplayManager {
         
         SequentialTransition sequence = new SequentialTransition(fadeIn, display, fadeOut);
         sequence.play();
+    }
+    
+    // Nuevos métodos para mostrar mensajes de efectos específicos
+    public void displayStatBuffMessage(String characterName, String statName, boolean isIncrease, boolean isPlayerAction) {
+        String action = isIncrease ? "aumentado" : "reducido";
+        String message = characterName + " ha " + action + " su " + statName;
+        displayMessage(message, isPlayerAction);
+    }
+    
+    public void displayDamageReductionMessage(String characterName, double percentage, boolean isPlayerAction) {
+        int percent = (int)(percentage * 100);
+        String message = characterName + " reduce el daño recibido en un " + percent + "%";
+        displayMessage(message, isPlayerAction);
+    }
+    
+    public void displayHealingBlockMessage(String characterName, boolean isPlayerAction) {
+        String message = "¡La curación de " + characterName + " ha sido bloqueada!";
+        displayMessage(message, isPlayerAction);
+    }
+    
+    public void displayTransformationMessage(String characterName, String newForm, boolean isPlayerAction) {
+        String message = "¡" + characterName + " se ha transformado en " + newForm + "!";
+        displayMessage(message, isPlayerAction);
+    }
+    
+    public void displayStageChangeMessage(String newStageName, boolean isPlayerAction) {
+        String message = "¡El escenario ha cambiado a " + newStageName + "!";
+        displayMessage(message, isPlayerAction);
+    }
+    
+    public void displayRestrictedMessage(String characterName, int turns, boolean isPlayerAction) {
+        String message = characterName + " ha sido restringido por " + turns + " turnos";
+        displayMessage(message, isPlayerAction);
+    }
+    
+    public void displayReflectionMessage(String characterName, double percentage, boolean isPlayerAction) {
+        int percent = (int)(percentage * 100);
+        String message = characterName + " refleja un " + percent + "% del daño recibido";
+        displayMessage(message, isPlayerAction);
+    }
+    
+    public void displayDamageBoostMessage(String characterName, double percentage, boolean isPlayerAction) {
+        int percent = (int)(percentage * 100);
+        String message = characterName + " aumenta su daño en un " + percent + "%";
+        displayMessage(message, isPlayerAction);
+    }
+    
+    public void displayStatusEffectMessage(String characterName, String effectName, boolean isPlayerAction) {
+        String message = characterName + " sufre el efecto: " + effectName;
+        displayMessage(message, isPlayerAction);
     }
 }

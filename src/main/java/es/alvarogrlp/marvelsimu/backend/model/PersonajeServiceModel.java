@@ -148,27 +148,47 @@ public class PersonajeServiceModel extends Conexion {
                      "JOIN tipo_ataque ta ON a.tipo_ataque_id = ta.id " +
                      "WHERE a.personaje_id = ?";
         
-        PreparedStatement stmt = conn.prepareStatement(sql);
-        stmt.setInt(1, personaje.getId());
-        ResultSet rs = stmt.executeQuery();
-        
-        List<AtaqueModel> ataques = new ArrayList<>();
-        
-        while (rs.next()) {
-            AtaqueModel ataque = new AtaqueModel();
-            ataque.setId(rs.getInt("id"));
-            ataque.setPersonajeId(rs.getInt("personaje_id"));
-            ataque.setTipoAtaqueId(rs.getInt("tipo_ataque_id"));
-            ataque.setTipoAtaqueClave(rs.getString("tipo_clave"));
-            ataque.setNombre(rs.getString("nombre"));
-            ataque.setDanoBase(rs.getInt("dano_base"));
-            ataque.setUsosMaximos(rs.getInt("usos_maximos"));
-            ataque.setCooldownTurnos(rs.getInt("cooldown_turnos"));
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, personaje.getId());
             
-            ataques.add(ataque);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    AtaqueModel ataque = new AtaqueModel();
+                    
+                    // Cargar todos los datos del ataque
+                    ataque.setId(rs.getInt("id"));
+                    ataque.setPersonajeId(rs.getInt("personaje_id"));
+                    ataque.setTipoAtaqueId(rs.getInt("tipo_ataque_id"));
+                    
+                    // Obtener y establecer el código directamente de la BD
+                    String codigoAtaque = rs.getString("codigo");
+                    ataque.setCodigo(codigoAtaque);
+                    
+                    // Obtener y establecer el nombre directamente de la BD
+                    ataque.setNombre(rs.getString("nombre"));
+                    ataque.setDanoBase(rs.getInt("dano_base"));
+                    ataque.setUsosMaximos(rs.getInt("usos_maximos"));
+                    ataque.setCooldownTurnos(rs.getInt("cooldown_turnos"));
+                    
+                    // IMPORTANTE: Establecer AMBOS campos necesarios para el tipo
+                    String tipoClave = rs.getString("tipo_clave");
+                    ataque.setTipoAtaqueClave(tipoClave);
+                    ataque.setTipo(tipoClave);
+                    
+                    // Debug para verificar que se cargan correctamente
+                    System.out.println("Ataque cargado: " + ataque.getNombre() + 
+                                      " | Código: " + ataque.getCodigo() + 
+                                      " | Tipo: " + ataque.getTipo() + 
+                                      " | TipoClave: " + ataque.getTipoAtaqueClave());
+                    
+                    // Inicializar recursos de combate
+                    ataque.resetearEstadoCombate();
+                    
+                    // Añadir el ataque al personaje
+                    personaje.addAtaque(ataque);
+                }
+            }
         }
-        
-        personaje.setAtaques(ataques);
     }
     
     /**

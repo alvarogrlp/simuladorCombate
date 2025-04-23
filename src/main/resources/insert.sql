@@ -55,7 +55,7 @@ INSERT INTO personaje (nombre, nombre_codigo, descripcion, imagen_miniatura, ima
   ('Knull',                   'knull',          'El Dios del Simbionte',                   'images/Personajes/knull.png','images/Ingame/knull-ingame.png',          NULL,0, 30000,28000,2500, 28000),
   ('Hulk (Máximo)',           'hulk',           'Bruce Banner en furia máxima',            'images/Personajes/hulk.png','images/Ingame/hulk-ingame.png',            NULL,0,  6500, 7500,1200,  2500),
   ('Doctor Doom',             'doctor_doom',    'Victor von Doom, monarca de Latveria',    'images/Personajes/doom.png','images/Ingame/doom-ingame.png',            NULL,0,  4500, 1500,  500,  8000),
-  ('Iron Man (Mark 85)',      'iron_man',       'Tony Stark en su Mark 85',                'images/Personajes/ironman.png','images/Ingame/ironman-ingame.png',            NULL,0,  1000,  500,  400,   400),
+  ('Iron Man (Mark 85)',      'iron_man',       'Tony Stark en su Mark 85',                'images/Personajes/ironman.png','images/Ingame/ironman-ingame.png',            NULL,0,  1000,  500,  400,   400),
   ('Wolverine',               'wolverine',      'Logan, el mutante inmortal',              'images/Personajes/logan.png','images/Ingame/logan-ingame.png',          NULL,0,  3500, 1200,  500,   300),
   ('Sebastian Shaw',          'sebastian_shaw','Mutante absorbente de energía',            'images/Personajes/shaw.png','images/Ingame/sebastian-shaw-ingame.png',            NULL,0,  2000, 1500,  400,   250),
   ('Spider-Man',              'spider_man',     'Peter Parker, el trepamuros',             'images/Personajes/spiderman.png','images/Ingame/spiderman-ingame.png',        NULL,0,   900, 1000, 1500,   250),
@@ -83,144 +83,147 @@ CREATE TABLE ataque (
   id               INTEGER PRIMARY KEY AUTOINCREMENT,
   personaje_id     INTEGER NOT NULL REFERENCES personaje(id) ON DELETE CASCADE,
   tipo_ataque_id   INTEGER NOT NULL REFERENCES tipo_ataque(id),
+  codigo           TEXT    NOT NULL,  -- Nuevo campo: código único para identificar la habilidad
   nombre           TEXT    NOT NULL,
   dano_base        INTEGER NOT NULL,
   usos_maximos     INTEGER NOT NULL DEFAULT 0,
   cooldown_turnos  INTEGER NOT NULL DEFAULT 0
 );
+CREATE INDEX idx_ataque_personaje ON ataque(personaje_id);
+CREATE INDEX idx_ataque_codigo ON ataque(codigo);  -- Nuevo índice
 
 -- Magik Base
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='magik'),           1,'Corte del Alma',         1320,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='magik'),           2,'Proyectil Demoníaco',    1100,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='magik'),           3,'Darkchild Rising',         0,0,3),
-  ((SELECT id FROM personaje WHERE nombre_codigo='magik'),           4,'Exilio al Limbo',          0,1,0);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='magik'),           1,'magik_melee','Corte del Alma',         1320,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='magik'),           2,'magik_range','Proyectil Demoníaco',    1100,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='magik'),           3,'magik_hab1','Darkchild Rising',         0,0,3),
+  ((SELECT id FROM personaje WHERE nombre_codigo='magik'),           4,'magik_hab2','Exilio al Limbo',          0,1,0);
 
 -- Magik Darkchild
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='magik_darkchild'),1,'Garra de la Reina Infernal',1800,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='magik_darkchild'),2,'Estallido del Limbo',      1600,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='magik_darkchild'),3,'Trono del Caos',           4000,1,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='magik_darkchild'),4,'Auge Infernal',               0,1,0);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='magik_darkchild'),1,'magik_darkchild_melee','Garra de la Reina Infernal',1800,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='magik_darkchild'),2,'magik_darkchild_range','Estallido del Limbo',      1600,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='magik_darkchild'),3,'magik_darkchild_hab1','Trono del Caos',           4000,1,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='magik_darkchild'),4,'magik_darkchild_hab2','Auge Infernal',               0,1,0);
 
 -- Thanos Sin Guantelete
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='thanos'),          1,'Puño del Titán',        1560,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='thanos'),          2,'Explosión Cósmica',     1300,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='thanos'),          3,'Aniquilación Cósmica',    0,0,4),
-  ((SELECT id FROM personaje WHERE nombre_codigo='thanos'),          4,'Intimidación Titán',       0,0,3);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='thanos'),          1,'thanos_melee','Puño del Titán',        1560,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='thanos'),          2,'thanos_range','Explosión Cósmica',     1300,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='thanos'),          3,'thanos_hab1','Aniquilación Cósmica',    0,0,4),
+  ((SELECT id FROM personaje WHERE nombre_codigo='thanos'),          4,'thanos_hab2','Intimidación Titán',       0,0,3);
 
 -- Thanos Guantelete
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='thanos_gauntlet'),1,'Golpe del Infinito',    2200,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='thanos_gauntlet'),2,'Rayo Universal',        2000,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='thanos_gauntlet'),3,'Chasquido del Infinito',  0,1,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='thanos_gauntlet'),4,'Voluntad de Thanos',       0,0,5);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='thanos_gauntlet'),1,'thanos_gauntlet_melee','Golpe del Infinito',    2200,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='thanos_gauntlet'),2,'thanos_gauntlet_range','Rayo Universal',        2000,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='thanos_gauntlet'),3,'thanos_gauntlet_hab1','Chasquido del Infinito',  0,1,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='thanos_gauntlet'),4,'thanos_gauntlet_hab2','Voluntad de Thanos',       0,0,5);
 
 -- Scarlet Witch
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='scarlet_witch'),   1,'Impacto de Caos',       770,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='scarlet_witch'),   2,'Hechizo Hex',           935,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='scarlet_witch'),   3,'Caos Absoluto',        5000,0,3),
-  ((SELECT id FROM personaje WHERE nombre_codigo='scarlet_witch'),   4,'Realidad Distorsionada', 0,0,3);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='scarlet_witch'),   1,'scarlet_witch_melee','Impacto de Caos',       770,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='scarlet_witch'),   2,'scarlet_witch_range','Hechizo Hex',           935,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='scarlet_witch'),   3,'scarlet_witch_hab1','Caos Absoluto',        5000,0,3),
+  ((SELECT id FROM personaje WHERE nombre_codigo='scarlet_witch'),   4,'scarlet_witch_hab2','Realidad Distorsionada', 0,0,3);
 
 -- Legion
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='legion'),          1,'Golpe Psíquico',       880,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='legion'),          2,'Rayo de Personalidad',1045,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='legion'),          3,'Personalidades Desatadas',0,0,6),
-  ((SELECT id FROM personaje WHERE nombre_codigo='legion'),          4,'Plano Mental',           0,0,0);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='legion'),          1,'legion_melee','Golpe Psíquico',       880,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='legion'),          2,'legion_range','Rayo de Personalidad',1045,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='legion'),          3,'legion_hab1','Personalidades Desatadas',0,0,6),
+  ((SELECT id FROM personaje WHERE nombre_codigo='legion'),          4,'legion_hab2','Plano Mental',           0,0,0);
 
 -- Doctor Strange
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_strange'),  1,'Golpe Arcano',         715,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_strange'),  2,'Rayo de los Vishanti',990,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_strange'),  3,'Dimensión Espejo',        0,1,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_strange'),  4,'Ojo de Agamotto',         0,0,5);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_strange'),  1,'doctor_strange_melee','Golpe Arcano',         715,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_strange'),  2,'doctor_strange_range','Rayo de los Vishanti',990,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_strange'),  3,'doctor_strange_hab1','Dimensión Espejo',        0,1,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_strange'),  4,'doctor_strange_hab2','Ojo de Agamotto',         0,0,5);
 
 -- Silver Surfer
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='silver_surfer'),   1,'Corte de Tabla Estelar',1500,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='silver_surfer'),   2,'Rayo Cósmico',         1800,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='silver_surfer'),   3,'Nova Cósmica',         4500,0,4),
-  ((SELECT id FROM personaje WHERE nombre_codigo='silver_surfer'),   4,'Velocidad Estelar',      0,0,5);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='silver_surfer'),   1,'silver_surfer_melee','Corte de Tabla Estelar',1500,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='silver_surfer'),   2,'silver_surfer_range','Rayo Cósmico',         1800,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='silver_surfer'),   3,'silver_surfer_hab1','Nova Cósmica',         4500,0,4),
+  ((SELECT id FROM personaje WHERE nombre_codigo='silver_surfer'),   4,'silver_surfer_hab2','Velocidad Estelar',      0,0,5);
 
 -- Arishem
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='arishem'),         1,'Juicio de la Mano Cósmica',3000,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='arishem'),         2,'Explosión Estelar',     3750,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='arishem'),         3,'Juicio Celestial',        0,0,6),
-  ((SELECT id FROM personaje WHERE nombre_codigo='arishem'),         4,'Presencia Imponente',      0,0,4);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='arishem'),         1,'arishem_melee','Juicio de la Mano Cósmica',3000,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='arishem'),         2,'arishem_range','Explosión Estelar',     3750,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='arishem'),         3,'arishem_hab1','Juicio Celestial',        0,0,6),
+  ((SELECT id FROM personaje WHERE nombre_codigo='arishem'),         4,'arishem_hab2','Presencia Imponente',      0,0,4);
 
 -- Knull
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='knull'),           1,'Mandoble de All-Black', 2210,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='knull'),           2,'Lluvia de Simbiontes', 1560,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='knull'),           3,'Oscuridad Primordial',    0,0,5),
-  ((SELECT id FROM personaje WHERE nombre_codigo='knull'),           4,'Rey de Simbiontes',        0,0,2);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='knull'),           1,'knull_melee','Mandoble de All-Black', 2210,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='knull'),           2,'knull_range','Lluvia de Simbiontes', 1560,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='knull'),           3,'knull_hab1','Oscuridad Primordial',    0,0,5),
+  ((SELECT id FROM personaje WHERE nombre_codigo='knull'),           4,'knull_hab2','Rey de Simbiontes',        0,0,2);
 
 -- Hulk
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='hulk'),            1,'Puño Colosal',         1600,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='hulk'),            2,'Lanzamiento de Roca',   900,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='hulk'),            3,'Furia Gamma',            0,0,5),
-  ((SELECT id FROM personaje WHERE nombre_codigo='hulk'),            4,'Cuanto más enfadado…',   0,0,0);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='hulk'),            1,'hulk_melee','Puño Colosal',         1600,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='hulk'),            2,'hulk_range','Lanzamiento de Roca',   900,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='hulk'),            3,'hulk_hab1','Furia Gamma',            0,0,5),
+  ((SELECT id FROM personaje WHERE nombre_codigo='hulk'),            4,'hulk_hab2','Cuanto más enfadado…',   0,0,0);
 
 -- Doctor Doom
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_doom'),     1,'Descarga Latveriana',   1210,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_doom'),     2,'Bomba Arcana',         1320,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_doom'),     3,'Conjuro de Muerte',      0,0,2),
-  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_doom'),     4,'Escudo de Latveria',     0,0,4);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_doom'),     1,'doctor_doom_melee','Descarga Latveriana',   1210,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_doom'),     2,'doctor_doom_range','Bomba Arcana',         1320,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_doom'),     3,'doctor_doom_hab1','Conjuro de Muerte',      0,0,2),
+  ((SELECT id FROM personaje WHERE nombre_codigo='doctor_doom'),     4,'doctor_doom_hab2','Escudo de Latveria',     0,0,4);
 
 -- Iron Man
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='iron_man'),        1,'Puñetazo Reforzado',    800,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='iron_man'),        2,'Micro‑Misiles Dirigidos',1100,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='iron_man'),        3,'Unibeam Máximo',         0,0,3),
-  ((SELECT id FROM personaje WHERE nombre_codigo='iron_man'),        4,'Nanotecnología Adaptativa',0,0,4);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='iron_man'),        1,'iron_man_melee','Puñetazo Reforzado',    800,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='iron_man'),        2,'iron_man_range','Micro‑Misiles Dirigidos',1100,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='iron_man'),        3,'iron_man_hab1','Unibeam Máximo',         0,0,3),
+  ((SELECT id FROM personaje WHERE nombre_codigo='iron_man'),        4,'iron_man_hab2','Nanotecnología Adaptativa',0,0,4);
 
 -- Wolverine
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='wolverine'),       1,'Doble Corte',          1400,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='wolverine'),       2,'Lanzamiento de Navaja', 600,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='wolverine'),       3,'Furia Berserker',        0,0,4),
-  ((SELECT id FROM personaje WHERE nombre_codigo='wolverine'),       4,'Regeneración Extrema',    0,0,5);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='wolverine'),       1,'wolverine_melee','Doble Corte',          1400,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='wolverine'),       2,'wolverine_range','Lanzamiento de Navaja', 600,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='wolverine'),       3,'wolverine_hab1','Furia Berserker',        0,0,4),
+  ((SELECT id FROM personaje WHERE nombre_codigo='wolverine'),       4,'wolverine_hab2','Regeneración Extrema',    0,0,5);
 
 -- Sebastian Shaw
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='sebastian_shaw'),  1,'Puño Absorbente',      1000,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='sebastian_shaw'),  2,'Impacto Reforzado',      800,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='sebastian_shaw'),  3,'Absorción Cinética Total',0,0,5),
-  ((SELECT id FROM personaje WHERE nombre_codigo='sebastian_shaw'),  4,'Contraataque Cinético',   0,0,3);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='sebastian_shaw'),  1,'sebastian_shaw_melee','Puño Absorbente',      1000,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='sebastian_shaw'),  2,'sebastian_shaw_range','Impacto Reforzado',      800,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='sebastian_shaw'),  3,'sebastian_shaw_hab1','Absorción Cinética Total',0,0,5),
+  ((SELECT id FROM personaje WHERE nombre_codigo='sebastian_shaw'),  4,'sebastian_shaw_hab2','Contraataque Cinético',   0,0,3);
 
 -- Spider‑Man
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='spider_man'),      1,'Combo Acrobático',     1080,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='spider_man'),      2,'Disparo de Telaraña',   765,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='spider_man'),      3,'Ataque de Máxima Agilidad',0,0,4),
-  ((SELECT id FROM personaje WHERE nombre_codigo='spider_man'),      4,'Telaraña Inmovilizante',  0,0,3);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='spider_man'),      1,'spider_man_melee','Combo Acrobático',     1080,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='spider_man'),      2,'spider_man_range','Disparo de Telaraña',   765,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='spider_man'),      3,'spider_man_hab1','Ataque de Máxima Agilidad',0,0,4),
+  ((SELECT id FROM personaje WHERE nombre_codigo='spider_man'),      4,'spider_man_hab2','Telaraña Inmovilizante',  0,0,3);
 
 -- Black Panther
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='black_panther'),   1,'Combo Felino',         1080,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='black_panther'),   2,'Dagas de Vibranium',    900,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='black_panther'),   3,'Liberación Energía Cinética',0,0,4),
-  ((SELECT id FROM personaje WHERE nombre_codigo='black_panther'),   4,'Garras de Vibranium',    500,0,3);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='black_panther'),   1,'black_panther_melee','Combo Felino',         1080,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='black_panther'),   2,'black_panther_range','Dagas de Vibranium',    900,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='black_panther'),   3,'black_panther_hab1','Liberación Energía Cinética',0,0,4),
+  ((SELECT id FROM personaje WHERE nombre_codigo='black_panther'),   4,'black_panther_hab2','Garras de Vibranium',    500,0,3);
 
 -- Captain America
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='captain_america'), 1,'Golpe de Escudo',       720,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='captain_america'), 2,'Lanzamiento de Escudo', 810,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='captain_america'), 3,'Justicia Imparable',     400,0,4),
-  ((SELECT id FROM personaje WHERE nombre_codigo='captain_america'), 4,'Escudo del Capitán',      0,0,4);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='captain_america'), 1,'captain_america_melee','Golpe de Escudo',       720,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='captain_america'), 2,'captain_america_range','Lanzamiento de Escudo', 810,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='captain_america'), 3,'captain_america_hab1','Justicia Imparable',     400,0,4),
+  ((SELECT id FROM personaje WHERE nombre_codigo='captain_america'), 4,'captain_america_hab2','Escudo del Capitán',      0,0,4);
 
 -- Deadpool
-INSERT INTO ataque (personaje_id,tipo_ataque_id,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
-  ((SELECT id FROM personaje WHERE nombre_codigo='deadpool'),        1,'Espadazo Múltiple',     900,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='deadpool'),        2,'Disparo Caótico',       630,0,0),
-  ((SELECT id FROM personaje WHERE nombre_codigo='deadpool'),        3,'Factor Curativo Extremo',0,0,3),
-  ((SELECT id FROM personaje WHERE nombre_codigo='deadpool'),        4,'Ataque Impredecible',     0,0,2);
+INSERT INTO ataque (personaje_id,tipo_ataque_id,codigo,nombre,dano_base,usos_maximos,cooldown_turnos) VALUES
+  ((SELECT id FROM personaje WHERE nombre_codigo='deadpool'),        1,'deadpool_melee','Espadazo Múltiple',     900,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='deadpool'),        2,'deadpool_range','Disparo Caótico',       630,0,0),
+  ((SELECT id FROM personaje WHERE nombre_codigo='deadpool'),        3,'deadpool_hab1','Factor Curativo Extremo',0,0,3),
+  ((SELECT id FROM personaje WHERE nombre_codigo='deadpool'),        4,'deadpool_hab2','Ataque Impredecible',     0,0,2);
 
 -- 5) Pasivas
 CREATE TABLE pasiva (

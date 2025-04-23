@@ -3,10 +3,13 @@ package es.alvarogrlp.marvelsimu.backend.combat.animation;
 import es.alvarogrlp.marvelsimu.backend.combat.ui.CombatUIManager;
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
 import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.ParallelTransition;
+import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.ColorAdjust;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
@@ -15,9 +18,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 
 public class CombatAnimationManager {
     
@@ -188,8 +188,6 @@ public class CombatAnimationManager {
             // Asignar el efecto a la imagen
             characterImage.setEffect(grayOut);
             
-            // Reproducir efectos de sonido o animaciones adicionales si se tienen
-            
             // Combinar todas las animaciones
             ParallelTransition defeatAnimation = new ParallelTransition(
                 fadeOut, fallDown, effectTimeline
@@ -206,6 +204,9 @@ public class CombatAnimationManager {
                 } else {
                     uiManager.markAIDefeated();
                 }
+                
+                // IMPORTANTE: Reset the translation to avoid affecting the next character
+                characterImage.setTranslateY(0);
                 
                 // Completar la acción
                 if (onComplete != null) {

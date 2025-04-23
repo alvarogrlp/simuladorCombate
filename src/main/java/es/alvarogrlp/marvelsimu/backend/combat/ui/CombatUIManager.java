@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.alvarogrlp.marvelsimu.backend.combat.logic.AbilityManager;
 import es.alvarogrlp.marvelsimu.backend.combat.logic.CombatManager;
 import es.alvarogrlp.marvelsimu.backend.model.AtaqueModel;
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
@@ -61,6 +60,10 @@ public class CombatUIManager {
     private int playerCharacterIndex;
     private int aiCharacterIndex;
     
+    // Agregar referencias para etiquetas de nombres
+    private Label playerNameLabel;
+    private Label aiNameLabel;
+    
     // Character selection dialog
     private CharacterSelectionDialog selectionDialog;
     
@@ -68,6 +71,10 @@ public class CombatUIManager {
         this.rootPane = rootPane;
         initializeReferences();
         loadBackground();
+        
+        // Importante: Esto debe ejecutarse DESPUÉS de que se haya establecido el userData del rootPane
+        // con la instancia de CombatManager en el constructor de CombatManager.
+        // Por lo tanto, mejor hacerlo bajo demanda.
     }
     
     private void initializeReferences() {
@@ -90,6 +97,10 @@ public class CombatUIManager {
             playerTeamContainer = (VBox) rootPane.lookup("#equipoJugador");
             aiTeamContainer = (VBox) rootPane.lookup("#equipoIA");
             
+            // Inicializar referencias a las etiquetas de nombres
+            playerNameLabel = (Label) rootPane.lookup("#lblNombreJugador");
+            aiNameLabel = (Label) rootPane.lookup("#lblNombreIA");
+            
             // Verificar que todos los elementos se han encontrado
             if (playerCharacterImage == null || aiCharacterImage == null ||
                 playerHealthLabel == null || aiHealthLabel == null || 
@@ -97,7 +108,8 @@ public class CombatUIManager {
                 attackButton == null || changeButton == null || backButton == null ||
                 attackContainer == null || meleeAttackButton == null || 
                 rangedAttackButton == null || ability1Button == null || ability2Button == null ||
-                turnIndicator == null || playerTeamContainer == null || aiTeamContainer == null) {
+                turnIndicator == null || playerTeamContainer == null || aiTeamContainer == null ||
+                playerNameLabel == null || aiNameLabel == null) {
                 
                 // Imprimir qué elementos son nulos para depuración
                 System.err.println("Elementos nulos:");
@@ -119,6 +131,10 @@ public class CombatUIManager {
                 if (playerTeamContainer == null) System.err.println("- playerTeamContainer");
                 if (aiTeamContainer == null) System.err.println("- aiTeamContainer");
                 
+                // Añadir comprobaciones para etiquetas de nombres
+                if (playerNameLabel == null) System.err.println("- playerNameLabel");
+                if (aiNameLabel == null) System.err.println("- aiNameLabel");
+                
                 throw new RuntimeException("No se pudieron localizar todos los elementos de la UI");
             }
             
@@ -129,6 +145,60 @@ public class CombatUIManager {
             System.err.println("Error inicializando referencias UI: " + e.getMessage());
             e.printStackTrace();
             AlertUtils.mostrarError("Error", "No se pudo inicializar la interfaz de combate");
+        }
+    }
+    
+    private void setupEventHandlers() {
+        // Verificar que tenemos referencia al CombatManager
+        if (rootPane.getUserData() instanceof CombatManager) {
+            CombatManager combatManager = (CombatManager) rootPane.getUserData();
+            
+            // Configurar el botón de atacar como toggle para mostrar/ocultar opciones
+            attackButton.setOnAction(e -> {
+                System.out.println("Clic en botón atacar/cancelar - Estado contenedor: " + 
+                                 (attackContainer.isVisible() ? "visible" : "oculto"));
+                
+                if (attackContainer.isVisible()) {
+                    // Si el menú ya está visible, ocultarlo (funcionalidad de cancelar)
+                    attackContainer.setVisible(false);
+                    attackButton.setText("Atacar");
+                    changeButton.setDisable(false);
+                    backButton.setDisable(false);
+                    System.out.println("Ocultando opciones de ataque");
+                } else {
+                    // Si el menú está oculto, mostrarlo
+                    showAttackOptions();
+                }
+            });
+            
+            // Establecer handlers para los botones de ataque
+            meleeAttackButton.setOnAction(e -> {
+                System.out.println("Clic en ataque melee");
+                if (combatManager.getTurnManager().isPlayerTurn()) {
+                    combatManager.playerAttack("melee");
+                }
+            });
+            
+            rangedAttackButton.setOnAction(e -> {
+                System.out.println("Clic en ataque a distancia");
+                if (combatManager.getTurnManager().isPlayerTurn()) {
+                    combatManager.playerAttack("lejano");
+                }
+            });
+            
+            ability1Button.setOnAction(e -> {
+                System.out.println("Clic en habilidad 1");
+                if (combatManager.getTurnManager().isPlayerTurn()) {
+                    combatManager.playerAttack("habilidad1");
+                }
+            });
+            
+            ability2Button.setOnAction(e -> {
+                System.out.println("Clic en habilidad 2");
+                if (combatManager.getTurnManager().isPlayerTurn()) {
+                    combatManager.playerAttack("habilidad2");
+                }
+            });
         }
     }
     
@@ -156,6 +226,7 @@ public class CombatUIManager {
             playerImage.getStyleClass().removeAll("character-defeated");
             playerImage.setEffect(null);
             playerImage.setOpacity(1.0);
+            playerImage.setTranslateY(0); // Resetear cualquier transformación
         }
     }
 
@@ -189,6 +260,7 @@ public class CombatUIManager {
             aiImage.setEffect(null);
             aiImage.getStyleClass().removeAll("character-defeated");
             aiImage.setOpacity(1.0);
+            aiImage.setTranslateY(0); // Resetear cualquier transformación
             aiImage.setVisible(false);
         }
     }
@@ -267,6 +339,15 @@ public class CombatUIManager {
             }
         }
         
+        // Actualizar nombres de personajes
+        if (playerNameLabel != null) {
+            playerNameLabel.setText(playerCharacter.getNombre());
+        }
+        
+        if (aiNameLabel != null) {
+            aiNameLabel.setText(aiCharacter.getNombre());
+        }
+        
         // Actualizar barras de vida
         updateCharacterHealth(playerCharacter, aiCharacter);
         
@@ -330,89 +411,15 @@ public class CombatUIManager {
     }
     
     public void updateCharacterHealth(PersonajeModel playerCharacter, PersonajeModel aiCharacter) {
-        // Obtener referencias a los labels de nombre
-        Label lblNombreJugador = (Label) rootPane.lookup("#lblNombreJugador");
-        Label lblNombreIA = (Label) rootPane.lookup("#lblNombreIA");
-        
-        // Actualizar nombres
-        if (lblNombreJugador != null) lblNombreJugador.setText(playerCharacter.getNombre());
-        if (lblNombreIA != null) lblNombreIA.setText(aiCharacter.getNombre());
-        
-        // Obtener valores de vida
-        int playerHealth = playerCharacter.getVidaActual();
-        int playerMaxHealth = playerCharacter.getVida();
-        int aiHealth = aiCharacter.getVidaActual();
-        int aiMaxHealth = aiCharacter.getVida();
-        
-        // Calcular porcentajes
-        double playerHealthPercent = (double) playerHealth / playerMaxHealth;
-        double aiHealthPercent = (double) aiHealth / aiMaxHealth;
-        
-        // Actualizar textos de vida con formato mejorado
-        playerHealthLabel.setText(String.format("%d / %d", playerHealth, playerMaxHealth));
-        aiHealthLabel.setText(String.format("%d / %d", aiHealth, aiMaxHealth));
-        
-        // Actualizar barras de progreso con transición suave
+        // Barra de vida del jugador
+        double playerHealthPercent = Math.max(0, Math.min(1.0, (double) playerCharacter.getVidaActual() / playerCharacter.getVida()));
         playerHealthBar.setProgress(playerHealthPercent);
+        playerHealthLabel.setText(playerCharacter.getVidaActual() + "/" + playerCharacter.getVida());
+        
+        // Barra de vida de la IA
+        double aiHealthPercent = Math.max(0, Math.min(1.0, (double) aiCharacter.getVidaActual() / aiCharacter.getVida()));
         aiHealthBar.setProgress(aiHealthPercent);
-        
-        // Aplicar estilos para vida crítica (menos del 25%)
-        if (playerHealthPercent < 0.25) {
-            playerHealthBar.getStyleClass().add("hp-critical");
-        } else {
-            playerHealthBar.getStyleClass().removeAll("hp-critical");
-        }
-        
-        if (aiHealthPercent < 0.25) {
-            aiHealthBar.getStyleClass().add("hp-critical");
-        } else {
-            aiHealthBar.getStyleClass().removeAll("hp-critical");
-        }
-        
-        // Opcional: Añadir animación sutil de parpadeo cuando la vida es crítica
-        if (playerHealthPercent < 0.25) {
-            addPulseEffect(playerHealthLabel);
-        } else {
-            removePulseEffect(playerHealthLabel);
-        }
-        
-        if (aiHealthPercent < 0.25) {
-            addPulseEffect(aiHealthLabel);
-        } else {
-            removePulseEffect(aiHealthLabel);
-        }
-    }
-    
-    // Método auxiliar para añadir efecto de pulsación
-    private void addPulseEffect(Label label) {
-        if (!label.getStyleClass().contains("pulse-effect")) {
-            label.getStyleClass().add("pulse-effect");
-            
-            // Crear efecto de pulsación con opacidad
-            FadeTransition fade = new FadeTransition(Duration.millis(700), label);
-            fade.setFromValue(1.0);
-            fade.setToValue(0.6);
-            fade.setCycleCount(javafx.animation.Animation.INDEFINITE);
-            fade.setAutoReverse(true);
-            fade.play();
-            
-            // Guardar la animación en el userData para poder detenerla después
-            label.setUserData(fade);
-        }
-    }
-    
-    // Método auxiliar para quitar efecto de pulsación
-    private void removePulseEffect(Label label) {
-        if (label.getStyleClass().contains("pulse-effect")) {
-            label.getStyleClass().remove("pulse-effect");
-            
-            // Detener la animación si existe
-            if (label.getUserData() instanceof FadeTransition) {
-                FadeTransition fade = (FadeTransition) label.getUserData();
-                fade.stop();
-                label.setOpacity(1.0);
-            }
-        }
+        aiHealthLabel.setText(aiCharacter.getVidaActual() + "/" + aiCharacter.getVida());
     }
     
     public void updateTeamThumbnails(
@@ -475,36 +482,326 @@ public class CombatUIManager {
      * Actualiza los botones de ataque con la información del personaje actual
      */
     public void updateAttackButtons(PersonajeModel character) {
-        // 1) Botones melee y lejano (ataques base)
+        if (character == null) {
+            System.err.println("No se puede actualizar botones de ataque: personaje nulo");
+            return;
+        }
+        
+        System.out.println("Actualizando botones para: " + character.getNombre());
+        
+        // DIAGNÓSTICO: Mostrar todos los ataques disponibles
+        List<AtaqueModel> ataques = character.getAtaques();
+        System.out.println("Ataques disponibles (" + ataques.size() + "):");
+        for (AtaqueModel ataque : ataques) {
+            System.out.println("  - " + ataque.getNombre() + 
+                              " (Tipo: " + ataque.getTipo() + 
+                              ", TipoClave: " + ataque.getTipoAtaqueClave() + 
+                              ", Código: " + ataque.getCodigo() + ")");
+        }
+        
+        // 1) ATAQUE MELEE - buscar por tipo y luego por código como fallback
         AtaqueModel ataqueCC = character.getAtaquePorTipo("ACC");
+        if (ataqueCC == null) {
+            // Buscar directamente por código si no se encuentra por tipo
+            for (AtaqueModel ataque : ataques) {
+                if (ataque.getCodigo() != null && ataque.getCodigo().endsWith("_melee")) {
+                    ataqueCC = ataque;
+                    // Establecer tipo para futuras búsquedas
+                    ataqueCC.setTipo("ACC");
+                    break;
+                }
+            }
+        }
+        
         if (ataqueCC != null) {
             meleeAttackButton.setText(ataqueCC.getNombre());
             meleeAttackButton.setDisable(!ataqueCC.estaDisponible());
+            System.out.println("Botón melee actualizado: " + ataqueCC.getNombre());
+        } else {
+            meleeAttackButton.setText("Ataque melee");
+            System.out.println("¡ADVERTENCIA! No se encontró ataque melee");
         }
+        
+        // 2) ATAQUE A DISTANCIA - similar al melee
         AtaqueModel ataqueAD = character.getAtaquePorTipo("AAD");
+        if (ataqueAD == null) {
+            for (AtaqueModel ataque : ataques) {
+                if (ataque.getCodigo() != null && ataque.getCodigo().endsWith("_range")) {
+                    ataqueAD = ataque;
+                    ataqueAD.setTipo("AAD");
+                    break;
+                }
+            }
+        }
+        
         if (ataqueAD != null) {
             rangedAttackButton.setText(ataqueAD.getNombre());
             rangedAttackButton.setDisable(!ataqueAD.estaDisponible());
+            System.out.println("Botón ranged actualizado: " + ataqueAD.getNombre());
+        } else {
+            rangedAttackButton.setText("Ataque a distancia");
+            System.out.println("¡ADVERTENCIA! No se encontró ataque a distancia");
         }
-
-        // 2) Botones de habilidad: confiar en AbilityManager
-        CombatManager manager = (CombatManager) rootPane.getUserData();
-        AbilityManager am = manager.getAbilityManager();
-        String code = character.getNombreCodigo();
-
-        // Habilidad 1
-        String hab1Text = character.getHabilidad1Nombre();
-        ability1Button.setText(
-            (hab1Text == null || hab1Text.isEmpty()) ? "Habilidad 1" : hab1Text
-        );
-        ability1Button.setDisable(!am.canUse(code + "_hab1"));
-
-        // Habilidad 2
-        String hab2Text = character.getHabilidad2Nombre();
-        ability2Button.setText(
-            (hab2Text == null || hab2Text.isEmpty()) ? "Habilidad 2" : hab2Text
-        );
-        ability2Button.setDisable(!am.canUse(code + "_hab2"));
+        
+        // 3) HABILIDAD 1 - buscar por tipo y luego por código
+        AtaqueModel hab1 = character.getAtaquePorTipo("habilidad_mas_poderosa");
+        if (hab1 == null) {
+            for (AtaqueModel ataque : ataques) {
+                if (ataque.getCodigo() != null && ataque.getCodigo().endsWith("_hab1")) {
+                    hab1 = ataque;
+                    hab1.setTipo("habilidad_mas_poderosa");
+                    break;
+                }
+            }
+        }
+        
+        if (hab1 != null) {
+            ability1Button.setText(hab1.getNombre());
+            ability1Button.setDisable(!hab1.estaDisponible());
+            System.out.println("Botón habilidad 1 actualizado: " + hab1.getNombre());
+        } else {
+            ability1Button.setText("Habilidad 1");
+            System.out.println("¡ADVERTENCIA! No se encontró habilidad 1");
+        }
+        
+        // 4) HABILIDAD 2 - similar a habilidad 1
+        AtaqueModel hab2 = character.getAtaquePorTipo("habilidad_caracteristica");
+        if (hab2 == null) {
+            for (AtaqueModel ataque : ataques) {
+                if (ataque.getCodigo() != null && ataque.getCodigo().endsWith("_hab2")) {
+                    hab2 = ataque;
+                    hab2.setTipo("habilidad_caracteristica");
+                    break;
+                }
+            }
+        }
+        
+        if (hab2 != null) {
+            ability2Button.setText(hab2.getNombre());
+            ability2Button.setDisable(!hab2.estaDisponible());
+            System.out.println("Botón habilidad 2 actualizado: " + hab2.getNombre());
+        } else {
+            ability2Button.setText("Habilidad 2");
+            System.out.println("¡ADVERTENCIA! No se encontró habilidad 2");
+        }
+        
+        // Forzar una actualización visual para garantizar que se vean los cambios
+        meleeAttackButton.applyCss();
+        rangedAttackButton.applyCss();
+        ability1Button.applyCss();
+        ability2Button.applyCss();
+    }
+    
+    /**
+     * Ejecutar este método para forzar la carga correcta de los nombres de ataques
+     */
+    private void forzarCargaNombresAtaques() {
+        PersonajeModel playerCharacter = getCurrentPlayerCharacter();
+        if (playerCharacter != null) {
+            System.out.println("\n=== FORZANDO CARGA DE ATAQUES PARA: " + playerCharacter.getNombre() + " ===");
+            
+            // 1) ATAQUE MELEE - buscar tanto por tipo como por código
+            AtaqueModel ataqueCC = null;
+            // Primero intentar por tipo
+            ataqueCC = playerCharacter.getAtaquePorTipo("ACC");
+            if (ataqueCC == null) {
+                // Luego intentar buscar por tipoAtaqueClave
+                for (AtaqueModel ataque : playerCharacter.getAtaques()) {
+                    if ("ACC".equals(ataque.getTipoAtaqueClave())) {
+                        ataqueCC = ataque;
+                        ataque.setTipo("ACC"); // Corregir el tipo para futuras búsquedas
+                        break;
+                    }
+                }
+            }
+            // Si aún no se encuentra, buscar por código
+            if (ataqueCC == null) {
+                for (AtaqueModel ataque : playerCharacter.getAtaques()) {
+                    if (ataque.getCodigo() != null && ataque.getCodigo().endsWith("_melee")) {
+                        ataqueCC = ataque;
+                        ataque.setTipo("ACC"); // Corregir el tipo
+                        break;
+                    }
+                }
+            }
+            
+            if (ataqueCC != null) {
+                System.out.println("Melee encontrado: " + ataqueCC.getNombre());
+                meleeAttackButton.setText(ataqueCC.getNombre());
+                meleeAttackButton.setDisable(false);
+            } else {
+                System.out.println("ERROR: No se encontró ataque melee por ningún método");
+                meleeAttackButton.setText("Ataque básico");
+            }
+            
+            // 2) ATAQUE A DISTANCIA - igual que el melee
+            AtaqueModel ataqueAD = null;
+            // Primero intentar por tipo
+            ataqueAD = playerCharacter.getAtaquePorTipo("AAD");
+            if (ataqueAD == null) {
+                // Luego intentar buscar por tipoAtaqueClave
+                for (AtaqueModel ataque : playerCharacter.getAtaques()) {
+                    if ("AAD".equals(ataque.getTipoAtaqueClave())) {
+                        ataqueAD = ataque;
+                        ataque.setTipo("AAD"); // Corregir el tipo para futuras búsquedas
+                        break;
+                    }
+                }
+            }
+            // Si aún no se encuentra, buscar por código
+            if (ataqueAD == null) {
+                for (AtaqueModel ataque : playerCharacter.getAtaques()) {
+                    if (ataque.getCodigo() != null && ataque.getCodigo().endsWith("_range")) {
+                        ataqueAD = ataque;
+                        ataque.setTipo("AAD"); // Corregir el tipo
+                        break;
+                    }
+                }
+            }
+            
+            if (ataqueAD != null) {
+                System.out.println("Ranged encontrado: " + ataqueAD.getNombre());
+                rangedAttackButton.setText(ataqueAD.getNombre());
+                rangedAttackButton.setDisable(false);
+            } else {
+                System.out.println("ERROR: No se encontró ataque a distancia por ningún método");
+                rangedAttackButton.setText("Ataque distancia");
+            }
+            
+            // 3) HABILIDAD 1
+            AtaqueModel hab1 = null;
+            // Primero intentar por tipo
+            hab1 = playerCharacter.getAtaquePorTipo("habilidad_mas_poderosa");
+            if (hab1 == null) {
+                // Luego intentar buscar por tipoAtaqueClave
+                for (AtaqueModel ataque : playerCharacter.getAtaques()) {
+                    if ("habilidad_mas_poderosa".equals(ataque.getTipoAtaqueClave())) {
+                        hab1 = ataque;
+                        ataque.setTipo("habilidad_mas_poderosa");
+                        break;
+                    }
+                }
+            }
+            // Si aún no se encuentra, buscar por código
+            if (hab1 == null) {
+                for (AtaqueModel ataque : playerCharacter.getAtaques()) {
+                    if (ataque.getCodigo() != null && ataque.getCodigo().endsWith("_hab1")) {
+                        hab1 = ataque;
+                        ataque.setTipo("habilidad_mas_poderosa");
+                        break;
+                    }
+                }
+            }
+            
+            if (hab1 != null) {
+                System.out.println("Habilidad 1 encontrada: " + hab1.getNombre());
+                ability1Button.setText(hab1.getNombre());
+                ability1Button.setDisable(false);
+            } else {
+                System.out.println("ERROR: No se encontró habilidad 1 por ningún método");
+                ability1Button.setText("Habilidad 1");
+            }
+            
+            // 4) HABILIDAD 2
+            AtaqueModel hab2 = null;
+            // Primero intentar por tipo
+            hab2 = playerCharacter.getAtaquePorTipo("habilidad_caracteristica");
+            if (hab2 == null) {
+                // Luego intentar buscar por tipoAtaqueClave
+                for (AtaqueModel ataque : playerCharacter.getAtaques()) {
+                    if ("habilidad_caracteristica".equals(ataque.getTipoAtaqueClave())) {
+                        hab2 = ataque;
+                        ataque.setTipo("habilidad_caracteristica");
+                        break;
+                    }
+                }
+            }
+            // Si aún no se encuentra, buscar por código
+            if (hab2 == null) {
+                for (AtaqueModel ataque : playerCharacter.getAtaques()) {
+                    if (ataque.getCodigo() != null && ataque.getCodigo().endsWith("_hab2")) {
+                        hab2 = ataque;
+                        ataque.setTipo("habilidad_caracteristica");
+                        break;
+                    }
+                }
+            }
+            
+            if (hab2 != null) {
+                System.out.println("Habilidad 2 encontrada: " + hab2.getNombre());
+                ability2Button.setText(hab2.getNombre());
+                ability2Button.setDisable(false);
+            } else {
+                System.out.println("ERROR: No se encontró habilidad 2 por ningún método");
+                ability2Button.setText("Habilidad 2");
+            }
+            
+            // Información adicional de diagnóstico
+            System.out.println("\nListado de todos los ataques:");
+            for (AtaqueModel ataque : playerCharacter.getAtaques()) {
+                System.out.println(String.format(
+                    "Ataque: %s, Tipo: %s, Código: %s, TipoAtaqueClave: %s", 
+                    ataque.getNombre(), 
+                    ataque.getTipo(), 
+                    ataque.getCodigo(),
+                    ataque.getTipoAtaqueClave()
+                ));
+            }
+            
+            // Forzar actualización visual
+            meleeAttackButton.applyCss();
+            rangedAttackButton.applyCss();
+            ability1Button.applyCss();
+            ability2Button.applyCss();
+            
+            System.out.println("=== FIN DE FORZADO DE CARGA ===\n");
+        } else {
+            System.err.println("ERROR: No se pudo obtener el personaje actual para forzar la carga de ataques");
+        }
+    }
+    
+    public void showAttackOptions() {
+        attackContainer.setVisible(true);
+        // No deshabilitar el botón de atacar, para permitir cerrarlo
+        attackButton.setText("Cancelar");
+        changeButton.setDisable(true);
+        backButton.setDisable(true);
+        
+        // Obtener personaje actual
+        PersonajeModel playerCharacter = getCurrentPlayerCharacter();
+        if (playerCharacter == null) {
+            System.err.println("Error: No se pudo obtener el personaje actual");
+            return;
+        }
+        
+        System.out.println("Mostrando opciones para: " + playerCharacter.getNombre());
+        
+        // FORZAR habilitación de todos los botones de ataque primero
+        meleeAttackButton.setDisable(false);
+        rangedAttackButton.setDisable(false);
+        ability1Button.setDisable(false);
+        ability2Button.setDisable(false);
+        
+        // USAR NUESTRO NUEVO MÉTODO DE DIAGNÓSTICO Y CARGA FORZADA
+        forzarCargaNombresAtaques();
+        
+        // Establecer manejadores de eventos si no se hizo antes
+        if (meleeAttackButton.getOnAction() == null) {
+            setupEventHandlers();
+        }
+        
+        // Forzar traer el contenedor al frente
+        attackContainer.toFront();
+    }
+    
+    public void hideAttackOptions() {
+        attackContainer.setVisible(false);
+        attackButton.setText("Atacar");
+        attackButton.setDisable(false);
+        changeButton.setDisable(false);
+        backButton.setDisable(false);
+        
+        System.out.println("Opciones de ataque ocultadas");
     }
     
     public void showCharacterSelection(CombatManager manager) {
@@ -624,17 +921,16 @@ public class CombatUIManager {
     public void enablePlayerControls() {
         // Forzar actualización en el hilo de UI
         Platform.runLater(() -> {
+            // Ocultar menú de ataques si estuviera visible
+            attackContainer.setVisible(false);
+            
+            // Restaurar texto original del botón de atacar
+            attackButton.setText("Atacar");
+            
             // Habilitar los botones principales
             attackButton.setDisable(false);
             changeButton.setDisable(false);
             backButton.setDisable(false);
-            
-            // Mantener los botones de ataque deshabilitados hasta que se presione el botón de atacar
-            attackContainer.setVisible(false);
-            
-            // Asegurarnos de que todos los botones de ataque están listos para usarse
-            meleeAttackButton.setDisable(false);
-            rangedAttackButton.setDisable(false);
             
             // Actualizar estado de botones de habilidad según disponibilidad
             PersonajeModel playerCharacter = getCurrentPlayerCharacter();
@@ -661,42 +957,6 @@ public class CombatUIManager {
             // Log para diagnosticar
             System.out.println("Controles del jugador habilitados");
         });
-    }
-    
-    /**
-     * Muestra las opciones de ataque y prepara los botones
-     */
-    public void showAttackOptions() {
-        // Primero verificar que es el turno del jugador
-        if (rootPane.getUserData() instanceof CombatManager) {
-            CombatManager manager = (CombatManager) rootPane.getUserData();
-            if (!manager.getTurnManager().isPlayerTurn()) {
-                return; // No mostrar opciones si no es el turno del jugador
-            }
-        }
-        
-        attackContainer.setVisible(true);
-        attackButton.setDisable(true);
-        changeButton.setDisable(true);
-        backButton.setDisable(true);
-        
-        // Asegurarnos de habilitar los botones de ataque
-        meleeAttackButton.setDisable(false);
-        rangedAttackButton.setDisable(false);
-        
-        // Verificar disponibilidad con AbilityManager
-        CombatManager manager = (CombatManager) rootPane.getUserData();
-        AbilityManager am = manager.getAbilityManager();
-        PersonajeModel playerCharacter = getCurrentPlayerCharacter();
-        String code = playerCharacter.getNombreCodigo();
-
-        // Habilidad 1
-        boolean hab1Usable = am.canUse(code + "_hab1");
-        ability1Button.setDisable(!hab1Usable);
-
-        // Habilidad 2
-        boolean hab2Usable = am.canUse(code + "_hab2");
-        ability2Button.setDisable(!hab2Usable);
     }
     
     // Getters para acceder a los botones y conectarlos con los event handlers
@@ -863,5 +1123,32 @@ public class CombatUIManager {
             System.err.println("Error obteniendo el índice del personaje IA: " + e.getMessage());
             return 0;
         }
+    }
+
+    // Añadir este método para depuración
+
+    private void diagnosticoAtaques(PersonajeModel character) {
+        System.out.println("\n=== DIAGNÓSTICO DE ATAQUES ===");
+        System.out.println("Personaje: " + character.getNombre() + " (" + character.getNombreCodigo() + ")");
+        
+        System.out.println("Ataques disponibles:");
+        for (AtaqueModel ataque : character.getAtaques()) {
+            System.out.println(" - " + ataque.getNombre() + " (Tipo: " + ataque.getTipo() + ", Código: " + ataque.getCodigo() + ")");
+        }
+        
+        System.out.println("Búsqueda por tipo:");
+        System.out.println(" - ACC: " + (character.getAtaquePorTipo("ACC") != null ? character.getAtaquePorTipo("ACC").getNombre() : "null"));
+        System.out.println(" - AAD: " + (character.getAtaquePorTipo("AAD") != null ? character.getAtaquePorTipo("AAD").getNombre() : "null"));
+        System.out.println(" - habilidad_mas_poderosa: " + (character.getAtaquePorTipo("habilidad_mas_poderosa") != null ? 
+                                   character.getAtaquePorTipo("habilidad_mas_poderosa").getNombre() : "null"));
+        System.out.println(" - habilidad_caracteristica: " + (character.getAtaquePorTipo("habilidad_caracteristica") != null ? 
+                                   character.getAtaquePorTipo("habilidad_caracteristica").getNombre() : "null"));
+        
+        System.out.println("Estado de botones:");
+        System.out.println(" - meleeAttackButton: " + meleeAttackButton.getText() + " (Disabled: " + meleeAttackButton.isDisabled() + ")");
+        System.out.println(" - rangedAttackButton: " + rangedAttackButton.getText() + " (Disabled: " + rangedAttackButton.isDisabled() + ")");
+        System.out.println(" - ability1Button: " + ability1Button.getText() + " (Disabled: " + ability1Button.isDisabled() + ")");
+        System.out.println(" - ability2Button: " + ability2Button.getText() + " (Disabled: " + ability2Button.isDisabled() + ")");
+        System.out.println("===========================\n");
     }
 }

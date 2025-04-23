@@ -51,12 +51,14 @@ CREATE TABLE ataque (
   id               INTEGER PRIMARY KEY AUTOINCREMENT,
   personaje_id     INTEGER NOT NULL REFERENCES personaje(id) ON DELETE CASCADE,
   tipo_ataque_id   INTEGER NOT NULL REFERENCES tipo_ataque(id),
+  codigo           TEXT    NOT NULL,  -- Nuevo campo: código único para identificar la habilidad
   nombre           TEXT    NOT NULL,
   dano_base        INTEGER NOT NULL,
   usos_maximos     INTEGER NOT NULL DEFAULT 0,   -- 0 = ilimitado
   cooldown_turnos  INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX idx_ataque_personaje ON ataque(personaje_id);
+CREATE INDEX idx_ataque_codigo ON ataque(codigo);  -- Nuevo índice
 
 -- 5) Pasivas (habilidades automáticas)
 CREATE TABLE pasiva (

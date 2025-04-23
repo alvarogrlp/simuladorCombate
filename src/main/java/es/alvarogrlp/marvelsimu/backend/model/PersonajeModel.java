@@ -50,6 +50,89 @@ public class PersonajeModel {
     }
     
     /**
+     * Añade un ataque al personaje
+     * @param ataque El ataque a añadir
+     */
+    public void addAtaque(AtaqueModel ataque) {
+        if (this.ataques == null) {
+            this.ataques = new ArrayList<>();
+        }
+        this.ataques.add(ataque);
+    }
+    
+    /**
+     * Obtiene todos los ataques del personaje
+     * @return Lista de ataques
+     */
+    public List<AtaqueModel> getAtaques() {
+        return ataques;
+    }
+    
+    /**
+     * Obtiene un ataque por su tipo (ACC, AAD, etc.)
+     * @param tipo El tipo de ataque a buscar
+     * @return El ataque correspondiente o null si no se encuentra
+     */
+    public AtaqueModel getAtaquePorTipo(String tipo) {
+        if (ataques == null) return null;
+        
+        for (AtaqueModel ataque : ataques) {
+            if (tipo.equals(ataque.getTipo()) || tipo.equals(ataque.getTipoAtaqueClave())) {
+                return ataque;
+            }
+        }
+        
+        // Si no se encuentra por tipo, intentar buscar por el código (fallback)
+        if (tipo.equals("ACC")) {
+            for (AtaqueModel ataque : ataques) {
+                if (ataque.getCodigo() != null && ataque.getCodigo().contains("_melee")) {
+                    ataque.setTipo(tipo); // Corregir el tipo
+                    return ataque;
+                }
+            }
+        } else if (tipo.equals("AAD")) {
+            for (AtaqueModel ataque : ataques) {
+                if (ataque.getCodigo() != null && ataque.getCodigo().contains("_range")) {
+                    ataque.setTipo(tipo); // Corregir el tipo
+                    return ataque;
+                }
+            }
+        } else if (tipo.equals("habilidad_mas_poderosa")) {
+            for (AtaqueModel ataque : ataques) {
+                if (ataque.getCodigo() != null && ataque.getCodigo().contains("_hab1")) {
+                    ataque.setTipo(tipo); // Corregir el tipo
+                    return ataque;
+                }
+            }
+        } else if (tipo.equals("habilidad_caracteristica")) {
+            for (AtaqueModel ataque : ataques) {
+                if (ataque.getCodigo() != null && ataque.getCodigo().contains("_hab2")) {
+                    ataque.setTipo(tipo); // Corregir el tipo
+                    return ataque;
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Obtiene un ataque por su código
+     * @param codigo El código del ataque a buscar
+     * @return El ataque correspondiente o null si no se encuentra
+     */
+    public AtaqueModel getAtaquePorCodigo(String codigo) {
+        if (ataques == null) return null;
+        
+        for (AtaqueModel ataque : ataques) {
+            if (codigo.equals(ataque.getCodigo())) {
+                return ataque;
+            }
+        }
+        return null;
+    }
+    
+    /**
      * Inicializa la vida del personaje al máximo y resetea el estado de combate
      */
     public void inicializarVida() {
@@ -171,18 +254,6 @@ public class PersonajeModel {
         }
         
         return vidaActual;
-    }
-    
-    /**
-     * Obtiene un ataque específico por su tipo
-     */
-    public AtaqueModel getAtaquePorTipo(String tipoAtaque) {
-        for (AtaqueModel ataque : ataques) {
-            if (ataque.getTipoAtaqueClave().equals(tipoAtaque)) {
-                return ataque;
-            }
-        }
-        return null;
     }
     
     /**
@@ -376,10 +447,11 @@ public class PersonajeModel {
     }
     
     public void setVidaActual(int vidaActual) {
-        this.vidaActual = vidaActual;
+        // Asegurar que vida no sea negativa
+        this.vidaActual = Math.max(0, vidaActual);
         
         // Actualizar estado de derrotado si la vida llega a 0
-        if (vidaActual <= 0) {
+        if (this.vidaActual <= 0) {
             this.derrotado = true;
         }
     }
@@ -392,14 +464,14 @@ public class PersonajeModel {
         this.derrotado = derrotado;
     }
     
-    public List<AtaqueModel> getAtaques() {
-        return ataques;
-    }
-    
     public void setAtaques(List<AtaqueModel> ataques) {
         this.ataques = ataques;
     }
     
+    /**
+     * Obtiene las pasivas del personaje
+     * @return Lista de pasivas
+     */
     public List<PasivaModel> getPasivas() {
         return pasivas;
     }
