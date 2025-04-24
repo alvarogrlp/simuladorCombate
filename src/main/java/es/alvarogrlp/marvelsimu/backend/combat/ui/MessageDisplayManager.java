@@ -40,6 +40,7 @@ public class MessageDisplayManager {
     private static final int SHORT_DISPLAY_TIME = 1800;    // Aumentado de 1000 a 1800
     private static final int LONG_DISPLAY_TIME = 3500;     // Aumentado de 2500 a 3500
     private static final int EFFECT_DISPLAY_TIME = 2200;   // Nuevo tiempo para mensajes de efectos
+    private static final int TURN_DISPLAY_TIME = 1200;     // Tiempo reducido específico para mensajes de turno
     
     // Clase interna para entradas en la cola
     private class MessageEntry {
@@ -153,6 +154,14 @@ public class MessageDisplayManager {
             case WARNING:
                 messageText.setFill(Color.RED);
                 break;
+            case TURN_CHANGE:  // Nuevo tipo para mensajes de turno
+                messageText.setFont(Font.font("System", FontWeight.BOLD, 22));
+                if (isPlayerAction) {
+                    messageText.setFill(Color.LIGHTBLUE);
+                } else {
+                    messageText.setFill(Color.LIGHTCORAL);
+                }
+                break;
             default:
                 break;
         }
@@ -168,6 +177,9 @@ public class MessageDisplayManager {
             case DEFEAT:
                 displayTime = LONG_DISPLAY_TIME;
                 break;
+            case TURN_CHANGE:  // Tiempo reducido para mensajes de turno
+                displayTime = TURN_DISPLAY_TIME;
+                break;
             case EVASION:
             case REDUCTION:
                 displayTime = SHORT_DISPLAY_TIME;
@@ -181,6 +193,23 @@ public class MessageDisplayManager {
         
         // Encolar el mensaje
         enqueueMessage(messageText, isPlayerAction, displayTime, onComplete);
+    }
+    
+    /**
+     * Método específico para mostrar mensajes de cambio de turno con duración más corta
+     */
+    public void displayTurnMessage(boolean isPlayerTurn, Runnable onComplete) {
+        String message = isPlayerTurn ? "¡TU TURNO!" : "TURNO DEL OPONENTE";
+        
+        Text messageText = new Text(message);
+        messageText.setFill(isPlayerTurn ? Color.LIGHTBLUE : Color.LIGHTCORAL);
+        messageText.setFont(Font.font("System", FontWeight.BOLD, 22));
+        messageText.setTextAlignment(TextAlignment.CENTER);
+        messageText.setStroke(Color.BLACK);
+        messageText.setStrokeWidth(0.5);
+        
+        // Usar tiempo más corto para mensajes de turno
+        enqueueMessage(messageText, isPlayerTurn, TURN_DISPLAY_TIME, onComplete);
     }
     
     /**

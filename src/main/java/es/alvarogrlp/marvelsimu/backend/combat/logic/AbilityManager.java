@@ -2,28 +2,36 @@ package es.alvarogrlp.marvelsimu.backend.combat.logic;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 import es.alvarogrlp.marvelsimu.backend.combat.model.CombatMessage;
+import es.alvarogrlp.marvelsimu.backend.combat.model.Stat;
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
 
 public class AbilityManager {
-
-    // Mapa de disponibilidad de habilidades
-    private Map<String,Integer> usesRemaining = new HashMap<>();
-    private Map<String,Integer> cdRemaining = new HashMap<>();
-    
-    // Mapa de manejadores de habilidades
-    private Map<String, AbilityHandler> abilityHandlers = new HashMap<>();
     
     private final CombatManager combatManager;
-
+    private final Map<String, BiFunction<PersonajeModel, PersonajeModel, CombatMessage>> abilityHandlers;
+    private final Map<String, Integer> cdRemaining;
+    private final Map<String, Integer> maxUses;
+    private final Map<String, Integer> usesRemaining;
+    
+    // Mapa para transformaciones (sin usar StatModifier que causa el error)
+    private Map<PersonajeModel, PersonajeModel> originalFormMap = new HashMap<>();
+    private Map<PersonajeModel, Integer> originalHealthMap = new HashMap<>();
+    
     public AbilityManager(CombatManager combatManager) {
         this.combatManager = combatManager;
-        initAvailability();
+        this.abilityHandlers = new HashMap<>();
+        this.cdRemaining = new HashMap<>();
+        this.maxUses = new HashMap<>();
+        this.usesRemaining = new HashMap<>();
+        
         registerAbilityHandlers();
+        initializeAbilityCooldowns();
     }
-
-    private void initAvailability() {
+    
+    private void initializeAbilityCooldowns() {
         // Habilidades existentes
         usesRemaining.put("magik_hab1", 1); cdRemaining.put("magik_hab1", 0);
         usesRemaining.put("magik_hab2", 1); cdRemaining.put("magik_hab2", 0);
@@ -48,6 +56,8 @@ public class AbilityManager {
         // Thanos
         usesRemaining.put("thanos_hab1", 1); cdRemaining.put("thanos_hab1", 0); 
         usesRemaining.put("thanos_hab2", 1); cdRemaining.put("thanos_hab2", 0);
+        usesRemaining.put("thanos_gauntlet_hab1", 1); cdRemaining.put("thanos_gauntlet_hab1", 0);
+        usesRemaining.put("thanos_gauntlet_hab2", 1); cdRemaining.put("thanos_gauntlet_hab2", 0);
         
         // Wolverine
         usesRemaining.put("wolverine_hab1", 1); cdRemaining.put("wolverine_hab1", 0);
@@ -95,494 +105,555 @@ public class AbilityManager {
     }
     
     private void registerAbilityHandlers() {
-        // Habilidades existentes
-        // Magik, Doctor Doom, Iron Man...
-        
-        // Añadir todas las habilidades faltantes
-        
-        // === Spider-Man ===
-        abilityHandlers.put("spider_man_hab1", (attacker, defender) -> {
-            String key = "spider_man_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Telaraña Inmovilizadora");
-            }
+        abilityHandlers.clear();
+
+        // === MAGIK (Forma Base) ===
+        abilityHandlers.put("magik_hab1", (attacker, defender) -> {
+            String key = "magik_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Darkchild Rising");
             consume(key);
+
+            // Transformarse en Darkchild durante 2 turnos:
+            // Crear directamente un nuevo personaje con las estadísticas de Darkchild
+            PersonajeModel darkchild = new PersonajeModel();
+            darkchild.setNombre("Magik (Darkchild)");
+            darkchild.setVida(4500);
+            darkchild.setFuerza(3500);
+            darkchild.setVelocidad(3000);
+            darkchild.setPoder(18000);
             
-            // Habilidad: Telaraña inmovilizadora (restringe al oponente a ataques básicos por 2 turnos)
-            combatManager.restrictToBasicAttacks(defender, 2);
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Telaraña Inmovilizadora - ¡Enemigo atrapado por 2 turnos!", true);
+            // Usar nuestra implementación applyTransformation
+            applyTransformation(attacker, darkchild, 2);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Darkchild Rising - ¡Magik se transforma en la reina del Limbo!", true);
         });
-        
-        abilityHandlers.put("spider_man_hab2", (attacker, defender) -> {
-            String key = "spider_man_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Sentido Arácnido");
-            }
+
+        // === THANOS (Sin Guantelete) ===
+        // Ya implementadas correctamente
+
+        // === THANOS (Guantelete) ===
+        abilityHandlers.put("thanos_gauntlet_hab1", (attacker, defender) -> {
+            String key = "thanos_gauntlet_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Chasquido del Infinito");
             consume(key);
+
+            // Elimina instantáneamente al enemigo
+            defender.setVidaActual(0);
             
-            // Habilidad: Sentido arácnido (esquiva el próximo ataque)
-            combatManager.applyDamageReduction(attacker, 1.0, 1); // 100% reducción por 1 turno
+            // Vuelve a su forma sin guantelete, creando un nuevo personaje con los stats de Thanos normal
+            PersonajeModel thanosNormal = new PersonajeModel();
+            thanosNormal.setNombre("Thanos");
+            thanosNormal.setVida(8000);
+            thanosNormal.setFuerza(5000);
+            thanosNormal.setVelocidad(1500);
+            thanosNormal.setPoder(5500);
             
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Sentido Arácnido - ¡Próximo ataque esquivado!", true);
+            // Usar nuestra implementación applyTransformation
+            applyTransformation(attacker, thanosNormal, 999); // Permanentemente
+            
+            // Daña a Thanos con el 70% de su vida actual
+            int damageToSelf = (int)(attacker.getVidaActual() * 0.7);
+            attacker.setVidaActual(attacker.getVidaActual() - damageToSelf);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Chasquido del Infinito - ¡El universo se reordena a voluntad de Thanos!", true);
         });
-        
-        // === Silver Surfer ===
-        abilityHandlers.put("silver_surfer_hab1", (attacker, defender) -> {
-            String key = "silver_surfer_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Explosión Cósmica");
-            }
+
+        abilityHandlers.put("thanos_gauntlet_hab2", (attacker, defender) -> {
+            String key = "thanos_gauntlet_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Voluntad de Thanos");
             consume(key);
-            
-            // Explosión Cósmica - Gran daño basado en poder
-            int damage = Math.max(3000, attacker.getPoder() / 3);
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Explosión Cósmica - ¡Devastación del poder cósmico!", true);
+
+            // Durante 3 turnos: 50% menos daño recibido y 25% más daño causado
+            combatManager.applyDamageReduction(attacker, 0.5, 3);
+            combatManager.applyDamageBoost(attacker, 0.25, 3);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Voluntad de Thanos - ¡El Guantelete potencia al Titán!", true);
         });
-        
-        abilityHandlers.put("silver_surfer_hab2", (attacker, defender) -> {
-            String key = "silver_surfer_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Viaje Espacial");
-            }
-            consume(key);
-            
-            // Saltar el siguiente turno del enemigo
-            combatManager.skipEnemyTurns(1);
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Viaje Espacial - ¡Demasiado rápido para ser visto!", true);
-        });
-        
-        // === Doctor Strange ===
-        abilityHandlers.put("doctor_strange_hab1", (attacker, defender) -> {
-            String key = "doctor_strange_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Bandas de Cyttorak");
-            }
-            consume(key);
-            
-            // Bandas de Cyttorak - Restringir al enemigo y causar daño
-            combatManager.restrictToBasicAttacks(defender, 2);
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 1500));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Bandas de Cyttorak - ¡El enemigo ha sido inmovilizado!", true);
-        });
-        
-        abilityHandlers.put("doctor_strange_hab2", (attacker, defender) -> {
-            String key = "doctor_strange_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Ojo de Agamotto");
-            }
-            consume(key);
-            
-            // Curación y protección
-            attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + 2000));
-            combatManager.applyDamageReduction(attacker, 0.5, 2); // 50% reducción por 2 turnos
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Ojo de Agamotto - Tiempo manipulado para curar heridas", true);
-        });
-        
-        // === Thanos ===
-        abilityHandlers.put("thanos_hab1", (attacker, defender) -> {
-            String key = "thanos_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Chasquido");
-            }
-            consume(key);
-            
-            // Chasquido - 50% de la vida actual
-            int currentHealth = defender.getVidaActual();
-            int damage = currentHealth / 2;
-            defender.setVidaActual(currentHealth - damage);
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Chasquido - Perfectamente equilibrado, como todo debería ser", true);
-        });
-        
-        abilityHandlers.put("thanos_hab2", (attacker, defender) -> {
-            String key = "thanos_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Lluvia de meteoros");
-            }
-            consume(key);
-            
-            // Lluvia de meteoros - Daño masivo
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 3000));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Lluvia de meteoros - ¡El cielo se desploma!", true);
-        });
-        
-        // === Wolverine ===
-        abilityHandlers.put("wolverine_hab1", (attacker, defender) -> {
-            String key = "wolverine_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Furia Berserker");
-            }
-            consume(key);
-            
-            // Furia Berserker - Aumento de daño por 2 turnos
-            combatManager.applyDamageBoost(attacker, 0.5, 2); // +50% daño por 2 turnos
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Furia Berserker - ¡La bestia interior desatada!", true);
-        });
-        
-        abilityHandlers.put("wolverine_hab2", (attacker, defender) -> {
-            String key = "wolverine_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Factor Curativo");
-            }
-            consume(key);
-            
-            // Factor Curativo - Regeneración masiva
-            int healAmount = attacker.getVida() / 3;
-            attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + healAmount));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Factor Curativo - ¡Heridas regeneradas!", true);
-        });
-        
-        // === Captain America ===
-        abilityHandlers.put("captain_america_hab1", (attacker, defender) -> {
-            String key = "captain_america_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Escudo Indestructible");
-            }
-            consume(key);
-            
-            // Escudo Indestructible - Reduce daño y refleja parte
-            combatManager.applyDamageReduction(attacker, 0.75, 2); // Muestra mensaje de reducción
-            combatManager.applyDamageReflection(attacker, 0.3, 2); // Muestra mensaje de reflejo
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Escudo Indestructible - ¡Defensa impenetrable!", true);
-        });
-        
-        abilityHandlers.put("captain_america_hab2", (attacker, defender) -> {
-            String key = "captain_america_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Lanzamiento Perfecto");
-            }
-            consume(key);
-            
-            // Lanzamiento Perfecto - Daño certero
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 2000));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Lanzamiento Perfecto - ¡El escudo siempre vuelve!", true);
-        });
-        
-        // === Hulk ===
-        abilityHandlers.put("hulk_hab1", (attacker, defender) -> {
-            String key = "hulk_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Aplastamiento");
-            }
-            consume(key);
-            
-            // Aplastamiento - Daño basado en fuerza
-            int damage = Math.max(2500, attacker.getFuerza() * 2);
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Aplastamiento - ¡HULK APLASTA!", true);
-        });
-        
-        abilityHandlers.put("hulk_hab2", (attacker, defender) -> {
-            String key = "hulk_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Ira Incontenible");
-            }
-            consume(key);
-            
-            // Ira Incontenible - Aumento masivo de stats
-            attacker.setFuerza(attacker.getFuerza() + 500);
-            attacker.setPoder(attacker.getPoder() + 300);
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Ira Incontenible - ¡HULK SE ENFADA MÁS!", true);
-        });
-        
-        // === Thor ===
-        abilityHandlers.put("thor_hab1", (attacker, defender) -> {
-            String key = "thor_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Mjolnir Golpe Divino");
-            }
-            consume(key);
-            
-            // Mjolnir Golpe Divino - Daño masivo
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 3000));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Mjolnir Golpe Divino - ¡Por Asgard!", true);
-        });
-        
-        abilityHandlers.put("thor_hab2", (attacker, defender) -> {
-            String key = "thor_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Tormenta de Relámpagos");
-            }
-            consume(key);
-            
-            // Tormenta de Relámpagos - Varios impactos
-            for (int i = 0; i < 3; i++) {
-                defender.setVidaActual(Math.max(0, defender.getVidaActual() - 800));
-            }
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Tormenta de Relámpagos - ¡El poder del trueno!", true);
-        });
-        
-        // === Black Widow ===
-        abilityHandlers.put("black_widow_hab1", (attacker, defender) -> {
-            String key = "black_widow_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Mordida de la Viuda");
-            }
-            consume(key);
-            
-            // Mordida de la Viuda - Daño y debilitamiento
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 1500));
-            defender.setFuerza((int)(defender.getFuerza() * 0.8)); // 20% reducción de fuerza
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Mordida de la Viuda - ¡Golpe preciso al punto débil!", true);
-        });
-        
-        abilityHandlers.put("black_widow_hab2", (attacker, defender) -> {
-            String key = "black_widow_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Descarga Eléctrica");
-            }
-            consume(key);
-            
-            // Descarga Eléctrica - Aturdir al enemigo (salta el próximo turno)
-            combatManager.skipEnemyTurns(1);
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 1000));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Descarga Eléctrica - ¡Enemigo aturdido!", true);
-        });
-        
-        // === Captain Marvel ===
-        abilityHandlers.put("captain_marvel_hab1", (attacker, defender) -> {
-            String key = "captain_marvel_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Rayo Fotónico");
-            }
-            consume(key);
-            
-            // Rayo Fotónico - Daño masivo basado en poder
-            int damage = Math.max(2500, attacker.getPoder() / 3 * 2);
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Rayo Fotónico - ¡Energía cósmica pura!", true);
-        });
-        
-        abilityHandlers.put("captain_marvel_hab2", (attacker, defender) -> {
-            String key = "captain_marvel_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Absorción de Energía");
-            }
-            consume(key);
-            
-            // Absorción de Energía - Aumenta estadísticas
-            attacker.setPoder(attacker.getPoder() + 500);
-            attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + 1500));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Absorción de Energía - ¡Poder incrementado!", true);
-        });
-        
-        // === Black Panther ===
-        abilityHandlers.put("black_panther_hab1", (attacker, defender) -> {
-            String key = "black_panther_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Absorción Kinética");
-            }
-            consume(key);
-            
-            // Absorción Kinética - Resistencia y contraataque
-            combatManager.applyDamageReduction(attacker, 0.5, 2); // 50% reducción
-            combatManager.applyDamageReflection(attacker, 0.5, 2); // 50% reflejo
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Absorción Kinética - El traje absorbe y refleja el daño", true);
-        });
-        
-        abilityHandlers.put("black_panther_hab2", (attacker, defender) -> {
-            String key = "black_panther_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Garras de Vibranium");
-            }
-            consume(key);
-            
-            // Garras de Vibranium - Daño que ignora defensas
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 2200));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Garras de Vibranium - ¡Cortan a través de cualquier defensa!", true);
-        });
-        
-        // === Scarlet Witch ===
+
+        // === SCARLET WITCH ===
         abilityHandlers.put("scarlet_witch_hab1", (attacker, defender) -> {
             String key = "scarlet_witch_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Caos Hexagonal");
-            }
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Caos Absoluto");
             consume(key);
-            
-            // Caos Hexagonal - Invertir curaciones
-            combatManager.applyHealingInversion(defender, 2);
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 1800));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Caos Hexagonal - ¡La realidad se deforma!", true);
+
+            // 5000 daño directo y reduce 50% del Poder enemigo durante 2 turnos
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 5000));
+            combatManager.applyStatModifier(defender, Stat.PODER, -0.5, 2);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Caos Absoluto - ¡La realidad se distorsiona!", true);
         });
-        
+
         abilityHandlers.put("scarlet_witch_hab2", (attacker, defender) -> {
             String key = "scarlet_witch_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Manipulación de la Realidad");
-            }
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Realidad Distorsionada");
             consume(key);
+
+            // Invierte todas las curaciones del enemigo en daño durante 2 turnos
+            combatManager.applyHealingInversion(defender, 2);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Realidad Distorsionada - ¡La curación se convierte en dolor!", true);
+        });
+
+        // === LEGION ===
+        abilityHandlers.put("legion_hab1", (attacker, defender) -> {
+            String key = "legion_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Personalidades Desatadas");
+            consume(key);
+
+            // Duplica el Poder durante 3 turnos y 4000 daño inmediato
+            combatManager.applyStatModifier(attacker, Stat.PODER, 1.0, 3); // +100% = duplicar
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 4000));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Personalidades Desatadas - ¡Las múltiples identidades de Legion lo potencian!", true);
+        });
+
+        abilityHandlers.put("legion_hab2", (attacker, defender) -> {
+            String key = "legion_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Plano Mental");
+            consume(key);
+
+            // Legion: +50% Poder, +30% Velocidad, +20% Fuerza
+            combatManager.applyStatModifier(attacker, Stat.PODER, 0.5, 2);
+            combatManager.applyStatModifier(attacker, Stat.VELOCIDAD, 0.3, 2);
+            combatManager.applyStatModifier(attacker, Stat.FUERZA, 0.2, 2);
             
-            // Manipulación de la Realidad - Efectos aleatorios
-            int effect = (int)(Math.random() * 3);
-            switch (effect) {
-                case 0:
-                    // Daño masivo
-                    defender.setVidaActual(Math.max(0, defender.getVidaActual() - 3000));
-                    return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                        "Manipulación de la Realidad - ¡Desintegración!", true);
-                case 1:
-                    // Curación
-                    attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + 2500));
-                    return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                        "Manipulación de la Realidad - ¡Regeneración!", true);
-                case 2:
-                    // Omitir turnos enemigo
-                    combatManager.skipEnemyTurns(2);
-                    return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                        "Manipulación de la Realidad - ¡Tiempo congelado!", true);
-                default:
-                    return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                        "Manipulación de la Realidad", true);
+            // Enemigo: -25% Poder y solo ataques básicos
+            combatManager.applyStatModifier(defender, Stat.PODER, -0.25, 2);
+            combatManager.restrictToBasicAttacks(defender, 2);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Plano Mental - ¡Legion arrastra a todos a su mente!", true);
+        });
+
+        // === DOCTOR STRANGE ===
+        abilityHandlers.put("doctor_strange_hab1", (attacker, defender) -> {
+            String key = "doctor_strange_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Dimensión Espejo");
+            consume(key);
+
+            // Refleja el 30% del daño recibido durante 2 turnos
+            combatManager.applyDamageReflection(attacker, 0.3, 2);
+            
+            // +50% daño en su próxima habilidad ofensiva
+            combatManager.applyDamageBoost(attacker, 0.5, 1);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Dimensión Espejo - ¡Strange despliega una barrera reflectante!", true);
+        });
+
+        abilityHandlers.put("doctor_strange_hab2", (attacker, defender) -> {
+            String key = "doctor_strange_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Ojo de Agamotto");
+            consume(key);
+
+            // Omite 2 turnos del enemigo (Strange ataca 2 veces seguidas)
+            combatManager.skipEnemyTurns(2);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Ojo de Agamotto - ¡El tiempo se detiene para todos excepto Strange!", true);
+        });
+
+        // === SILVER SURFER ===
+        abilityHandlers.put("silver_surfer_hab1", (attacker, defender) -> {
+            String key = "silver_surfer_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Nova Cósmica");
+            consume(key);
+
+            // 4500 daño y reduce 10% de la vida máxima del enemigo permanentemente
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 4500));
+            defender.setVida(Math.max(1, defender.getVida() - (defender.getVida() / 10)));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Nova Cósmica - ¡El poder cósmico debilita la esencia del enemigo!", true);
+        });
+
+        abilityHandlers.put("silver_surfer_hab2", (attacker, defender) -> {
+            String key = "silver_surfer_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Velocidad Estelar");
+            consume(key);
+
+            // +50% Velocidad durante 3 turnos
+            combatManager.applyStatModifier(attacker, Stat.VELOCIDAD, 0.5, 3);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Velocidad Estelar - ¡Surfer se mueve a velocidades inconcebibles!", true);
+        });
+
+        // === ARISHEM ===
+        abilityHandlers.put("arishem_hab1", (attacker, defender) -> {
+            String key = "arishem_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Juicio Celestial");
+            consume(key);
+
+            // 100% de la vida actual del enemigo en daño, 50% probabilidad
+            if (Math.random() < 0.5) {
+                int damage = defender.getVidaActual();
+                defender.setVidaActual(0);
+                return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                    "Juicio Celestial - ¡El Celestial emite su veredicto final! (" + damage + " daño)", true);
+            } else {
+                return CombatMessage.createFailedMessage(attacker.getNombre(), "Juicio Celestial - El enemigo escapa al juicio");
             }
         });
-        
-        // === Deadpool ===
+
+        abilityHandlers.put("arishem_hab2", (attacker, defender) -> {
+            String key = "arishem_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Presencia Imponente");
+            consume(key);
+
+            // Reduce 100% del daño recibido durante 1 turno
+            combatManager.applyDamageReduction(attacker, 1.0, 1);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Presencia Imponente - ¡Arishem se vuelve completamente invulnerable!", true);
+        });
+
+        // === KNULL ===
+        abilityHandlers.put("knull_hab1", (attacker, defender) -> {
+            String key = "knull_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Oscuridad Primordial");
+            consume(key);
+
+            // 6000 daño y reduce 25% del Poder del enemigo
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 6000));
+            combatManager.applyStatModifier(defender, Stat.PODER, -0.25, 2);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Oscuridad Primordial - ¡El vacío cósmico consume la energía vital!", true);
+        });
+
+        abilityHandlers.put("knull_hab2", (attacker, defender) -> {
+            String key = "knull_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Rey de Simbiontes");
+            consume(key);
+
+            // Cura 30% de vida máxima
+            int healAmount = (int)(attacker.getVida() * 0.3);
+            attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + healAmount));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Rey de Simbiontes - ¡Knull absorbe la fuerza de sus creaciones!", true);
+        });
+
+        // === HULK (Máximo) ===
+        abilityHandlers.put("hulk_hab1", (attacker, defender) -> {
+            String key = "hulk_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Furia Gamma");
+            consume(key);
+
+            // +100% Fuerza durante 2 turnos
+            combatManager.applyStatModifier(attacker, Stat.FUERZA, 1.0, 2);
+            
+            // Daño: 200% de su Fuerza actual
+            int damage = attacker.getFuerza() * 2;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Furia Gamma - ¡HULK APLASTA! (" + damage + " daño)", true);
+        });
+
+        abilityHandlers.put("hulk_hab2", (attacker, defender) -> {
+            String key = "hulk_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Cuanto más enfadado...");
+            
+            // Esta habilidad se puede usar infinitas veces, no decrementar usos
+            // Pero sí registrar uso (para evitar spam en el mismo turno)
+            cdRemaining.put(key, 1);
+            
+            // Cura 10% de vida perdida
+            int vidaPerdida = attacker.getVida() - attacker.getVidaActual();
+            int healAmount = (int)(vidaPerdida * 0.1);
+            attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + healAmount));
+            
+            // +10% Fuerza permanente (modificación directa del atributo)
+            int fuerzaActual = attacker.getFuerza();
+            attacker.setFuerza((int)(fuerzaActual * 1.1));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Cuanto más enfadado... - ¡HULK MÁS FUERTE!", true);
+        });
+
+        // === DOCTOR DOOM ===
+        abilityHandlers.put("doctor_doom_hab1", (attacker, defender) -> {
+            String key = "doctor_doom_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Conjuro de Muerte");
+            consume(key);
+
+            // 4000 daño
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 4000));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Conjuro de Muerte - ¡Doom desata un hechizo devastador!", true);
+        });
+
+        abilityHandlers.put("doctor_doom_hab2", (attacker, defender) -> {
+            String key = "doctor_doom_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Escudo de Latveria");
+            consume(key);
+
+            // Reduce 70% del daño recibido durante 2 turnos
+            combatManager.applyDamageReduction(attacker, 0.7, 2);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Escudo de Latveria - ¡La tecnología y la magia de Doom lo protegen!", true);
+        });
+
+        // === IRON MAN ===
+        abilityHandlers.put("iron_man_hab1", (attacker, defender) -> {
+            String key = "iron_man_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Unibeam Máximo");
+            consume(key);
+
+            // 2000 daño y reduce 25% del Poder enemigo durante 2 turnos
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 2000));
+            combatManager.applyStatModifier(defender, Stat.PODER, -0.25, 2);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Unibeam Máximo - ¡La armadura canaliza toda su energía!", true);
+        });
+
+        abilityHandlers.put("iron_man_hab2", (attacker, defender) -> {
+            String key = "iron_man_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Nanotecnología Adaptativa");
+            consume(key);
+
+            // Cura 25% de vida máxima
+            int healAmount = (int)(attacker.getVida() * 0.25);
+            attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + healAmount));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Nanotecnología Adaptativa - ¡La armadura se autorrepara!", true);
+        });
+
+        // === WOLVERINE ===
+        abilityHandlers.put("wolverine_hab1", (attacker, defender) -> {
+            String key = "wolverine_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Furia Berserker");
+            consume(key);
+
+            // +100% Fuerza y Velocidad durante 2 turnos
+            combatManager.applyStatModifier(attacker, Stat.FUERZA, 1.0, 2);
+            combatManager.applyStatModifier(attacker, Stat.VELOCIDAD, 1.0, 2);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Furia Berserker - ¡Logan pierde el control!", true);
+        });
+
+        abilityHandlers.put("wolverine_hab2", (attacker, defender) -> {
+            String key = "wolverine_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Regeneración Extrema");
+            consume(key);
+
+            // Cura 40% de vida máxima perdida
+            int vidaPerdida = attacker.getVida() - attacker.getVidaActual();
+            int healAmount = (int)(vidaPerdida * 0.4);
+            attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + healAmount));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Regeneración Extrema - ¡El factor curativo de Wolverine en acción!", true);
+        });
+
+        // === SEBASTIAN SHAW ===
+        abilityHandlers.put("sebastian_shaw_hab1", (attacker, defender) -> {
+            String key = "sebastian_shaw_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Absorción Cinética Total");
+            consume(key);
+
+            // Inmune a daño durante 2 turnos, luego devuelve el total del daño recibido
+            combatManager.applyDamageReduction(attacker, 1.0, 2); // 100% reducción = inmune
+            
+            // El efecto de devolver daño se implementa en el método processAttackResult 
+            // de CombatManager, no lo implementamos directamente aquí
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Absorción Cinética Total - ¡Shaw se prepara para absorber todo el daño!", true);
+        });
+
+        abilityHandlers.put("sebastian_shaw_hab2", (attacker, defender) -> {
+            String key = "sebastian_shaw_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Contraataque Cinético");
+            consume(key);
+
+            // Devuelve 20% del daño recibido el próximo turno
+            combatManager.applyDamageReflection(attacker, 0.2, 1);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Contraataque Cinético - ¡Shaw prepara su cuerpo para devolver energía!", true);
+        });
+
+        // === SPIDER-MAN ===
+        abilityHandlers.put("spider_man_hab1", (attacker, defender) -> {
+            String key = "spider_man_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Ataque de Máxima Agilidad");
+            consume(key);
+
+            // Daño: 150% de su Velocidad actual
+            int damage = (int)(attacker.getVelocidad() * 1.5);
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Ataque de Máxima Agilidad - ¡Spider-Man se mueve más rápido que el ojo! (" + damage + " daño)", true);
+        });
+
+        abilityHandlers.put("spider_man_hab2", (attacker, defender) -> {
+            String key = "spider_man_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Telaraña Inmovilizante");
+            consume(key);
+
+            // Reduce 50% de Velocidad del enemigo durante 2 turnos
+            combatManager.applyStatModifier(defender, Stat.VELOCIDAD, -0.5, 2);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Telaraña Inmovilizante - ¡El enemigo queda atrapado en las redes de Spider-Man!", true);
+        });
+
+        // === BLACK PANTHER ===
+        abilityHandlers.put("black_panther_hab1", (attacker, defender) -> {
+            String key = "black_panther_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Liberación de Energía Cinética");
+            consume(key);
+
+            // Devuelve 200% del daño recibido en el turno anterior
+            int damageToReturn = combatManager.getLastDamageTaken(attacker) * 2;
+            
+            // Si no ha recibido daño, hacer un daño mínimo base
+            if (damageToReturn <= 0) {
+                damageToReturn = 500; // Daño mínimo base
+            }
+            
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damageToReturn));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Liberación de Energía Cinética - ¡El traje devuelve el daño con intereses! (" + damageToReturn + " daño)", true);
+        });
+
+        abilityHandlers.put("black_panther_hab2", (attacker, defender) -> {
+            String key = "black_panther_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Garras de Vibranium");
+            consume(key);
+
+            // 500 daño directo
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 500));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Garras de Vibranium - ¡Las garras de vibranium penetran cualquier defensa!", true);
+        });
+
+        // === CAPTAIN AMERICA ===
+        abilityHandlers.put("captain_america_hab1", (attacker, defender) -> {
+            String key = "captain_america_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Justicia Imparable");
+            consume(key);
+
+            // 400 daño directo
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 400));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Justicia Imparable - ¡Capitán América golpea con todas sus fuerzas!", true);
+        });
+
+        abilityHandlers.put("captain_america_hab2", (attacker, defender) -> {
+            String key = "captain_america_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Escudo del Capitán");
+            consume(key);
+
+            // Reduce 50% del daño recibido durante 2 turnos
+            combatManager.applyDamageReduction(attacker, 0.5, 2);
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Escudo del Capitán - ¡El escudo de vibranium protege a Steve!", true);
+        });
+
+        // === DEADPOOL ===
         abilityHandlers.put("deadpool_hab1", (attacker, defender) -> {
             String key = "deadpool_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Factor Curativo");
-            }
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Factor Curativo Extremo");
             consume(key);
-            
-            // Factor Curativo - Regeneración completa
-            attacker.setVidaActual(attacker.getVida());
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Factor Curativo - ¡Completamente regenerado, nena!", true);
+
+            // Cura 70% de vida perdida
+            int vidaPerdida = attacker.getVida() - attacker.getVidaActual();
+            int healAmount = (int)(vidaPerdida * 0.7);
+            attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + healAmount));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Factor Curativo Extremo - ¡Deadpool se regenera mientras rompe la cuarta pared!", true);
         });
-        
+
         abilityHandlers.put("deadpool_hab2", (attacker, defender) -> {
             String key = "deadpool_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Romper la Cuarta Pared");
-            }
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Ataque Impredecible");
             consume(key);
+
+            // 200 daño directo
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 200));
             
-            // Romper la Cuarta Pared - Efecto único
-            // Saltarse un turno del enemigo y restaurar usos de habilidades
-            combatManager.skipEnemyTurns(1);
-            usesRemaining.put("deadpool_hab1", 1);
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Romper la Cuarta Pared - ¡Hey jugador! ¿Me extrañaste?", true);
-        });
-        
-        // === Phoenix ===
-        abilityHandlers.put("phoenix_hab1", (attacker, defender) -> {
-            String key = "phoenix_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Explosión Psíquica");
+            // 50% de reducir Velocidad enemiga un 50% durante 2 turnos
+            if (Math.random() < 0.5) {
+                combatManager.applyStatModifier(defender, Stat.VELOCIDAD, -0.5, 2);
+                return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                    "Ataque Impredecible - ¡Deadpool confunde a su enemigo y reduce su velocidad!", true);
+            } else {
+                return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                    "Ataque Impredecible - ¡Deadpool ataca de forma caótica!", true);
             }
-            consume(key);
-            
-            // Explosión Psíquica - Daño masivo
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 3500));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Explosión Psíquica - ¡La mente del enemigo se quiebra!", true);
-        });
-        
-        abilityHandlers.put("phoenix_hab2", (attacker, defender) -> {
-            String key = "phoenix_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Fuerza Fénix");
-            }
-            consume(key);
-            
-            // Fuerza Fénix - Gran poder pero costo de vida
-            attacker.setPoder(attacker.getPoder() * 2); // Duplicar poder
-            attacker.setVidaActual(Math.max(1, attacker.getVidaActual() / 2)); // Costo de vida
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Fuerza Fénix - ¡Poder incomparable a cambio de vida!", true);
-        });
-        
-        // === Ghost Rider ===
-        abilityHandlers.put("ghost_rider_hab1", (attacker, defender) -> {
-            String key = "ghost_rider_hab1";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Mirada de Penitencia");
-            }
-            consume(key);
-            
-            // Mirada de Penitencia - Daño basado en los "pecados" (daño previo)
-            int damage = Math.min(5000, defender.getVida() - defender.getVidaActual() + 2000);
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Mirada de Penitencia - ¡Siente el peso de tus pecados!", true);
-        });
-        
-        abilityHandlers.put("ghost_rider_hab2", (attacker, defender) -> {
-            String key = "ghost_rider_hab2";
-            if (!canUse(key)) {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Cadenas Infernales");
-            }
-            consume(key);
-            
-            // Cadenas Infernales - Restricción y daño continuo
-            combatManager.restrictToBasicAttacks(defender, 2);
-            
-            // Programar daño para los próximos turnos
-            combatManager.scheduleEffect(() -> {
-                defender.setVidaActual(Math.max(0, defender.getVidaActual() - 1000));
-            }, 1);
-            
-            combatManager.scheduleEffect(() -> {
-                defender.setVidaActual(Math.max(0, defender.getVidaActual() - 1000));
-            }, 2);
-            
-            return CombatMessage.createAbilityMessage(attacker.getNombre(), 
-                "Cadenas Infernales - ¡Arderás por tus pecados!", true);
         });
     }
-    
+
+    /** 
+     * Guarda forma original, aplica transformación y programa la vuelta.
+     * Implementación corregida sin usar copyFrom
+     */
+    private void applyTransformation(PersonajeModel original, PersonajeModel transformed, int durationTurns) {
+        // Crear una copia manual del personaje original
+        PersonajeModel originalCopy = new PersonajeModel();
+        originalCopy.setId(original.getId());
+        originalCopy.setNombre(original.getNombre());
+        originalCopy.setVida(original.getVida());
+        originalCopy.setFuerza(original.getFuerza());
+        originalCopy.setVelocidad(original.getVelocidad());
+        originalCopy.setPoder(original.getPoder());
+        originalCopy.setAtaques(original.getAtaques());
+        
+        // Guardar referencia a la forma original
+        originalFormMap.put(original, originalCopy);
+        originalHealthMap.put(original, original.getVidaActual());
+        
+        // Aplicar los atributos de la transformación
+        original.setVida(transformed.getVida());
+        original.setFuerza(transformed.getFuerza());
+        original.setVelocidad(transformed.getVelocidad());
+        original.setPoder(transformed.getPoder());
+        original.setNombre(transformed.getNombre());
+        
+        // Programar la reversión después de ciertos turnos
+        combatManager.scheduleEffect(() -> revertTransformation(original), durationTurns);
+    }
+
+    /**
+     * Restaura forma y vida original.
+     * Implementación corregida sin usar copyFrom
+     */
+    public void revertTransformation(PersonajeModel transformed) {
+        PersonajeModel original = originalFormMap.remove(transformed);
+        Integer originalHealth = originalHealthMap.remove(transformed);
+        
+        if (original != null && originalHealth != null) {
+            // Restaurar manualmente los atributos originales
+            transformed.setVida(original.getVida());
+            transformed.setFuerza(original.getFuerza());
+            transformed.setVelocidad(original.getVelocidad());
+            transformed.setPoder(original.getPoder());
+            transformed.setNombre(original.getNombre());
+            transformed.setVidaActual(originalHealth);
+        }
+    }
+
     /**
      * Ejecuta una habilidad según su código
      * @param abilityCode Código de la habilidad a ejecutar
@@ -591,10 +662,10 @@ public class AbilityManager {
      * @return Mensaje de combate con el resultado
      */
     public CombatMessage executeAbility(String abilityCode, PersonajeModel attacker, PersonajeModel defender) {
-        AbilityHandler handler = abilityHandlers.get(abilityCode);
+        BiFunction<PersonajeModel, PersonajeModel, CombatMessage> handler = abilityHandlers.get(abilityCode);
         
         if (handler != null) {
-            return handler.execute(attacker, defender);
+            return handler.apply(attacker, defender);
         }
         
         // Si no se encuentra la habilidad, devolver un mensaje de error
@@ -631,5 +702,122 @@ public class AbilityManager {
         return executeAbility("magik_hab2", attacker, defender);
     }
     
-    // ... Continuar con los demás métodos de compatibilidad
+    public CombatMessage habTresMagik(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("magik_hab3", atk, def);
+    }
+    public CombatMessage habCuatroMagik(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("magik_hab4", atk, def);
+    }
+
+    public CombatMessage habUnoThanos(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("thanos_hab1", atk, def);
+    }
+    public CombatMessage habDosThanos(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("thanos_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoScarletWitch(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("scarlet_witch_hab1", atk, def);
+    }
+    public CombatMessage habDosScarletWitch(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("scarlet_witch_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoLegion(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("legion_hab1", atk, def);
+    }
+    public CombatMessage habDosLegion(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("legion_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoDoctorStrange(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("doctor_strange_hab1", atk, def);
+    }
+    public CombatMessage habDosDoctorStrange(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("doctor_strange_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoSilverSurfer(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("silver_surfer_hab1", atk, def);
+    }
+    public CombatMessage habDosSilverSurfer(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("silver_surfer_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoArishem(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("arishem_hab1", atk, def);
+    }
+    public CombatMessage habDosArishem(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("arishem_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoKnull(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("knull_hab1", atk, def);
+    }
+    public CombatMessage habDosKnull(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("knull_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoHulk(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("hulk_hab1", atk, def);
+    }
+    public CombatMessage habDosHulk(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("hulk_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoDoctorDoom(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("doctor_doom_hab1", atk, def);
+    }
+    public CombatMessage habDosDoctorDoom(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("doctor_doom_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoIronMan(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("iron_man_hab1", atk, def);
+    }
+    public CombatMessage habDosIronMan(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("iron_man_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoWolverine(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("wolverine_hab1", atk, def);
+    }
+    public CombatMessage habDosWolverine(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("wolverine_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoSebastianShaw(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("sebastian_shaw_hab1", atk, def);
+    }
+    public CombatMessage habDosSebastianShaw(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("sebastian_shaw_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoSpiderMan(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("spider_man_hab1", atk, def);
+    }
+    public CombatMessage habDosSpiderMan(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("spider_man_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoBlackPanther(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("black_panther_hab1", atk, def);
+    }
+    public CombatMessage habDosBlackPanther(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("black_panther_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoCaptainAmerica(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("captain_america_hab1", atk, def);
+    }
+    public CombatMessage habDosCaptainAmerica(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("captain_america_hab2", atk, def);
+    }
+
+    public CombatMessage habUnoDeadpool(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("deadpool_hab1", atk, def);
+    }
+    public CombatMessage habDosDeadpool(PersonajeModel atk, PersonajeModel def) {
+        return executeAbility("deadpool_hab2", atk, def);
+    }
 }

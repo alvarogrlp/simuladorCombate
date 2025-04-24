@@ -1,5 +1,6 @@
 package es.alvarogrlp.marvelsimu.backend.combat.logic;
 
+import es.alvarogrlp.marvelsimu.backend.combat.model.CombatMessage;
 import es.alvarogrlp.marvelsimu.backend.combat.ui.MessageDisplayManager;
 import es.alvarogrlp.marvelsimu.backend.model.AtaqueModel;
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
@@ -11,6 +12,7 @@ public class TurnManager {
     private CombatManager combatManager;
     private MessageDisplayManager messageManager;
     private boolean isPlayerTurn = true;
+    private int currentTurn = 1; // Añadir esta variable de instancia
     
     public TurnManager(CombatManager combatManager, MessageDisplayManager messageManager) {
         this.combatManager = combatManager;
@@ -18,6 +20,9 @@ public class TurnManager {
     }
     
     public void startCombat() {
+        // Inicializar el contador de turnos
+        currentTurn = 1;
+        
         PauseTransition startDelay = new PauseTransition(Duration.millis(1000));
         startDelay.setOnFinished(e -> {
             messageManager.displayMessage("¡Comienza el combate!", true);
@@ -46,8 +51,9 @@ public class TurnManager {
         combatManager.getUIManager().setPlayerTurnIndicator(false);
         
         if (animateTransition) {
-            messageManager.displayMessage("Turno del oponente", false, 
-                    () -> startAITurn());
+            // Usar el mensaje de tipo TURN_CHANGE
+            CombatMessage turnMessage = CombatMessage.createTurnChangeMessage("TURNO DEL OPONENTE", false);
+            messageManager.displayCombatMessage(turnMessage, () -> startAITurn());
         } else {
             startAITurn();
         }
@@ -59,15 +65,15 @@ public class TurnManager {
     public void startAITurn() {
         System.out.println("Iniciando turno de la IA en TurnManager");
         if (!isPlayerTurn) {
+            // No mostrar mensaje aquí ya que ya lo hicimos en finishPlayerTurn
             // Pequeña pausa antes de que la IA actúe
-            messageManager.displayMessage("Turno de la IA", false, () -> {
+            PauseTransition delay = new PauseTransition(Duration.millis(500));
+            delay.setOnFinished(e -> {
                 if (!combatManager.isCombatFinished()) {
-                    // Ejecutar turno de la IA directamente
-                    PauseTransition delay = new PauseTransition(Duration.millis(500));
-                    delay.setOnFinished(e -> combatManager.aiTurn());
-                    delay.play();
+                    combatManager.aiTurn();
                 }
             });
+            delay.play();
         } else {
             System.err.println("ERROR: Intentando iniciar turno de IA durante turno del jugador");
         }
@@ -78,6 +84,9 @@ public class TurnManager {
      */
     public void finishAITurn() {
         isPlayerTurn = true;
+        
+        // Incrementar el contador de turnos cuando termina el turno de la IA
+        currentTurn++;
         
         // Actualizar cooldowns de ataques del jugador
         PersonajeModel playerCharacter = combatManager.getCurrentPlayerCharacter();
@@ -91,8 +100,17 @@ public class TurnManager {
         // Actualizar indicador de turno en la UI
         combatManager.getUIManager().setPlayerTurnIndicator(true);
         
-        // Mostrar mensaje de inicio de turno del jugador
-        messageManager.displayMessage("¡Tu turno!", true);
+        // Mostrar mensaje de inicio de turno del jugador con tipo TURN_CHANGE
+        CombatMessage turnMessage = CombatMessage.createTurnChangeMessage("¡TU TURNO!", true);
+        messageManager.displayCombatMessage(turnMessage, null);
+    }
+    
+    /**
+     * Obtiene el número del turno actual
+     * @return El número del turno actual
+     */
+    public int getCurrentTurn() {
+        return currentTurn;
     }
     
     public boolean isPlayerTurn() {

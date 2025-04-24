@@ -8,6 +8,7 @@ import java.util.Map;
 
 import es.alvarogrlp.marvelsimu.backend.combat.animation.CombatAnimationManager;
 import es.alvarogrlp.marvelsimu.backend.combat.model.CombatMessage;
+import es.alvarogrlp.marvelsimu.backend.combat.model.Stat;
 import es.alvarogrlp.marvelsimu.backend.combat.ui.CombatUIManager;
 import es.alvarogrlp.marvelsimu.backend.combat.ui.MessageDisplayManager;
 import es.alvarogrlp.marvelsimu.backend.model.AtaqueModel;
@@ -47,11 +48,45 @@ public class CombatManager {
     private es.alvarogrlp.marvelsimu.backend.selection.logic.SelectionManager selectionManager;
     private final AbilityManager abilityManager;
     private AbilityEffects effectsManager;
-    private List<AbilityEffects.ScheduledEffect> scheduledEffects = new ArrayList<>();
+    private Map<Integer, List<Runnable>> scheduledEffects = new HashMap<>();
     
+    private final Map<PersonajeModel, Map<Stat, CombatManager.StatModifier>> statModifiers = 
+    new HashMap<PersonajeModel, Map<Stat, CombatManager.StatModifier>>();    
     // Mapa para recordar la forma base de cada transformación
     private Map<PersonajeModel, PersonajeModel> originalFormMap = new HashMap<>();
     private Map<PersonajeModel, Integer> originalHealthMap = new HashMap<>();
+
+    // Añadir este campo a CombatManager para rastrear el último daño recibido por cada personaje
+    private Map<PersonajeModel, Integer> lastDamageTaken = new HashMap<>();
+
+    /**
+     * Clase para representar un modificador de estadística
+     */
+    private static class StatModifier {
+        private double multiplier;
+        private int duration;
+        
+        public StatModifier(double multiplier, int duration) {
+            this.multiplier = multiplier;
+            this.duration = duration;
+        }
+        
+        public double getMultiplier() {
+            return multiplier;
+        }
+        
+        public void setMultiplier(double multiplier) {
+            this.multiplier = multiplier;
+        }
+        
+        public int getDuration() {
+            return duration;
+        }
+        
+        public void setDuration(int duration) {
+            this.duration = duration;
+        }
+    }
 
     public CombatManager(
             AnchorPane rootPane, 
@@ -311,6 +346,9 @@ public class CombatManager {
             // Calcular daño real
             int realDamage = previousHealth - defender.getVidaActual();
             
+            // Registrar el daño tomado por el defensor
+            recordDamageTaken(defender, realDamage);
+            
             // Procesar resultado del ataque
             processAttackResult(defender, realDamage, defeated, true);
         });
@@ -324,6 +362,9 @@ public class CombatManager {
             int damage, 
             boolean defeated,
             boolean isPlayerAttack) {
+        
+        // Registrar el daño recibido por el defensor para posibles contraataques
+        recordDamageTaken(defender, damage);
         
         // Mostrar efectos visuales según el resultado
         if (damage > 0) {
@@ -483,6 +524,9 @@ public class CombatManager {
             
             // Calcular daño real
             int realDamage = previousHealth - defender.getVidaActual();
+            
+            // Registrar el daño tomado por el defensor
+            recordDamageTaken(defender, realDamage);
             
             // Procesar resultado del ataque
             processAttackResult(defender, realDamage, defeated, false);
@@ -1049,34 +1093,19 @@ public class CombatManager {
         effectsManager.skipEnemyTurns(turns);
     }
 
-    public void scheduleEffect(Runnable effect, int turns) {
-        effectsManager.scheduleEffect(effect, turns);
-    }
-
-    public void addScheduledEffect(AbilityEffects.ScheduledEffect effect) {
-        scheduledEffects.add(effect);
-    }
-
-    // Método para procesar efectos programados al final de cada turno
-    private void processScheduledEffects() {
-        List<AbilityEffects.ScheduledEffect> effectsToExecute = new ArrayList<>();
-        
-        // Identificar efectos que deben ejecutarse
-        Iterator<AbilityEffects.ScheduledEffect> iterator = scheduledEffects.iterator();
-        while (iterator.hasNext()) {
-            AbilityEffects.ScheduledEffect effect = iterator.next();
-            if (effect.getTurnsRemaining() <= 0) {
-                effectsToExecute.add(effect);
-                iterator.remove();
-            } else {
-                effect.decrementTurns();
-            }
+    public void scheduleEffect(Runnable effect, int turnsFromNow) {
+        if (scheduledEffects == null) {
+            scheduledEffects = new HashMap<>();
         }
         
-        // Ejecutar efectos identificados
-        for (AbilityEffects.ScheduledEffect effect : effectsToExecute) {
-            effect.execute();
+        int currentTurn = getTurnManager().getCurrentTurn();
+        int targetTurn = currentTurn + turnsFromNow;
+        
+        if (!scheduledEffects.containsKey(targetTurn)) {
+            scheduledEffects.put(targetTurn, new ArrayList<>());
         }
+        
+        scheduledEffects.get(targetTurn).add(effect);
     }
 
     /**
@@ -1142,5 +1171,141 @@ public class CombatManager {
      */
     private boolean isPlayerCharacter(PersonajeModel character) {
         return playerCharacters.contains(character);
+    }
+
+    /**
+     * Aplica un modificador a una estadística de un personaje por un número de turnos.
+     * 
+     * @param character Personaje al que se aplica el modificador
+     * @param stat Estadística a modificar (VIDA, FUERZA, VELOCIDAD, PODER)
+     * @param multiplier Multiplicador a aplicar (1.0 = +100%, -0.25 = -25%, etc.)
+     * @param duration Duración en turnos del efecto
+     */
+    public void applyStatModifier(PersonajeModel character, Stat stat, double multiplier, int duration) {
+        // Guardar estado original para poder restaurarlo
+        if (!statModifiers.containsKey(character)) {
+            statModifiers.put(character, new HashMap<>());
+        }
+        
+        Map<Stat, StatModifier> characterMods = statModifiers.get(character);
+        
+        // Si ya hay un modificador para esta estadística, tomar el más beneficioso
+        if (characterMods.containsKey(stat)) {
+            StatModifier existingMod = characterMods.get(stat);
+            if (multiplier > existingMod.getMultiplier()) {
+                // El nuevo es mejor, reemplazar
+                existingMod.setMultiplier(multiplier);
+                existingMod.setDuration(Math.max(existingMod.getDuration(), duration));
+            } else if (multiplier == existingMod.getMultiplier()) {
+                // Mismo valor, extender duración
+                existingMod.setDuration(Math.max(existingMod.getDuration(), duration));
+            }
+            // Si el existente es mejor, no hacemos nada
+        } else {
+            // No hay modificador previo, crear uno nuevo
+            characterMods.put(stat, new StatModifier(multiplier, duration));
+            
+            // Aplicar el modificador inmediatamente
+            applyStatModifierImmediately(character, stat, multiplier);
+        }
+        
+        // Programar la eliminación del efecto después de la duración
+        scheduleEffect(() -> removeStatModifier(character, stat), duration);
+    }
+
+    /**
+     * Aplica inmediatamente el modificador a la estadística indicada
+     */
+    private void applyStatModifierImmediately(PersonajeModel character, Stat stat, double multiplier) {
+        switch (stat) {
+            case FUERZA:
+                int originalFuerza = character.getFuerza();
+                int modFuerza = (int)(originalFuerza * multiplier);
+                character.setFuerza(originalFuerza + modFuerza);
+                break;
+            case VELOCIDAD:
+                int originalVelocidad = character.getVelocidad();
+                int modVelocidad = (int)(originalVelocidad * multiplier);
+                character.setVelocidad(originalVelocidad + modVelocidad);
+                break;
+            case PODER:
+                int originalPoder = character.getPoder();
+                int modPoder = (int)(originalPoder * multiplier);
+                character.setPoder(originalPoder + modPoder);
+                break;
+            // Para vida no aplicamos el modificador inmediatamente
+            // ya que normalmente no queremos modificar la vida máxima
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Elimina un modificador de estadística y restaura el valor original
+     */
+    private void removeStatModifier(PersonajeModel character, Stat stat) {
+        if (!statModifiers.containsKey(character)) {
+            return;
+        }
+        
+        Map<Stat, StatModifier> characterMods = statModifiers.get(character);
+        if (!characterMods.containsKey(stat)) {
+            return;
+        }
+        
+        // Obtener el modificador
+        StatModifier mod = characterMods.get(stat);
+        
+        // Reducir duración
+        mod.setDuration(mod.getDuration() - 1);
+        
+        // Si la duración llega a 0, eliminar el modificador y restaurar
+        if (mod.getDuration() <= 0) {
+            characterMods.remove(stat);
+            
+            // Restaurar el valor original
+            switch (stat) {
+                case FUERZA:
+                    int currentFuerza = character.getFuerza();
+                    int originalFuerza = (int)(currentFuerza / (1 + mod.getMultiplier()));
+                    character.setFuerza(originalFuerza);
+                    break;
+                case VELOCIDAD:
+                    int currentVelocidad = character.getVelocidad();
+                    int originalVelocidad = (int)(currentVelocidad / (1 + mod.getMultiplier()));
+                    character.setVelocidad(originalVelocidad);
+                    break;
+                case PODER:
+                    int currentPoder = character.getPoder();
+                    int originalPoder = (int)(currentPoder / (1 + mod.getMultiplier()));
+                    character.setPoder(originalPoder);
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        // Si no quedan más modificadores para este personaje, eliminar la entrada
+        if (characterMods.isEmpty()) {
+            statModifiers.remove(character);
+        }
+    }
+
+    /**
+     * Registra el daño tomado por un personaje para posibles contraataques
+     * @param character El personaje que recibió el daño
+     * @param damage La cantidad de daño recibido
+     */
+    public void recordDamageTaken(PersonajeModel character, int damage) {
+        lastDamageTaken.put(character, damage);
+    }
+
+    /**
+     * Obtiene el último daño recibido por un personaje
+     * @param character El personaje del que obtener el daño
+     * @return La cantidad de daño, o 0 si no hay registro
+     */
+    public int getLastDamageTaken(PersonajeModel character) {
+        return lastDamageTaken.getOrDefault(character, 0);
     }
 }

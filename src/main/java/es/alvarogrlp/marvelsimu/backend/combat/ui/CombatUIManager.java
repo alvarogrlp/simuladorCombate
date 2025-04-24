@@ -153,22 +153,10 @@ public class CombatUIManager {
         if (rootPane.getUserData() instanceof CombatManager) {
             CombatManager combatManager = (CombatManager) rootPane.getUserData();
             
-            // Configurar el botón de atacar como toggle para mostrar/ocultar opciones
+            // Restaurar el comportamiento original del botón atacar
             attackButton.setOnAction(e -> {
-                System.out.println("Clic en botón atacar/cancelar - Estado contenedor: " + 
-                                 (attackContainer.isVisible() ? "visible" : "oculto"));
-                
-                if (attackContainer.isVisible()) {
-                    // Si el menú ya está visible, ocultarlo (funcionalidad de cancelar)
-                    attackContainer.setVisible(false);
-                    attackButton.setText("Atacar");
-                    changeButton.setDisable(false);
-                    backButton.setDisable(false);
-                    System.out.println("Ocultando opciones de ataque");
-                } else {
-                    // Si el menú está oculto, mostrarlo
-                    showAttackOptions();
-                }
+                System.out.println("Clic en botón atacar");
+                showAttackOptions();
             });
             
             // Establecer handlers para los botones de ataque
@@ -762,8 +750,9 @@ public class CombatUIManager {
     
     public void showAttackOptions() {
         attackContainer.setVisible(true);
-        // No deshabilitar el botón de atacar, para permitir cerrarlo
-        attackButton.setText("Cancelar");
+        
+        // Deshabilitar los botones principales cuando se muestra el menú
+        attackButton.setDisable(true);
         changeButton.setDisable(true);
         backButton.setDisable(true);
         
@@ -776,13 +765,37 @@ public class CombatUIManager {
         
         System.out.println("Mostrando opciones para: " + playerCharacter.getNombre());
         
+        // Verificar si ya existe un botón cerrar
+        Node closeButton = attackContainer.lookup("#btnCerrarAtaques");
+        if (closeButton == null) {
+            // Crear un botón X para cerrar el menú
+            Button btnClose = new Button("X");
+            btnClose.setId("btnCerrarAtaques");
+            btnClose.getStyleClass().add("close-button");
+            btnClose.setPrefSize(25, 25);
+            btnClose.setStyle("-fx-background-color: #aa0000; -fx-text-fill: white; -fx-font-weight: bold; " +
+                            "-fx-background-radius: 5; -fx-border-radius: 5;");
+            
+            // Posicionar el botón en la esquina superior derecha del contenedor
+            btnClose.setOnAction(e -> hideAttackOptions());
+            
+            // Añadir el botón al contenedor
+            attackContainer.getChildren().add(btnClose);
+            
+            // Si atacar es HBox, podemos posicionarlo correctamente
+            if (attackContainer instanceof HBox) {
+                HBox.setMargin(btnClose, new javafx.geometry.Insets(5, 5, 5, 5));
+                ((HBox)attackContainer).setAlignment(javafx.geometry.Pos.TOP_RIGHT);
+            }
+        }
+        
         // FORZAR habilitación de todos los botones de ataque primero
         meleeAttackButton.setDisable(false);
         rangedAttackButton.setDisable(false);
         ability1Button.setDisable(false);
         ability2Button.setDisable(false);
         
-        // USAR NUESTRO NUEVO MÉTODO DE DIAGNÓSTICO Y CARGA FORZADA
+        // USAR NUESTRO MÉTODO DE DIAGNÓSTICO Y CARGA FORZADA
         forzarCargaNombresAtaques();
         
         // Establecer manejadores de eventos si no se hizo antes
@@ -794,9 +807,14 @@ public class CombatUIManager {
         attackContainer.toFront();
     }
     
+    /**
+     * Oculta las opciones de ataque y rehabilita los controles principales
+     */
     public void hideAttackOptions() {
+        // Ocultar el contenedor de ataques
         attackContainer.setVisible(false);
-        attackButton.setText("Atacar");
+        
+        // Habilitar los botones principales
         attackButton.setDisable(false);
         changeButton.setDisable(false);
         backButton.setDisable(false);

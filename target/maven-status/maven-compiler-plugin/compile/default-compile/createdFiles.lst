@@ -13,6 +13,7 @@ es\alvarogrlp\marvelsimu\backend\config\ConfigManager.class
 es\alvarogrlp\marvelsimu\backend\model\PasivaModel.class
 es\alvarogrlp\marvelsimu\backend\model\EscenarioModel.class
 es\alvarogrlp\marvelsimu\backend\model\AtaqueModel.class
+es\alvarogrlp\marvelsimu\backend\combat\logic\CombatManager$1.class
 es\alvarogrlp\marvelsimu\backend\model\ModificadorEscenarioModel.class
 es\alvarogrlp\marvelsimu\backend\combat\logic\CombatManager.class
 es\alvarogrlp\marvelsimu\backend\combat\model\CombatMessage$MessageType.class
@@ -37,8 +38,10 @@ es\alvarogrlp\marvelsimu\backend\combat\logic\AbilityEffects.class
 es\alvarogrlp\marvelsimu\backend\selection\ui\SelectionUIManager.class
 es\alvarogrlp\marvelsimu\backend\combat\ui\MessageDisplayManager.class
 es\alvarogrlp\marvelsimu\backend\model\abtrastas\Conexion.class
+es\alvarogrlp\marvelsimu\backend\combat\model\Stat.class
 es\alvarogrlp\marvelsimu\backend\combat\logic\AbilityEffects$ScheduledEffect.class
 es\alvarogrlp\marvelsimu\backend\combat\logic\DamageCalculator.class
+es\alvarogrlp\marvelsimu\backend\combat\logic\CombatManager$StatModifier.class
 es\alvarogrlp\marvelsimu\backend\combat\ui\CharacterSelectionDialog.class
 es\alvarogrlp\marvelsimu\backend\controller\SeleccionPersonajesController.class
 es\alvarogrlp\marvelsimu\backend\combat\animation\EnemyAnimationHandler.class

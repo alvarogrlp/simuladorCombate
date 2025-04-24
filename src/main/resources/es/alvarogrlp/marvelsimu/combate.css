@@ -848,3 +848,32 @@
     -fx-border-radius: 10px;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 12, 0, 0, 0);
 }
+
+/* Estilo para el botón cerrar con efectos mejorados */
+.close-button {
+    -fx-background-color: linear-gradient(to bottom, #aa0000, #880000);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-cursor: hand;
+    -fx-padding: 3px 8px;
+    -fx-border-color: #cc0000;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 3, 0, 0, 0);
+    -fx-transition: all 0.2s ease-out; /* Añadir transición suave */
+}
+
+.close-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #cc0000, #aa0000);
+    -fx-effect: dropshadow(gaussian, rgba(255, 0, 0, 0.7), 10, 0.5, 0, 0);
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.close-button:pressed {
+    -fx-background-color: #880000;
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.3), 5, 0, 0, 0);
+}

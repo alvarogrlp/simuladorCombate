@@ -17,7 +17,8 @@ public class CombatMessage {
         ABILITY,     // Uso de habilidad
         REGENERATION,// Regeneración de vida
         VICTORY,     // Victoria en combate
-        WARNING      // Mensaje de advertencia o error
+        WARNING,     // Mensaje de advertencia o error
+        TURN_CHANGE  // Añadir este nuevo tipo
     }
     
     private String text;
@@ -158,6 +159,14 @@ public class CombatMessage {
      */
     public static CombatMessage createFailedMessage(String actor, String abilityName) {
         return createAbilityMessage(actor, abilityName, true, false);
+    }
+    
+    /**
+     * Crear un mensaje para cambio de turno
+     */
+    public static CombatMessage createTurnChangeMessage(String text, boolean isPlayerTurn) {
+        // Usar el constructor existente en lugar de intentar crear una instancia vacía
+        return new CombatMessage(text, MessageType.TURN_CHANGE, isPlayerTurn);
     }
     
     // Getters
