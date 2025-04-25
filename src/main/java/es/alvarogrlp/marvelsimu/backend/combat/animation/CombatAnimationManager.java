@@ -1,5 +1,6 @@
 package es.alvarogrlp.marvelsimu.backend.combat.animation;
 
+import es.alvarogrlp.marvelsimu.backend.combat.model.Stat;
 import es.alvarogrlp.marvelsimu.backend.combat.ui.CombatUIManager;
 import es.alvarogrlp.marvelsimu.backend.model.PersonajeModel;
 import javafx.animation.FadeTransition;
@@ -26,6 +27,7 @@ public class CombatAnimationManager {
     private PlayerAnimationHandler playerAnimationHandler;
     private EnemyAnimationHandler enemyAnimationHandler;
     private VisualEffectsManager effectsManager;
+    private SpecialEffectsAnimator specialEffects;
     
     public CombatAnimationManager(AnchorPane rootPane, CombatUIManager uiManager) {
         this.rootPane = rootPane;
@@ -33,6 +35,7 @@ public class CombatAnimationManager {
         this.playerAnimationHandler = new PlayerAnimationHandler(rootPane);
         this.enemyAnimationHandler = new EnemyAnimationHandler(rootPane);
         this.effectsManager = new VisualEffectsManager(rootPane);
+        this.specialEffects = new SpecialEffectsAnimator(rootPane); // Inicializar el nuevo gestor
     }
     
     public void animatePlayerAttack(String attackType, Runnable onComplete) {
@@ -226,5 +229,61 @@ public class CombatAnimationManager {
                 onComplete.run();
             }
         }
+    }
+    
+    /**
+     * Anima una transformación de personaje
+     */
+    public void animateTransformation(PersonajeModel character, boolean isPlayerCharacter, Runnable onComplete) {
+        specialEffects.animateTransformation(character, isPlayerCharacter, onComplete);
+    }
+    
+    /**
+     * Anima un modificador de estadística (buff/debuff)
+     */
+    public void animateStatModifier(PersonajeModel character, Stat stat, double multiplier, boolean isPlayerCharacter) {
+        specialEffects.animateStatModifier(character, stat, multiplier, isPlayerCharacter);
+    }
+    
+    /**
+     * Anima el bloqueo de curación
+     */
+    public void animateHealBlock(PersonajeModel character, boolean isPlayerCharacter) {
+        specialEffects.animateHealBlock(character, isPlayerCharacter);
+    }
+    
+    /**
+     * Anima un efecto de reflejo de daño
+     */
+    public void animateDamageReflection(PersonajeModel character, double reflectionFactor, boolean isPlayerCharacter) {
+        // Calcular un valor aproximado para visualización
+        int damageAmount = (int)(1000 * reflectionFactor); // Valor visual aproximado
+        
+        // Usar el personaje opuesto como "atacante" para la animación
+        PersonajeModel attacker = isPlayerCharacter ? 
+                getCurrentAICharacter() : getCurrentPlayerCharacter();
+        
+        specialEffects.animateDamageReflection(attacker, character, damageAmount, !isPlayerCharacter);
+    }
+    
+    /**
+     * Anima un efecto de restricción a ataques básicos
+     */
+    public void animateRestrictedToBasic(PersonajeModel character, boolean isPlayerCharacter) {
+        specialEffects.animateRestrictedToBasic(character, isPlayerCharacter);
+    }
+    
+    /**
+     * Obtiene el personaje actual del jugador
+     */
+    private PersonajeModel getCurrentPlayerCharacter() {
+        return (PersonajeModel) rootPane.getUserData();
+    }
+    
+    /**
+     * Obtiene el personaje actual de la IA
+     */
+    private PersonajeModel getCurrentAICharacter() {
+        return (PersonajeModel) rootPane.getUserData();
     }
 }

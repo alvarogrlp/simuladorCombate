@@ -27,6 +27,7 @@ C:\Users\alvar\Desktop\Alvaro\simuladorDeMarvel\simuladorDeMarvel\src\main\java\
 C:\Users\alvar\Desktop\Alvaro\simuladorDeMarvel\simuladorDeMarvel\src\main\java\es\alvarogrlp\marvelsimu\backend\util\DatabaseUtil.java
 C:\Users\alvar\Desktop\Alvaro\simuladorDeMarvel\simuladorDeMarvel\src\main\java\es\alvarogrlp\marvelsimu\backend\model\UsuarioServiceModel.java
 C:\Users\alvar\Desktop\Alvaro\simuladorDeMarvel\simuladorDeMarvel\src\main\java\es\alvarogrlp\marvelsimu\backend\combat\logic\TurnManager.java
+C:\Users\alvar\Desktop\Alvaro\simuladorDeMarvel\simuladorDeMarvel\src\main\java\es\alvarogrlp\marvelsimu\backend\combat\animation\SpecialEffectsAnimator.java
 C:\Users\alvar\Desktop\Alvaro\simuladorDeMarvel\simuladorDeMarvel\src\main\java\es\alvarogrlp\marvelsimu\backend\combat\logic\AIActionSelector.java
 C:\Users\alvar\Desktop\Alvaro\simuladorDeMarvel\simuladorDeMarvel\src\main\java\es\alvarogrlp\marvelsimu\backend\combat\logic\DamageCalculator.java
 C:\Users\alvar\Desktop\Alvaro\simuladorDeMarvel\simuladorDeMarvel\src\main\java\es\alvarogrlp\marvelsimu\backend\combat\logic\AbilityHandler.java

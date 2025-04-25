@@ -427,35 +427,37 @@ public class MessageDisplayManager {
         displayMessage(message, isPlayerAction);
     }
     
-    public void displayDamageReductionMessage(String characterName, double percentage, boolean isPlayerAction) {
-        int percent = (int)(percentage * 100);
-        String message = characterName + " reduce el daño recibido en un " + percent + "%";
+    /**
+     * Muestra un mensaje sobre reducción de daño
+     */
+    public void displayDamageReductionMessage(String characterName, double reductionFactor, boolean isPlayerAction) {
+        int percentage = (int)(reductionFactor * 100);
+        String message = characterName + " reduce el daño recibido en un " + percentage + "%";
         displayMessage(message, isPlayerAction);
     }
     
+    /**
+     * Muestra un mensaje sobre reflejo de daño
+     */
+    public void displayReflectionMessage(String characterName, double reflectionFactor, boolean isPlayerAction) {
+        int percentage = (int)(reflectionFactor * 100);
+        String message = characterName + " refleja un " + percentage + "% del daño recibido";
+        displayMessage(message, isPlayerAction);
+    }
+    
+    /**
+     * Muestra un mensaje sobre bloqueo de curación
+     */
     public void displayHealingBlockMessage(String characterName, boolean isPlayerAction) {
-        String message = "¡La curación de " + characterName + " ha sido bloqueada!";
+        String message = characterName + " no puede curarse mientras dure el efecto";
         displayMessage(message, isPlayerAction);
     }
     
-    public void displayTransformationMessage(String characterName, String newForm, boolean isPlayerAction) {
-        String message = "¡" + characterName + " se ha transformado en " + newForm + "!";
-        displayMessage(message, isPlayerAction);
-    }
-    
-    public void displayStageChangeMessage(String newStageName, boolean isPlayerAction) {
-        String message = "¡El escenario ha cambiado a " + newStageName + "!";
-        displayMessage(message, isPlayerAction);
-    }
-    
-    public void displayRestrictedMessage(String characterName, int turns, boolean isPlayerAction) {
-        String message = characterName + " ha sido restringido por " + turns + " turnos";
-        displayMessage(message, isPlayerAction);
-    }
-    
-    public void displayReflectionMessage(String characterName, double percentage, boolean isPlayerAction) {
-        int percent = (int)(percentage * 100);
-        String message = characterName + " refleja un " + percent + "% del daño recibido";
+    /**
+     * Muestra un mensaje sobre restricción a ataques básicos
+     */
+    public void displayRestrictedMessage(String characterName, int duration, boolean isPlayerAction) {
+        String message = characterName + " solo puede usar ataques básicos durante " + duration + " turnos";
         displayMessage(message, isPlayerAction);
     }
     

@@ -33,6 +33,7 @@ es\alvarogrlp\marvelsimu\backend\selection\ui\CharacterCardFactory.class
 es\alvarogrlp\marvelsimu\backend\controller\LoginController.class
 es\alvarogrlp\marvelsimu\backend\util\AlertUtils.class
 es\alvarogrlp\marvelsimu\backend\selection\animation\SelectionAnimationHandler.class
+es\alvarogrlp\marvelsimu\backend\combat\animation\SpecialEffectsAnimator$1.class
 es\alvarogrlp\marvelsimu\backend\combat\logic\AbilityHandler.class
 es\alvarogrlp\marvelsimu\backend\combat\logic\AbilityEffects.class
 es\alvarogrlp\marvelsimu\backend\selection\ui\SelectionUIManager.class
@@ -47,6 +48,7 @@ es\alvarogrlp\marvelsimu\backend\controller\SeleccionPersonajesController.class
 es\alvarogrlp\marvelsimu\backend\combat\animation\EnemyAnimationHandler.class
 es\alvarogrlp\marvelsimu\backend\controller\RegistroController.class
 es\alvarogrlp\marvelsimu\backend\selection\ui\TeamDisplayManager.class
+es\alvarogrlp\marvelsimu\backend\combat\animation\SpecialEffectsAnimator.class
 es\alvarogrlp\marvelsimu\backend\controller\PerfilController.class
 es\alvarogrlp\marvelsimu\backend\combat\ui\MessageDisplayManager$1.class
 es\alvarogrlp\marvelsimu\backend\model\UsuarioModel.class
