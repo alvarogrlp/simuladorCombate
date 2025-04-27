@@ -86,13 +86,13 @@ public class DatabaseUtil {
         try {
             conn = getConnection();
             
-            // Verificar si existe la tabla personajes
-            String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='personajes'";
+            // Verificar si existe la tabla personaje
+            String sql = "SELECT name FROM sqlite_master WHERE type='table' AND name='personaje'";
             stmt = conn.prepareStatement(sql);
             rs = stmt.executeQuery();
             
             if (!rs.next()) {
-                System.err.println("ERROR: La tabla 'personajes' no existe en la base de datos");
+                System.err.println("ERROR: La tabla 'personaje' no existe en la base de datos");
                 return;
             }
             
@@ -100,11 +100,11 @@ public class DatabaseUtil {
             rs.close();
             stmt.close();
             
-            sql = "PRAGMA table_info(personajes)";
+            sql = "PRAGMA table_info(personaje)";
             stmt = conn.prepareStatement(sql);
             rs = stmt.executeQuery();
             
-            System.out.println("Estructura de la tabla 'personajes':");
+            System.out.println("Estructura de la tabla 'personaje':");
             while (rs.next()) {
                 System.out.println(rs.getInt("cid") + ": " + 
                                   rs.getString("name") + " - " + 
@@ -210,13 +210,13 @@ public class DatabaseUtil {
             // Listar todas las columnas de la tabla para debugging
             System.out.println("Intentando cargar personajes de la base de datos...");
             
-            String sql = "SELECT * FROM personajes";
+            String sql = "SELECT * FROM personaje";
             stmt = conn.prepareStatement(sql);
             rs = stmt.executeQuery();
             
             // Verificar si hay resultados
             if (!rs.isBeforeFirst()) {
-                System.err.println("¡ADVERTENCIA! La tabla 'personajes' está vacía.");
+                System.err.println("¡ADVERTENCIA! La tabla 'personaje' está vacía.");
             }
             
             // Mostrar los nombres de todas las columnas para debugging
@@ -232,9 +232,18 @@ public class DatabaseUtil {
             while (rs.next()) {
                 try {
                     String id = rs.getString("id");
+                    int personajeId = rs.getInt("id");
                     System.out.println("Cargando personaje con ID: " + id);
                     
                     PersonajeModel character = buildPersonajeFromResultSet(rs);
+                    
+                    // AÑADIR AQUÍ: Cargar ataques y pasivas
+                    List<AtaqueModel> ataques = cargarAtaquesPersonaje(personajeId);
+                    character.setAtaques(ataques);
+                    
+                    List<PasivaModel> pasivas = cargarPasivasPersonaje(personajeId);
+                    character.setPasivas(pasivas);
+                    
                     charactersMap.put(id, character);
                     System.out.println("Personaje cargado: " + character.getNombre());
                 } catch (Exception e) {
@@ -265,43 +274,54 @@ public class DatabaseUtil {
     private static PersonajeModel buildPersonajeFromResultSet(ResultSet rs) throws SQLException {
         PersonajeModel character = new PersonajeModel();
         
-        // Datos básicos
-        character.setId(rs.getInt("id"));
-        character.setNombre(rs.getString("nombre"));
-        character.setNombreCodigo(rs.getString("nombre_codigo"));
-        character.setDescripcion(rs.getString("descripcion"));
-        
-        // Estadísticas básicas
-        character.setVida(rs.getInt("vida"));
-        character.setFuerza(rs.getInt("fuerza"));
-        character.setVelocidad(rs.getInt("velocidad"));
-        character.setPoder(rs.getInt("poder")); // Correcto: "poder" en lugar de "poder_magico"
-        
-        // Obtener las rutas de imágenes directamente de la base de datos
-        String imagenMiniatura = getStringOrDefault(rs, "imagen_miniatura", "images/Personajes/random.png");
-        String imagenCombate = getStringOrDefault(rs, "imagen_combate", "images/Ingame/random-ingame.png");
-        
-        // Asignar rutas al modelo
-        character.setImagenMiniatura(imagenMiniatura);
-        character.setImagenCombate(imagenCombate);
-        
-        // Logging para debug - Más detallado
-        System.out.println("===== PERSONAJE CARGADO =====");
-        System.out.println("ID: " + character.getId());
-        System.out.println("Nombre: " + character.getNombre());
-        System.out.println("Código: " + character.getNombreCodigo());
-        System.out.println("Miniatura: " + character.getImagenMiniatura());
-        System.out.println("Combate: " + character.getImagenCombate());
-        System.out.println("=============================");
-        
-        // Verificar si los recursos existen
-        boolean miniaturaExists = resourceExists(character.getImagenMiniatura());
-        boolean combateExists = resourceExists(character.getImagenCombate());
-        
-        System.out.println("¿Existe miniatura? " + miniaturaExists);
-        System.out.println("¿Existe imagen combate? " + combateExists);
-        
-        return character;
+        try {
+            // Datos básicos
+            character.setId(rs.getInt("id"));
+            character.setNombre(rs.getString("nombre"));
+            character.setNombreCodigo(rs.getString("nombre_codigo"));
+            character.setDescripcion(rs.getString("descripcion"));
+            
+            // Estadísticas básicas - con manejo de excepciones individual
+            try {
+                character.setVida(rs.getInt("vida"));
+            } catch (SQLException e) {
+                System.err.println("Error al obtener 'vida': " + e.getMessage());
+                character.setVida(100); // Valor por defecto
+            }
+            
+            try {
+                character.setFuerza(rs.getInt("fuerza"));
+            } catch (SQLException e) {
+                System.err.println("Error al obtener 'fuerza': " + e.getMessage());
+                character.setFuerza(10); // Valor por defecto
+            }
+            
+            try {
+                character.setVelocidad(rs.getInt("velocidad"));
+            } catch (SQLException e) {
+                System.err.println("Error al obtener 'velocidad': " + e.getMessage());
+                character.setVelocidad(10); // Valor por defecto
+            }
+            
+            try {
+                character.setPoder(rs.getInt("poder"));
+            } catch (SQLException e) {
+                System.err.println("Error al obtener 'poder': " + e.getMessage());
+                character.setPoder(10); // Valor por defecto
+            }
+            
+            // Imágenes con valores por defecto seguros
+            character.setImagenMiniatura(getStringOrDefault(rs, "imagen_miniatura", "defaultMiniatura.png"));
+            character.setImagenCombate(getStringOrDefault(rs, "imagen_combate", "defaultCombate.png"));
+            
+            System.out.println("Personaje construido exitosamente: " + character.getNombre());
+            
+            return character;
+            
+        } catch (SQLException e) {
+            System.err.println("Error al construir personaje: " + e.getMessage());
+            throw e;
+        }
     }
     
     /**
@@ -346,7 +366,7 @@ public class DatabaseUtil {
             String sql = "SELECT a.*, ta.clave AS tipo_ataque_clave FROM ataque a " +
                          "JOIN tipo_ataque ta ON a.tipo_ataque_id = ta.id " +
                          "WHERE a.personaje_id = ?";
-            
+        
             stmt = conn.prepareStatement(sql);
             stmt.setInt(1, personajeId);
             rs = stmt.executeQuery();
@@ -357,6 +377,10 @@ public class DatabaseUtil {
                 ataque.setPersonajeId(personajeId);
                 ataque.setTipoAtaqueId(rs.getInt("tipo_ataque_id"));
                 ataque.setTipoAtaqueClave(rs.getString("tipo_ataque_clave"));
+                
+                // Añadir el código (campo obligatorio según el esquema SQL)
+                ataque.setCodigo(rs.getString("codigo"));
+                
                 ataque.setNombre(rs.getString("nombre"));
                 ataque.setDanoBase(rs.getInt("dano_base"));
                 ataque.setUsosMaximos(rs.getInt("usos_maximos"));
@@ -364,6 +388,8 @@ public class DatabaseUtil {
                 ataque.resetearEstadoCombate();
                 ataques.add(ataque);
             }
+            
+            System.out.println("Cargados " + ataques.size() + " ataques para el personaje ID: " + personajeId);
         } catch (SQLException e) {
             System.err.println("Error cargando ataques del personaje " + personajeId + ": " + e.getMessage());
             e.printStackTrace();
@@ -401,26 +427,83 @@ public class DatabaseUtil {
             rs.close();
             stmt.close();
             
-            // Cargar las pasivas
-            String sql = "SELECT * FROM pasiva WHERE personaje_id = ?";
-            stmt = conn.prepareStatement(sql);
+            // Verificar la estructura de la tabla para adaptarnos dinámicamente
+            stmt = conn.prepareStatement("PRAGMA table_info(pasiva)");
+            rs = stmt.executeQuery();
+            
+            // Obtener nombres de columnas disponibles
+            List<String> columnNames = new ArrayList<>();
+            while (rs.next()) {
+                columnNames.add(rs.getString("name").toLowerCase());
+                System.out.println("Columna en tabla pasiva: " + rs.getString("name"));
+            }
+            
+            rs.close();
+            stmt.close();
+            
+            // Construir la consulta SQL basada en las columnas disponibles
+            StringBuilder sqlBuilder = new StringBuilder("SELECT * FROM pasiva WHERE personaje_id = ?");
+            
+            stmt = conn.prepareStatement(sqlBuilder.toString());
             stmt.setInt(1, personajeId);
             rs = stmt.executeQuery();
             
             while (rs.next()) {
                 PasivaModel pasiva = new PasivaModel();
+                
+                // Campos obligatorios según el SQL
                 pasiva.setId(rs.getInt("id"));
                 pasiva.setPersonajeId(personajeId);
-                pasiva.setNombre(rs.getString("nombre"));
-                pasiva.setDescripcion(rs.getString("descripcion"));
-                pasiva.setTriggerTipo(rs.getString("trigger_tipo"));
-                pasiva.setEfectoTipo(rs.getString("efecto_tipo"));
-                pasiva.setEfectoValor(rs.getInt("efecto_valor"));
-                pasiva.setUsosMaximos(rs.getInt("usos_maximos"));
-                pasiva.setCooldownTurnos(rs.getInt("cooldown_turnos"));
+                
+                // Verificar y establecer cada campo dinámicamente
+                if (columnNames.contains("nombre")) {
+                    pasiva.setNombre(rs.getString("nombre"));
+                } else {
+                    pasiva.setNombre("Pasiva sin nombre");
+                }
+                
+                if (columnNames.contains("descripcion")) {
+                    pasiva.setDescripcion(rs.getString("descripcion"));
+                } else {
+                    pasiva.setDescripcion("Sin descripción");
+                }
+                
+                if (columnNames.contains("trigger_tipo")) {
+                    pasiva.setTriggerTipo(rs.getString("trigger_tipo"));
+                } else {
+                    pasiva.setTriggerTipo("default");
+                }
+                
+                if (columnNames.contains("efecto_tipo")) {
+                    pasiva.setEfectoTipo(rs.getString("efecto_tipo"));
+                } else {
+                    pasiva.setEfectoTipo("default");
+                }
+                
+                if (columnNames.contains("efecto_valor")) {
+                    pasiva.setEfectoValor(rs.getInt("efecto_valor"));
+                } else {
+                    pasiva.setEfectoValor(0);
+                }
+                
+                if (columnNames.contains("usos_maximos")) {
+                    pasiva.setUsosMaximos(rs.getInt("usos_maximos"));
+                } else {
+                    pasiva.setUsosMaximos(0);
+                }
+                
+                if (columnNames.contains("cooldown_turnos")) {
+                    pasiva.setCooldownTurnos(rs.getInt("cooldown_turnos"));
+                } else {
+                    pasiva.setCooldownTurnos(0);
+                }
+                
+                // Inicializar el estado para combate
                 pasiva.resetearEstadoCombate();
                 pasivas.add(pasiva);
             }
+            
+            System.out.println("Cargadas " + pasivas.size() + " pasivas para el personaje ID: " + personajeId);
         } catch (SQLException e) {
             System.err.println("Error cargando pasivas del personaje " + personajeId + ": " + e.getMessage());
             e.printStackTrace();
@@ -461,9 +544,12 @@ public class DatabaseUtil {
         try {
             if (rs != null) rs.close();
             if (stmt != null) stmt.close();
-            if (conn != null) conn.close();
+            if (conn != null) {
+                // Liberar la conexión al pool en lugar de cerrarla
+                releaseConnection(conn);
+            }
         } catch (SQLException e) {
-            System.err.println("Error cerrando conexiones: " + e.getMessage());
+            System.err.println("Error liberando recursos: " + e.getMessage());
         }
     }
 }

@@ -66,9 +66,8 @@ public abstract class Conexion {
      * @throws SQLException
      */
     public void cerrar() throws SQLException {
-       if (connection != null || !connection.isClosed()) {
-        connection.close();
-        connection = null;
-       }
+        if (connection != null && !connection.isClosed()) {
+            connection.close();
+        }
     }
 }

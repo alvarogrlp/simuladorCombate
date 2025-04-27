@@ -29,8 +29,9 @@ public class PersonajeServiceModel extends Conexion {
     /**
      * Obtiene todos los personajes de la base de datos
      */
-    public List<PersonajeModel> obtenerTodosPersonajes() {
-        String sql = "SELECT * FROM personaje";
+    public List<PersonajeModel> obtenerTodosPersonajes() throws SQLException {
+        // Cambiar "personajes" por "personaje" en la consulta
+        String sql = "SELECT * FROM personaje"; // ¡CAMBIO AQUÍ!
         return obtenerPersonajesPorConsulta(sql);
     }
     
