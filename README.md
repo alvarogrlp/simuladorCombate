@@ -132,7 +132,7 @@ Aquí tienes la versión final con el logo redimensionado (por ejemplo a 200 pí
 
 🔴 **Haz clic en el icono para ver el video demo**  
 👇  
-<a href="https://www.youtube.com/shorts/X0rGoab48bI">
+<a href="https://www.youtube.com/watch?v=B8pD74ChRik">
   <img src="docs/images/icon-logo.png" width="200" alt="Ver demo en YouTube"/>
 </a>
 
