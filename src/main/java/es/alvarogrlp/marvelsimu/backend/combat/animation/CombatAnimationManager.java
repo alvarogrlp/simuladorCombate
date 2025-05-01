@@ -35,7 +35,7 @@ public class CombatAnimationManager {
         this.playerAnimationHandler = new PlayerAnimationHandler(rootPane);
         this.enemyAnimationHandler = new EnemyAnimationHandler(rootPane);
         this.effectsManager = new VisualEffectsManager(rootPane);
-        this.specialEffects = new SpecialEffectsAnimator(rootPane); // Inicializar el nuevo gestor
+        this.specialEffects = new SpecialEffectsAnimator(rootPane);
     }
     
     public void animatePlayerAttack(String attackType, Runnable onComplete) {
@@ -132,18 +132,6 @@ public class CombatAnimationManager {
         effectsManager.showEvasionEffect(character, isPlayerAttack);
     }
     
-    public void showDamageReductionEffect(PersonajeModel character, boolean isPlayerAttack) {
-        effectsManager.showDamageReductionEffect(character, isPlayerAttack);
-    }
-    
-    public void showRegenerationEffect(PersonajeModel character, boolean isPlayerAttack) {
-        effectsManager.showRegenerationEffect(character, isPlayerAttack);
-    }
-    
-    public void showTrueDamageEffect(PersonajeModel character, boolean isPlayerAttack) {
-        effectsManager.showTrueDamageEffect(character, isPlayerAttack);
-    }
-    
     /**
      * Anima la derrota de un personaje
      * @param defeated El personaje derrotado
@@ -232,45 +220,17 @@ public class CombatAnimationManager {
     }
     
     /**
-     * Anima una transformación de personaje
+     * Anima un ataque con daño basado en una stat
      */
-    public void animateTransformation(PersonajeModel character, boolean isPlayerCharacter, Runnable onComplete) {
-        specialEffects.animateTransformation(character, isPlayerCharacter, onComplete);
+    public void animateStatBasedAttack(PersonajeModel character, int damage, boolean isPlayerCharacter) {
+        specialEffects.animateAbilityDamage(character, damage, isPlayerCharacter);
     }
     
     /**
-     * Anima un modificador de estadística (buff/debuff)
+     * Anima un ataque instantáneo fatal
      */
-    public void animateStatModifier(PersonajeModel character, Stat stat, double multiplier, boolean isPlayerCharacter) {
-        specialEffects.animateStatModifier(character, stat, multiplier, isPlayerCharacter);
-    }
-    
-    /**
-     * Anima el bloqueo de curación
-     */
-    public void animateHealBlock(PersonajeModel character, boolean isPlayerCharacter) {
-        specialEffects.animateHealBlock(character, isPlayerCharacter);
-    }
-    
-    /**
-     * Anima un efecto de reflejo de daño
-     */
-    public void animateDamageReflection(PersonajeModel character, double reflectionFactor, boolean isPlayerCharacter) {
-        // Calcular un valor aproximado para visualización
-        int damageAmount = (int)(1000 * reflectionFactor); // Valor visual aproximado
-        
-        // Usar el personaje opuesto como "atacante" para la animación
-        PersonajeModel attacker = isPlayerCharacter ? 
-                getCurrentAICharacter() : getCurrentPlayerCharacter();
-        
-        specialEffects.animateDamageReflection(attacker, character, damageAmount, !isPlayerCharacter);
-    }
-    
-    /**
-     * Anima un efecto de restricción a ataques básicos
-     */
-    public void animateRestrictedToBasic(PersonajeModel character, boolean isPlayerCharacter) {
-        specialEffects.animateRestrictedToBasic(character, isPlayerCharacter);
+    public void animateInstantKill(PersonajeModel character, boolean isPlayerCharacter, Runnable onComplete) {
+        specialEffects.animateInstantKill(character, isPlayerCharacter, onComplete);
     }
     
     /**

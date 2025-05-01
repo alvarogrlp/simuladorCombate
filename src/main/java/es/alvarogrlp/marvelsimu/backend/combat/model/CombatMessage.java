@@ -1,24 +1,21 @@
 package es.alvarogrlp.marvelsimu.backend.combat.model;
 
 /**
- * Modelo para representar mensajes del combate con metadatos
+ * Modelo simplificado para representar mensajes del combate con metadatos
  */
 public class CombatMessage {
     
-    // Tipos de mensaje
+    // Tipos de mensaje simplificados
     public enum MessageType {
         ACTION,      // Acción normal (ataque, etc.)
         RESULT,      // Resultado de una acción (daño, etc.)
         TURN,        // Cambio de turno
         EVASION,     // Ataque evadido
-        CRITICAL,    // Golpe crítico
-        REDUCTION,   // Daño reducido
         DEFEAT,      // Personaje derrotado
         ABILITY,     // Uso de habilidad
-        REGENERATION,// Regeneración de vida
         VICTORY,     // Victoria en combate
         WARNING,     // Mensaje de advertencia o error
-        TURN_CHANGE  // Añadir este nuevo tipo
+        TURN_CHANGE  // Cambio de turno entre jugadores
     }
     
     private String text;
@@ -26,7 +23,7 @@ public class CombatMessage {
     private boolean isPlayerAction;
     private int relatedValue;
     private String additionalInfo;
-    private boolean success; // Nuevo campo
+    private boolean success;
     
     /**
      * Constructor interno ajustado
@@ -85,22 +82,6 @@ public class CombatMessage {
     }
     
     /**
-     * Crea un mensaje de golpe crítico
-     */
-    public static CombatMessage createCriticalMessage(String attackName, boolean isPlayerAction, int damage) {
-        String text = "¡CRÍTICO! " + attackName;
-        return new CombatMessage(text, MessageType.CRITICAL, isPlayerAction, damage, null);
-    }
-    
-    /**
-     * Crea un mensaje de reducción de daño
-     */
-    public static CombatMessage createReductionMessage(String characterName, boolean isPlayerAction) {
-        String text = characterName + " reduce el daño recibido";
-        return new CombatMessage(text, MessageType.REDUCTION, isPlayerAction);
-    }
-    
-    /**
      * Crea un mensaje de derrota
      */
     public static CombatMessage createDefeatMessage(String characterName, boolean isPlayerAction) {
@@ -127,14 +108,6 @@ public class CombatMessage {
     }
     
     /**
-     * Crea un mensaje de regeneración
-     */
-    public static CombatMessage createRegenerationMessage(String characterName, boolean isPlayerAction, int healthRecovered) {
-        String text = characterName + " regenera " + healthRecovered + " puntos de vida";
-        return new CombatMessage(text, MessageType.REGENERATION, isPlayerAction, healthRecovered, null);
-    }
-    
-    /**
      * Crea un mensaje de victoria
      */
     public static CombatMessage createVictoryMessage(boolean playerWon) {
@@ -151,11 +124,6 @@ public class CombatMessage {
     
     /**
      * Crea un mensaje de fallo al tratar de usar una habilidad.
-     * El campo 'success' quedará a false.
-     *
-     * @param actor       nombre del personaje que lanza la habilidad
-     * @param abilityName nombre de la habilidad
-     * @return mensaje indicando que no pudo ejecutarse
      */
     public static CombatMessage createFailedMessage(String actor, String abilityName) {
         return createAbilityMessage(actor, abilityName, true, false);
@@ -165,7 +133,6 @@ public class CombatMessage {
      * Crear un mensaje para cambio de turno
      */
     public static CombatMessage createTurnChangeMessage(String text, boolean isPlayerTurn) {
-        // Usar el constructor existente en lugar de intentar crear una instancia vacía
         return new CombatMessage(text, MessageType.TURN_CHANGE, isPlayerTurn);
     }
     

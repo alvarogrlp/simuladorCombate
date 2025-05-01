@@ -66,13 +66,10 @@ public class PrincipalController extends AbstractController {
         MenuItem perfil = new MenuItem("Perfil");
         perfil.setOnAction(event -> onPerfilClick());
 
-        MenuItem historial = new MenuItem("Historial");
-        historial.setOnAction(event -> onHistorialClick());
-
         MenuItem cerrarSesion = new MenuItem("Cerrar Sesión");
         cerrarSesion.setOnAction(event -> onCerrarSesionClick());
 
-        perfilButton.getItems().addAll(perfil, historial, cerrarSesion);
+        perfilButton.getItems().addAll(perfil, cerrarSesion);
     }
 
     // Métodos para el menú de perfil

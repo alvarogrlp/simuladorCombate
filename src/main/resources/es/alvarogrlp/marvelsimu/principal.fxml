@@ -28,7 +28,6 @@
          </graphic>
          <items>
             <MenuItem fx:id="menuItemPerfil" mnemonicParsing="false" onAction="#onPerfilClick" text="Perfil" />
-            <MenuItem fx:id="menuItemHistorial" mnemonicParsing="false" onAction="#onHistorialClick" text="Historial" />
             <MenuItem fx:id="menuItemCerrarSesion" mnemonicParsing="false" onAction="#onCerrarSesionClick" text="Cerrar Sesión" />
          </items>
       </SplitMenuButton>

@@ -192,14 +192,45 @@ public class CombatUIManager {
     
     private void loadBackground() {
         try {
-            ImageView backgroundImage = new ImageView(new Image(getClass().getClassLoader().getResourceAsStream("images/Fondos/limbo.png")));
+            // Lista de fondos disponibles (excluimos cosmic-fondo.png)
+            String[] availableBackgrounds = {
+                "asgard.png",
+                "dimension-espejo.png",
+                "kamartaj.png",
+                "limbo.png",
+                "new-york.png",
+                "tenerife.png",
+                "wakanda.png"
+            };
+            
+            // Seleccionar un fondo aleatorio
+            int randomIndex = new java.util.Random().nextInt(availableBackgrounds.length);
+            String selectedBackground = availableBackgrounds[randomIndex];
+            
+            System.out.println("Cargando fondo aleatorio: " + selectedBackground);
+            
+            // Cargar la imagen
+            ImageView backgroundImage = new ImageView(new Image(getClass().getClassLoader().getResourceAsStream("images/Fondos/" + selectedBackground)));
             backgroundImage.setFitWidth(896);
             backgroundImage.setFitHeight(810);
             backgroundImage.setPreserveRatio(false);
             
+            // Añadir el fondo como el primer elemento para que esté detrás de todo
             rootPane.getChildren().add(0, backgroundImage);
         } catch (Exception e) {
-            System.err.println("Error cargando fondo: " + e.getMessage());
+            System.err.println("Error cargando fondo aleatorio: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Si hay un error, intentamos cargar el fondo predeterminado como fallback
+            try {
+                ImageView defaultBackground = new ImageView(new Image(getClass().getClassLoader().getResourceAsStream("images/Fondos/limbo.png")));
+                defaultBackground.setFitWidth(896);
+                defaultBackground.setFitHeight(810);
+                defaultBackground.setPreserveRatio(false);
+                rootPane.getChildren().add(0, defaultBackground);
+            } catch (Exception ex) {
+                System.err.println("Error crítico cargando fondo predeterminado: " + ex.getMessage());
+            }
         }
     }
     

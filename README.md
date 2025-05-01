@@ -1,4 +1,4 @@
-# 🦸‍♂️ Simulador de Combates Marvel  
+# 🦸‍♂️ MarvelSimu — Simulador de Combates Marvel  
 *¡Elige, combate y domina!*
 
 ![Versión](https://img.shields.io/badge/version-1.0.0-blue.svg)
@@ -8,55 +8,127 @@
 
 ## 🧩 Descripción del Propósito
 
-**Simulador de Combates Marvel** es una aplicación interactiva construida con JavaFX que permite a los usuarios revivir combates entre héroes y villanos del universo Marvel. El usuario puede elegir sus personajes favoritos, configurar el entorno del combate y ver el resultado de la batalla a través de un sistema que evalúa las estadísticas y habilidades de cada combatiente.
+**MarvelSimu** es una aplicación interactiva construida con Java y JavaFX que permite a los usuarios experimentar combates estratégicos entre héroes y villanos del universo Marvel en escenarios icónicos. No es solo una simulación visual: se trata de un sistema con lógica de combate avanzada, animaciones dinámicas, soporte multilenguaje, gestión de usuarios y un enfoque modular que facilita la extensión del proyecto.
 
-Está orientada tanto a fans del universo Marvel como a estudiantes de desarrollo que buscan aprender sobre estructuras de datos, interfaces gráficas y diseño orientado a objetos a través de un proyecto entretenido. Su enfoque modular y visual la hace ideal para personas que recién comienzan a programar y quieren algo más dinámico que los típicos ejercicios de consola.
-
-Lo que hace a esta app única es su interfaz limpia y adaptable, su soporte para múltiples idiomas y la posibilidad futura de expandir la base de datos con más personajes, poderes personalizados y estadísticas avanzadas que aporten realismo y rejugabilidad.
+Está pensada tanto para fans del universo Marvel como para estudiantes que deseen aprender desarrollo de software moderno, estructuras de datos, bases de datos, interfaces gráficas y lógica orientada a eventos a través de un entorno divertido e inmersivo.
 
 ---
 
-## 🎨 Diseño
+## ✨ Características Principales
 
-<div align="center">
-  <table>
-    <tr>
-      <td align="center">
-        <img src="docs/images/prototipo-inicial.png" width="300px" height="600px" alt="Wireframe inicial"/>
-        <br/>
-        <i>Wireframe inicial en Figma</i>
-      </td>
-      <td align="center">
-        <img src="docs/images/inicio-oscuro.png" width="300px" height="600px" alt="Diseño final modo oscuro"/>
-        <br/>
-        <i>Diseño final en JavaFX - Modo Oscuro</i>
-      </td>
-      <td align="center">
-        <img src="docs/images/inicio-claro.png" width="300px" height="600px" alt="Diseño final modo claro"/>
-        <br/>
-        <i>Diseño final en JavaFX - Modo Claro</i>
-      </td>
-    </tr>
-  </table>
-</div>
+- 🧠 **Selección de personajes** con estadísticas y habilidades activas/pasivas únicas.
+- 🦾 **IA enemiga estratégica**, que toma decisiones basadas en lógica programada.
+- 🌍 **Escenarios únicos y temáticos** como Wakanda, Kamar-Taj, Titán o Tenerife.
+- ⚔️ **Sistema de combate por turnos** con ataques cuerpo a cuerpo, a distancia y habilidades especiales.
+- 🎭 **Animaciones de combate** personalizadas para cada tipo de acción.
+- 🧑‍💼 **Gestión de usuarios** con login, registro, recuperación y edición de perfil.
+- 🌓 **Modo claro y oscuro**, activable desde la interfaz.
+- 🌐 **Soporte multilenguaje**: español, inglés y francés.
+- 🧪 **Test unitarios** para modelos, servicios y utilidades.
+- 🖼️ **Diseño visual adaptado**, con CSS personalizado y pantallas dinámicas.
 
-> 📌 *Comparando el wireframe con el diseño final se pueden apreciar los cambios visuales, como la incorporación de tipografía más moderna, estructura visual más clara, compatibilidad con temas claro/oscuro y refinamiento general de los elementos gráficos.*
+---
 
+## 🧱 Arquitectura del Proyecto
 
-> **Cambios clave**: se simplificó la navegación, se reorganizó el menú para mejorar la experiencia de usuario y se adaptó la interfaz a modo oscuro/claro dinámico, cosa que no se contempló en el prototipo inicial.
+- **Frontend**: JavaFX + FXML + CSS  
+- **Backend**: Java (POO), dividido por lógica de combate, selección y servicios  
+- **Persistencia**: SQLite  
+- **Animaciones**: Sistema modular para efectos visuales y acciones  
+- **Internacionalización**: `.properties` por idioma  
+- **Testing**: JUnit en servicios y lógica de modelo  
 
 ---
 
 ## 🧪 Tecnologías Usadas
 
-| Tecnología    | Descripción            |
-|---------------|------------------------|
-| ☕ Java 17     | Lenguaje principal     |
-| 🎨 JavaFX 21  | Interfaz gráfica       |
-| 🗃️ SQLite     | Base de datos local    |
-| ⚙️ Maven      | Gestión de dependencias |
-| 🎨🧵 CSS       | Estilos personalizados |
+| Tecnología    | Descripción              |
+|---------------|--------------------------|
+| ☕ Java 17     | Lenguaje principal       |
+| 🎨 JavaFX 21  | Interfaz gráfica         |
+| 🗃️ SQLite     | Base de datos local      |
+| ⚙️ Maven      | Gestión de dependencias  |
+| 🧪 JUnit       | Pruebas automatizadas    |
+| 🎨 CSS        | Estilos personalizados   |
 
+---
+
+## 🕹️ Flujo de Uso
+
+1. **Pantalla de inicio**  
+   Acceso a login, registro o recuperación de contraseña.
+
+2. **Gestión de usuario**  
+   Interfaz para editar perfil, nombre, contraseña e imagen.
+
+3. **Selección de personajes y escenario**  
+   - Creación de equipos.
+   - Visualización de estadísticas y habilidades.
+   - Selección manual o aleatoria de personajes.
+   - Elección del escenario de combate.
+
+4. **Pantalla de combate**  
+   - Sistema por turnos: elige entre ataques, habilidades o cambiar estrategia.
+   - Barra de mensajes con texto narrativo.
+   - Animaciones visuales en cada acción.
+   - Sistema de turnos inteligentes con IA.
+
+5. **Resultado y fin del combate**  
+   Mensaje final, resultado, efectos visuales y posibilidad de volver a jugar.
+
+---
+
+## 🌍 Internacionalización
+
+La aplicación cuenta con un sistema de traducción automática gestionado por archivos `.properties`, con los siguientes idiomas disponibles:
+
+- Español (`idioma-es.properties`)
+- Inglés (`idioma-en.properties`)
+- Francés (`idioma-fr.properties`)
+
+---
+
+## 🎨 Diseño Visual
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="docs/images/prototipo-inicial.png" width="210px" alt="Wireframe inicial"/>
+        <br/>
+        <i>Wireframe inicial</i>
+      </td>
+      <td align="center">
+        <img src="docs/images/inicio-oscuro.png" width="250px" alt="Modo Oscuro"/>
+        <br/>
+        <i>Modo oscuro</i>
+      </td>
+      <td align="center">
+        <img src="docs/images/inicio-claro.png" width="250px" alt="Modo Claro"/>
+        <br/>
+        <i>Modo claro</i>
+      </td>
+    </tr>
+  </table>
+</div>
+
+> **Diferencias clave**: navegación simplificada, experiencia visual refinada, soporte dinámico de temas y estructura intuitiva.
+
+---
+
+Perfecto. Para incluir ese video en el `README.md`, puedes usar una vista previa en forma de imagen enlazada al video, o directamente el enlace si lo subes a una plataforma como YouTube. Como está en una carpeta local (`contenido/demo.mp4`), GitHub no permite reproducirlo directamente, pero sí puedes hacer lo siguiente:
+
+---
+
+### 📽️ Demostración en Video
+
+<div align="center">
+  <video src="src\main\resources\images\Contenido\demo.mp4" controls width="600">
+    Tu navegador no soporta videos HTML5.
+  </video>
+</div>
+
+> En este video se muestra el proceso completo de **selección de personajes** y el **combate por turnos**, con animaciones, estadísticas, IA enemiga y efectos visuales dinámicos.
 
 ---
 
@@ -66,39 +138,35 @@ Lo que hace a esta app única es su interfaz limpia y adaptable, su soporte para
    ```bash
    git clone https://github.com/tu-usuario/simulador-combates-marvel.git
    cd simulador-combates-marvel
-   
+   ```
+
 2. Instala las dependencias y compila:
    ```bash
    mvn clean install
-   
+   ```
+
 3. Ejecuta la aplicación:
    ```bash
    mvn javafx:run
+   ```
 
 ---
 
 ## 🛤️ Roadmap (Mejoras Futuras)
 
-- Implementación de **múltiples escenarios de combate** (ciudades, espacios cerrados, otros planetas).
-- Nuevos **modos de juego**:
-  - 1vs1 clásico
-  - 3vs3
-  - 5vs5
-  - **Simulaciones masivas** (ej: 3000 vs 3)
-- Posible **modo campaña narrativa** con progresión de combates.
-- Mejora del sistema de IA para combates más realistas.
-- Animaciones básicas para representar ataques o habilidades.
-- Estadísticas post-combate y tablas comparativas.
-- Exportar resultados o guardar combates favoritos.
+- Modo campaña narrativa con historia.
 - Editor de combates personalizados.
+- Simulaciones masivas automáticas (ej. 100 vs 100).
+- Modo espectador.
+- Mayor variedad de habilidades por personaje.
+- Sonido y música de combate.
+- Exportación de estadísticas post-combate.
 
 ---
 
 ## 📜 Licencia
 
-Este proyecto está licenciado bajo la **Licencia MIT**.
-
-Puedes usar, modificar y distribuir el código con libertad, siempre que mantengas el aviso de copyright
-original y la licencia.
-
+Este proyecto está bajo la **Licencia MIT**.  
 Consulta el archivo [LICENSE](LICENSE) para más información.
+
+---

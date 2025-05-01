@@ -88,17 +88,11 @@ public class TurnManager {
         // Incrementar el contador de turnos cuando termina el turno de la IA
         currentTurn++;
         
-        // Procesar efectos programados para este turno
-        combatManager.processScheduledEffects(currentTurn);
-        
         // Actualizar cooldowns de ataques del jugador
         PersonajeModel playerCharacter = combatManager.getCurrentPlayerCharacter();
         for (AtaqueModel ataque : playerCharacter.getAtaques()) {
             ataque.finalizarTurno();
         }
-        
-        // Actualizar efectos activos del jugador
-        combatManager.getEffectsManager().tickEffects(playerCharacter);
         
         // Habilitar controles del jugador para el nuevo turno
         combatManager.getUIManager().enablePlayerControls();

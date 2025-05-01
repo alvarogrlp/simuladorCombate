@@ -35,12 +35,12 @@ public class MessageDisplayManager {
     private Queue<MessageEntry> messageQueue = new LinkedList<>();
     private boolean isProcessingQueue = false;
     
-    // Duración de mensajes aumentada
-    private static final int DEFAULT_DISPLAY_TIME = 2500;  // Aumentado de 1800 a 2500
-    private static final int SHORT_DISPLAY_TIME = 1800;    // Aumentado de 1000 a 1800
-    private static final int LONG_DISPLAY_TIME = 3500;     // Aumentado de 2500 a 3500
-    private static final int EFFECT_DISPLAY_TIME = 2200;   // Nuevo tiempo para mensajes de efectos
-    private static final int TURN_DISPLAY_TIME = 1200;     // Tiempo reducido específico para mensajes de turno
+    // Duración de mensajes
+    private static final int DEFAULT_DISPLAY_TIME = 2500;
+    private static final int SHORT_DISPLAY_TIME = 1800;
+    private static final int LONG_DISPLAY_TIME = 3500;
+    private static final int EFFECT_DISPLAY_TIME = 2200;
+    private static final int TURN_DISPLAY_TIME = 1200;
     
     // Clase interna para entradas en la cola
     private class MessageEntry {
@@ -64,13 +64,13 @@ public class MessageDisplayManager {
     
     private void initializeMessageContainer() {
         messageContainer = new StackPane();
-        messageContainer.setMinWidth(450);  // Aumentado para mejor visibilidad
-        messageContainer.setMinHeight(80);  // Aumentado para mejor visibilidad
+        messageContainer.setMinWidth(450);
+        messageContainer.setMinHeight(80);
         messageContainer.setMaxWidth(450);  
         messageContainer.setPrefWidth(450); 
         messageContainer.setAlignment(Pos.CENTER);
-        messageContainer.setPadding(new Insets(12, 18, 12, 18));  // Padding mejorado
-        messageContainer.getStyleClass().add("combat-message-container"); // Usar clase CSS
+        messageContainer.setPadding(new Insets(12, 18, 12, 18));
+        messageContainer.getStyleClass().add("combat-message-container");
         messageContainer.setVisible(false);
         
         // Posición ajustada para mejor visibilidad
@@ -133,15 +133,8 @@ public class MessageDisplayManager {
         
         // Aplicar estilos específicos según el tipo de mensaje
         switch (type) {
-            case CRITICAL:
-                messageText.setFill(Color.YELLOW);
-                messageText.setFont(Font.font("System", FontWeight.BOLD, 20));
-                break;
             case EVASION:
                 messageText.setFill(Color.LIGHTBLUE);
-                break;
-            case REDUCTION:
-                messageText.setFill(Color.LIGHTGREEN);
                 break;
             case DEFEAT:
                 messageText.setFill(Color.ORANGE);
@@ -154,7 +147,7 @@ public class MessageDisplayManager {
             case WARNING:
                 messageText.setFill(Color.RED);
                 break;
-            case TURN_CHANGE:  // Nuevo tipo para mensajes de turno
+            case TURN_CHANGE:
                 messageText.setFont(Font.font("System", FontWeight.BOLD, 22));
                 if (isPlayerAction) {
                     messageText.setFill(Color.LIGHTBLUE);
@@ -177,11 +170,10 @@ public class MessageDisplayManager {
             case DEFEAT:
                 displayTime = LONG_DISPLAY_TIME;
                 break;
-            case TURN_CHANGE:  // Tiempo reducido para mensajes de turno
+            case TURN_CHANGE:
                 displayTime = TURN_DISPLAY_TIME;
                 break;
             case EVASION:
-            case REDUCTION:
                 displayTime = SHORT_DISPLAY_TIME;
                 break;
             case ABILITY:
@@ -233,12 +225,9 @@ public class MessageDisplayManager {
                 simplified = "IA usa ";
             }
             
-            // Extraer el nombre del ataque y si es crítico
+            // Extraer el nombre del ataque
             int startIndex = message.lastIndexOf("ha usado") + 8;
             String attackPart = message.substring(startIndex).trim();
-            
-            // Verificar si hay texto de crítico
-            boolean isCritical = attackPart.contains("CRÍTICO");
             
             // Extraer solo el nombre del ataque (hasta el primer espacio después del ataque)
             if (attackPart.contains(" y ")) {
@@ -248,11 +237,6 @@ public class MessageDisplayManager {
             }
             
             simplified += attackPart;
-            
-            // Añadir marcador de crítico si es necesario
-            if (isCritical) {
-                simplified += " (¡CRÍTICO!)";
-            }
             
             return simplified;
         } 
@@ -270,40 +254,23 @@ public class MessageDisplayManager {
                 }
             }
             
-            boolean isCritical = message.contains("CRÍTICO");
             String simplified = damage + " daño a " + target;
-            
-            if (isCritical) {
-                simplified += " (¡CRÍTICO!)";
-            }
-            
             return simplified;
         }
         
-        // Si no coincide con patrones conocidos, al menos acortar el mensaje
-        if (message.length() > 40) {
-            // Mantener el texto original pero truncado a 40 caracteres
-            return message.substring(0, 37) + "...";
-        }
-        
+        // Si no coincide con patrones conocidos, mostrar el mensaje completo
         return message;
     }
     
     /**
      * Muestra un mensaje de daño en combate
      * @param damage Cantidad de daño
-     * @param isCritical Si es golpe crítico
      * @param target Objetivo del ataque
      * @param isPlayerAction Si es acción del jugador
      * @param onComplete Callback para ejecutar al finalizar
      */
-    public void displayDamageMessage(int damage, boolean isCritical, String target, boolean isPlayerAction, Runnable onComplete) {
+    public void displayDamageMessage(int damage, String target, boolean isPlayerAction, Runnable onComplete) {
         String message = damage + " de daño";
-        
-        // Añadir indicador de crítico
-        if (isCritical) {
-            message += " (¡CRÍTICO!)";
-        }
         
         // Añadir a quién se le aplicó el daño
         message += " a " + target;
@@ -313,8 +280,8 @@ public class MessageDisplayManager {
     }
 
     // Sobrecarga para mantener compatibilidad
-    public void displayDamageMessage(int damage, boolean isCritical, String target, boolean isPlayerAction) {
-        displayDamageMessage(damage, isCritical, target, isPlayerAction, null);
+    public void displayDamageMessage(int damage, String target, boolean isPlayerAction) {
+        displayDamageMessage(damage, target, isPlayerAction, null);
     }
     
     /**
@@ -366,9 +333,15 @@ public class MessageDisplayManager {
         isDisplayingMessage = true;
         messageContainer.getChildren().clear();
         
-        // Reducir el tamaño de la fuente si el texto sigue siendo demasiado largo
+        // Ajustar el tamaño de la fuente según la longitud del texto
         String text = messageText.getText();
-        if (text.length() > 30) {
+        if (text.length() > 50) {
+            messageText.setFont(Font.font("System", FontWeight.BOLD, 14));
+            // Para mensajes muy largos, aumentar el ancho del contenedor
+            messageContainer.setMaxWidth(550);
+            messageContainer.setPrefWidth(550);
+            messageText.setWrappingWidth(500);
+        } else if (text.length() > 30) {
             messageText.setFont(Font.font("System", FontWeight.BOLD, 16));
         }
         
@@ -392,6 +365,19 @@ public class MessageDisplayManager {
         dropShadow.setOffsetY(3.0);
         dropShadow.setColor(Color.BLACK);
         messageContainer.setEffect(dropShadow);
+        
+        // Asegurarse de que el contenedor esté centrado horizontalmente
+        if (messageContainer.getMaxWidth() > 450) {
+            // Ajustar el anclaje para mantenerlo centrado si cambió el tamaño
+            double newLeft = (896 - messageContainer.getMaxWidth()) / 2;
+            AnchorPane.setLeftAnchor(messageContainer, newLeft);
+        } else {
+            // Volver a los valores originales si no hay cambios
+            AnchorPane.setLeftAnchor(messageContainer, 223.0);
+            messageContainer.setMaxWidth(450);
+            messageContainer.setPrefWidth(450);
+            messageText.setWrappingWidth(380);
+        }
         
         // Animaciones de entrada y salida
         messageContainer.setOpacity(0);
@@ -418,57 +404,5 @@ public class MessageDisplayManager {
         
         SequentialTransition sequence = new SequentialTransition(fadeIn, display, fadeOut);
         sequence.play();
-    }
-    
-    // Nuevos métodos para mostrar mensajes de efectos específicos
-    public void displayStatBuffMessage(String characterName, String statName, boolean isIncrease, boolean isPlayerAction) {
-        String action = isIncrease ? "aumentado" : "reducido";
-        String message = characterName + " ha " + action + " su " + statName;
-        displayMessage(message, isPlayerAction);
-    }
-    
-    /**
-     * Muestra un mensaje sobre reducción de daño
-     */
-    public void displayDamageReductionMessage(String characterName, double reductionFactor, boolean isPlayerAction) {
-        int percentage = (int)(reductionFactor * 100);
-        String message = characterName + " reduce el daño recibido en un " + percentage + "%";
-        displayMessage(message, isPlayerAction);
-    }
-    
-    /**
-     * Muestra un mensaje sobre reflejo de daño
-     */
-    public void displayReflectionMessage(String characterName, double reflectionFactor, boolean isPlayerAction) {
-        int percentage = (int)(reflectionFactor * 100);
-        String message = characterName + " refleja un " + percentage + "% del daño recibido";
-        displayMessage(message, isPlayerAction);
-    }
-    
-    /**
-     * Muestra un mensaje sobre bloqueo de curación
-     */
-    public void displayHealingBlockMessage(String characterName, boolean isPlayerAction) {
-        String message = characterName + " no puede curarse mientras dure el efecto";
-        displayMessage(message, isPlayerAction);
-    }
-    
-    /**
-     * Muestra un mensaje sobre restricción a ataques básicos
-     */
-    public void displayRestrictedMessage(String characterName, int duration, boolean isPlayerAction) {
-        String message = characterName + " solo puede usar ataques básicos durante " + duration + " turnos";
-        displayMessage(message, isPlayerAction);
-    }
-    
-    public void displayDamageBoostMessage(String characterName, double percentage, boolean isPlayerAction) {
-        int percent = (int)(percentage * 100);
-        String message = characterName + " aumenta su daño en un " + percent + "%";
-        displayMessage(message, isPlayerAction);
-    }
-    
-    public void displayStatusEffectMessage(String characterName, String effectName, boolean isPlayerAction) {
-        String message = characterName + " sufre el efecto: " + effectName;
-        displayMessage(message, isPlayerAction);
     }
 }

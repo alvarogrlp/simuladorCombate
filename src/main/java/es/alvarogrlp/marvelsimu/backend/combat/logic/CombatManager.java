@@ -2,13 +2,11 @@ package es.alvarogrlp.marvelsimu.backend.combat.logic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import es.alvarogrlp.marvelsimu.backend.combat.animation.CombatAnimationManager;
 import es.alvarogrlp.marvelsimu.backend.combat.model.CombatMessage;
-import es.alvarogrlp.marvelsimu.backend.combat.model.Stat;
 import es.alvarogrlp.marvelsimu.backend.combat.ui.CombatUIManager;
 import es.alvarogrlp.marvelsimu.backend.combat.ui.MessageDisplayManager;
 import es.alvarogrlp.marvelsimu.backend.model.AtaqueModel;
@@ -47,47 +45,9 @@ public class CombatManager {
     private AnchorPane rootPane;
     private es.alvarogrlp.marvelsimu.backend.selection.logic.SelectionManager selectionManager;
     private final AbilityManager abilityManager;
-    private AbilityEffects effectsManager;
-    private Map<Integer, List<Runnable>> scheduledEffects = new HashMap<>();
-
-    private final Map<PersonajeModel, Map<Stat, CombatManager.StatModifier>> statModifiers
-            = new HashMap<PersonajeModel, Map<Stat, CombatManager.StatModifier>>();
-    // Mapa para recordar la forma base de cada transformación
-    private Map<PersonajeModel, PersonajeModel> originalFormMap = new HashMap<>();
-    private Map<PersonajeModel, Integer> originalHealthMap = new HashMap<>();
 
     // Añadir este campo a CombatManager para rastrear el último daño recibido por cada personaje
     private Map<PersonajeModel, Integer> lastDamageTaken = new HashMap<>();
-
-    /**
-     * Clase para representar un modificador de estadística
-     */
-    private static class StatModifier {
-
-        private double multiplier;
-        private int duration;
-
-        public StatModifier(double multiplier, int duration) {
-            this.multiplier = multiplier;
-            this.duration = duration;
-        }
-
-        public double getMultiplier() {
-            return multiplier;
-        }
-
-        public void setMultiplier(double multiplier) {
-            this.multiplier = multiplier;
-        }
-
-        public int getDuration() {
-            return duration;
-        }
-
-        public void setDuration(int duration) {
-            this.duration = duration;
-        }
-    }
 
     public CombatManager(
             AnchorPane rootPane,
@@ -109,7 +69,6 @@ public class CombatManager {
         this.turnManager = new TurnManager(this, messageManager);
         this.aiSelector = new AIActionSelector();
         this.abilityManager = new AbilityManager(this);
-        this.effectsManager = new AbilityEffects(this);
 
         // Guardar una referencia a esta instancia para acceder desde la UI
         rootPane.setUserData(this);
@@ -379,8 +338,14 @@ public class CombatManager {
                 aiCharacters.get(aiCharacterIndex)
         );
 
+        // Verificar nuevamente si el personaje fue derrotado (doble verificación para mayor seguridad)
+        defeated = defender.getVidaActual() <= 0;
+        
         // Si el personaje fue derrotado, manejarlo después de un breve retraso
         if (defeated) {
+            // Marcar explícitamente como derrotado
+            defender.setDerrotado(true);
+            
             javafx.animation.PauseTransition defeatDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(1000));
             defeatDelay.setOnFinished(e -> {
                 handleCharacterDefeat(defender, isPlayerAttack);
@@ -436,10 +401,41 @@ public class CombatManager {
                 String characterCode = attacker.getNombreCodigo();
                 String abilityCode = characterCode + "_hab1";
 
+                // Guardar la vida antes del ataque
+                int prevHealth = defender.getVidaActual();
+                
                 // Ejecutar la habilidad usando el nuevo sistema
                 CombatMessage msg = abilityManager.executeAbility(abilityCode, attacker, defender);
 
                 if (msg != null) {
+                    int damage = prevHealth - defender.getVidaActual();
+                    
+                    // Verificar si el jugador fue derrotado después del ataque
+                    boolean defeated = defender.getVidaActual() <= 0;
+                    
+                    // Asegurarse que la vida no baje de 0
+                    if (defeated) {
+                        defender.setVidaActual(0);
+                        
+                        messageManager.displayCombatMessage(msg, () -> {
+                            if (damage > 0) {
+                                animationManager.showDamageText(damage, false, false, false);
+                                
+                                // Actualizar barras de vida INMEDIATAMENTE
+                                uiManager.updateCharacterHealth(
+                                    playerCharacters.get(playerCharacterIndex),
+                                    aiCharacters.get(aiCharacterIndex)
+                                );
+                                
+                                // Manejar la derrota después de un breve retraso
+                                javafx.animation.PauseTransition defeatDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(1200));
+                                defeatDelay.setOnFinished(e -> handleCharacterDefeat(defender, false));
+                                defeatDelay.play();
+                            }
+                        });
+                        return;
+                    }
+                    
                     messageManager.displayMessage(msg.getText(), false);
                     turnManager.finishAITurn();
                 } else {
@@ -455,9 +451,40 @@ public class CombatManager {
                 String characterCode = attacker.getNombreCodigo();
                 String abilityCode = characterCode + "_hab2";
 
+                // Guardar la vida antes del ataque
+                int prevHealth = defender.getVidaActual();
+                
                 CombatMessage msg = abilityManager.executeAbility(abilityCode, attacker, defender);
 
                 if (msg != null) {
+                    int damage = prevHealth - defender.getVidaActual();
+                    
+                    // Verificar si el jugador fue derrotado después del ataque
+                    boolean defeated = defender.getVidaActual() <= 0;
+                    
+                    // Asegurarse que la vida no baje de 0
+                    if (defeated) {
+                        defender.setVidaActual(0);
+                        
+                        messageManager.displayCombatMessage(msg, () -> {
+                            if (damage > 0) {
+                                animationManager.showDamageText(damage, false, false, false);
+                                
+                                // Actualizar barras de vida INMEDIATAMENTE
+                                uiManager.updateCharacterHealth(
+                                    playerCharacters.get(playerCharacterIndex),
+                                    aiCharacters.get(aiCharacterIndex)
+                                );
+                                
+                                // Manejar la derrota después de un breve retraso
+                                javafx.animation.PauseTransition defeatDelay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(1200));
+                                defeatDelay.setOnFinished(e -> handleCharacterDefeat(defender, false));
+                                defeatDelay.play();
+                            }
+                        });
+                        return;
+                    }
+                    
                     messageManager.displayMessage(msg.getText(), false);
                     turnManager.finishAITurn();
                 } else {
@@ -515,7 +542,7 @@ public class CombatManager {
             System.out.println("Daño calculado: " + damageToInflict + " (base: " + danioBaseFinal + ")");
 
             // Aplicar daño
-            defender.setVidaActual(defender.getVidaActual() - damageToInflict);
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damageToInflict));
             boolean defeated = defender.getVidaActual() <= 0;
 
             // Asegurar que la vida no baje de 0
@@ -803,20 +830,18 @@ public class CombatManager {
     }
 
     /**
-     * Permite acceder al AbilityEffects
-     */
-    public AbilityEffects getEffectsManager() {
-        return effectsManager;
-    }
-
-    /**
      * Maneja la derrota de un personaje y determina las consecuencias
      *
      * @param defeated El personaje derrotado
      * @param isPlayerAttack Indica si fue el jugador quien realizó el ataque
      */
     private void handleCharacterDefeat(PersonajeModel defeated, boolean isPlayerAttack) {
-        // Marcar al personaje como derrotado
+        System.out.println("Manejando derrota de " + defeated.getNombre() + ", derrotado por jugador: " + isPlayerAttack);
+        
+        // Asegurar que la vida sea exactamente 0
+        defeated.setVidaActual(0);
+        
+        // Marcar al personaje como derrotado explícitamente
         defeated.setDerrotado(true);
 
         // Animar la derrota
@@ -965,207 +990,6 @@ public class CombatManager {
     }
 
     /**
-     * Aplica una transformación a un personaje
-     *
-     * @param character Personaje a transformar
-     * @param transformationCode Código de la transformación
-     * @return true si la transformación fue exitosa
-     */
-    public boolean applyTransformation(PersonajeModel character, String transformationCode) {
-        // Obtener la transformación base desde el selectionManager
-        PersonajeModel template = selectionManager.getTransformationsMap().get(transformationCode);
-        if (template == null) {
-            System.err.println("Transformación no encontrada: " + transformationCode);
-            return false;
-        }
-
-        // Clonar la forma transformada
-        PersonajeModel transformed = template.clonar();
-        // Ahora que transformed existe, podemos animarlo
-        animationManager.animateTransformation(transformed, character == playerCharacters.get(playerCharacterIndex), null);
-
-        // Guardar referencia a la forma original y su vida actual
-        originalFormMap.put(transformed, character);
-        originalHealthMap.put(transformed, character.getVidaActual());
-
-        // Ajustar stats de la forma transformada
-        transformed.setPersonajeBaseId(character.getId());
-        transformed.setNombre(character.getNombre() + " → " + template.getNombre());
-        transformed.setVidaActual(transformed.getVida());
-
-        // Reemplazar en el equipo según índice
-        if (character == playerCharacters.get(playerCharacterIndex)) {
-            playerCharacters.set(playerCharacterIndex, transformed);
-        } else if (character == aiCharacters.get(aiCharacterIndex)) {
-            aiCharacters.set(aiCharacterIndex, transformed);
-        } else {
-            // Buscar en resto del equipo
-            for (int i = 0; i < playerCharacters.size(); i++) {
-                if (playerCharacters.get(i) == character) {
-                    playerCharacters.set(i, transformed);
-                    break;
-                }
-            }
-            for (int i = 0; i < aiCharacters.size(); i++) {
-                if (aiCharacters.get(i) == character) {
-                    aiCharacters.set(i, transformed);
-                    break;
-                }
-            }
-        }
-
-        // Actualizar UI con el nuevo modelo
-        uiManager.updateCharacterViews(
-                playerCharacters.get(playerCharacterIndex),
-                aiCharacters.get(aiCharacterIndex),
-                playerCharacters,
-                aiCharacters,
-                playerCharacterIndex,
-                aiCharacterIndex
-        );
-
-        return true;
-    }
-
-    /**
-     * Revierte la transformación y devuelve la forma original
-     */
-    public void revertTransformation(PersonajeModel transformed) {
-        PersonajeModel original = originalFormMap.remove(transformed);
-        if (original == null) {
-            return;
-        }
-
-        // Restaurar la vida que tenía el original antes de transformarse
-        Integer savedHp = originalHealthMap.remove(transformed);
-        if (savedHp != null) {
-            original.setVidaActual(savedHp);
-        }
-
-        // Reemplazar de nuevo en el equipo
-        if (transformed == playerCharacters.get(playerCharacterIndex)) {
-            playerCharacters.set(playerCharacterIndex, original);
-        } else if (transformed == aiCharacters.get(aiCharacterIndex)) {
-            aiCharacters.set(aiCharacterIndex, original);
-        } else {
-            for (int i = 0; i < playerCharacters.size(); i++) {
-                if (playerCharacters.get(i) == transformed) {
-                    playerCharacters.set(i, original);
-                    break;
-                }
-            }
-            for (int i = 0; i < aiCharacters.size(); i++) {
-                if (aiCharacters.get(i) == transformed) {
-                    aiCharacters.set(i, original);
-                    break;
-                }
-            }
-        }
-
-        // Actualizar la vista
-        uiManager.updateCharacterViews(
-                playerCharacters.get(playerCharacterIndex),
-                aiCharacters.get(aiCharacterIndex),
-                playerCharacters,
-                aiCharacters,
-                playerCharacterIndex,
-                aiCharacterIndex
-        );
-    }
-
-    // Métodos para delegar a AbilityEffects
-    public void applyDamageReduction(PersonajeModel character, double reductionFactor, int duration) {
-        effectsManager.applyDamageReduction(character, reductionFactor, duration);
-        boolean isPlayerAction = isPlayerCharacter(character);
-
-        // Mostrar animación
-        animationManager.showDamageReductionEffect(character, isPlayerAction);
-
-        // Mostrar mensaje
-        messageManager.displayDamageReductionMessage(character.getNombre(), reductionFactor, isPlayerAction);
-    }
-
-    public void applyDamageReflection(PersonajeModel character, double reflectionFactor, int duration) {
-        effectsManager.applyDamageReflection(character, reflectionFactor, duration);
-        boolean isPlayerAction = isPlayerCharacter(character);
-
-        // Mostrar animación visual de reflejo
-        animationManager.animateDamageReflection(character, reflectionFactor, isPlayerAction);
-
-        // Mostrar mensaje
-        messageManager.displayReflectionMessage(character.getNombre(), reflectionFactor, isPlayerAction);
-    }
-
-    public void applyDamageBoost(PersonajeModel character, double boostFactor, int duration) {
-        effectsManager.applyDamageBoost(character, boostFactor, duration);
-        boolean isPlayerAction = isPlayerCharacter(character);
-        messageManager.displayDamageBoostMessage(character.getNombre(), boostFactor, isPlayerAction);
-    }
-
-    public void applyHealingInversion(PersonajeModel character, int duration) {
-        effectsManager.applyHealingInversion(character, duration);
-        boolean isPlayerCharacter = isPlayerCharacter(character);
-
-        // Añadir animación visual de bloqueo de curación
-        animationManager.animateHealBlock(character, !isPlayerCharacter);
-
-        // Mostrar mensaje
-        messageManager.displayHealingBlockMessage(character.getNombre(), !isPlayerCharacter);
-    }
-
-    public void restrictToBasicAttacks(PersonajeModel character, int duration) {
-        effectsManager.restrictToBasicAttacks(character, duration);
-        boolean isPlayerAction = !isPlayerCharacter(character);
-
-        // Añadir animación de restricción
-        animationManager.animateRestrictedToBasic(character, isPlayerAction);
-
-        // Mostrar mensaje
-        messageManager.displayRestrictedMessage(character.getNombre(), duration, isPlayerAction);
-    }
-
-    public void skipEnemyTurns(int turns) {
-        effectsManager.skipEnemyTurns(turns);
-    }
-
-    public void scheduleEffect(Runnable effect, int turnsFromNow) {
-        if (scheduledEffects == null) {
-            scheduledEffects = new HashMap<>();
-        }
-
-        int currentTurn = getTurnManager().getCurrentTurn();
-        int targetTurn = currentTurn + turnsFromNow;
-
-        if (!scheduledEffects.containsKey(targetTurn)) {
-            scheduledEffects.put(targetTurn, new ArrayList<>());
-        }
-
-        scheduledEffects.get(targetTurn).add(effect);
-    }
-
-    /**
-     * Procesa los efectos programados para un turno específico
-     *
-     * @param turn El número de turno actual
-     */
-    public void processScheduledEffects(int turn) {
-        if (!scheduledEffects.containsKey(turn)) {
-            return;
-        }
-
-        // Obtener los efectos para este turno
-        List<Runnable> effects = scheduledEffects.get(turn);
-
-        // Ejecutar cada efecto
-        for (Runnable effect : effects) {
-            effect.run();
-        }
-
-        // Eliminar los efectos una vez ejecutados
-        scheduledEffects.remove(turn);
-    }
-
-    /**
      * Corrige los códigos de ataques y asegura que los tipos estén
      * correctamente asignados
      */
@@ -1232,122 +1056,6 @@ public class CombatManager {
     }
 
     /**
-     * Aplica un modificador a una estadística de un personaje por un número de
-     * turnos.
-     *
-     * @param character Personaje al que se aplica el modificador
-     * @param stat Estadística a modificar (VIDA, FUERZA, VELOCIDAD, PODER)
-     * @param multiplier Multiplicador a aplicar (1.0 = +100%, -0.25 = -25%,
-     * etc.)
-     * @param duration Duración en turnos del efecto
-     */
-    public void applyStatModifier(PersonajeModel character, Stat stat, double multiplier, int duration) {
-        // Guardar estado original para poder restaurarlo
-        if (!statModifiers.containsKey(character)) {
-            statModifiers.put(character, new HashMap<>());
-        }
-
-        Map<Stat, StatModifier> characterMods = statModifiers.get(character);
-
-        // Si ya hay un modificador para esta estadística, tomar el más beneficioso
-        if (characterMods.containsKey(stat)) {
-            StatModifier existingMod = characterMods.get(stat);
-            if (multiplier > existingMod.getMultiplier()) {
-                // Si el nuevo modificador es mejor, reemplazar
-                existingMod.setMultiplier(multiplier);
-                existingMod.setDuration(duration);
-            } else {
-                // Si el existente es mejor o igual, extender su duración
-                existingMod.setDuration(Math.max(existingMod.getDuration(), duration));
-            }
-        } else {
-            // Si no hay modificador existente, crear uno nuevo
-            characterMods.put(stat, new StatModifier(multiplier, duration));
-        }
-
-        // Aplicar el modificador inmediatamente
-        applyStatModifierImmediately(character, stat, multiplier);
-
-        // Programar la eliminación del efecto después de la duración
-        scheduleEffect(() -> removeStatModifier(character, stat), duration);
-
-        // Añadir animación visual
-        animationManager.animateStatModifier(character, stat, multiplier, isPlayerCharacter(character));
-
-        // Mostrar mensaje descriptivo según el stat modificado
-        String statName = "";
-        switch (stat) {
-            case FUERZA:
-                statName = "Fuerza";
-                break;
-            case VELOCIDAD:
-                statName = "Velocidad";
-                break;
-            case PODER:
-                statName = "Poder";
-                break;
-            default:
-                statName = "Estadística";
-                break;
-        }
-
-        String message = character.getNombre() + (multiplier > 0 ? " aumenta su " : " reduce su ")
-                + statName + " en " + (int) (multiplier * 100) + "%";
-        messageManager.displayMessage(message, isPlayerCharacter(character));
-    }
-
-    /**
-     * Elimina un modificador de estadística y restaura el valor original
-     */
-    private void removeStatModifier(PersonajeModel character, Stat stat) {
-        if (!statModifiers.containsKey(character)) {
-            return;
-        }
-
-        Map<Stat, StatModifier> characterMods = statModifiers.get(character);
-        if (!characterMods.containsKey(stat)) {
-            return;
-        }
-
-        // Obtener el modificador
-        StatModifier mod = characterMods.get(stat);
-
-        // Reducir duración
-        mod.setDuration(mod.getDuration() - 1);
-
-        // Si la duración llega a 0, eliminar el modificador y restaurar
-        if (mod.getDuration() <= 0) {
-            characterMods.remove(stat);
-
-            // Restaurar el valor original
-            switch (stat) {
-                case FUERZA:
-                    int currentFuerza = character.getFuerza();
-                    int originalFuerza = (int) (currentFuerza / (1 + mod.getMultiplier()));
-                    character.setFuerza(originalFuerza);
-                    break;
-                case VELOCIDAD:
-                    int currentVelocidad = character.getVelocidad();
-                    int originalVelocidad = (int) (currentVelocidad / (1 + mod.getMultiplier()));
-                    character.setVelocidad(originalVelocidad);
-                    break;
-                case PODER:
-                    int currentPoder = character.getPoder();
-                    int originalPoder = (int) (currentPoder / (1 + mod.getMultiplier()));
-                    character.setPoder(originalPoder);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        // Si no quedan más modificadores para este personaje, eliminar la entrada
-        if (characterMods.isEmpty()) {
-            statModifiers.remove(character);
-        }
-    }
-
-    /**
      * Registra el daño tomado por un personaje para posibles contraataques
      *
      * @param character El personaje que recibió el daño
@@ -1365,70 +1073,5 @@ public class CombatManager {
      */
     public int getLastDamageTaken(PersonajeModel character) {
         return lastDamageTaken.getOrDefault(character, 0);
-    }
-
-    /**
-     * Aplica inmediatamente un modificador de estadística al personaje. A
-     * diferencia de applyStatModifier, este método solo modifica el valor
-     * actual sin gestionar la duración o programar la eliminación del efecto.
-     *
-     * @param character Personaje al que se aplica el modificador
-     * @param stat Estadística a modificar
-     * @param multiplier Multiplicador a aplicar (positivo o negativo)
-     */
-    private void applyStatModifierImmediately(PersonajeModel character, Stat stat, double multiplier) {
-        // Aplicar el modificador según el tipo de estadística
-        switch (stat) {
-            case FUERZA:
-                int currentFuerza = character.getFuerza();
-                // Calcular y establecer el nuevo valor
-                int newFuerza = (int) (currentFuerza * (1 + multiplier));
-                character.setFuerza(Math.max(1, newFuerza)); // Evitar valores negativos o cero
-                break;
-
-            case VELOCIDAD:
-                int currentVelocidad = character.getVelocidad();
-                // Calcular y establecer el nuevo valor
-                int newVelocidad = (int) (currentVelocidad * (1 + multiplier));
-                character.setVelocidad(Math.max(1, newVelocidad)); // Evitar valores negativos o cero
-                break;
-
-            case PODER:
-                int currentPoder = character.getPoder();
-                // Calcular y establecer el nuevo valor
-                int newPoder = (int) (currentPoder * (1 + multiplier));
-                character.setPoder(Math.max(1, newPoder)); // Evitar valores negativos o cero
-                break;
-
-            case VIDA:
-                // La vida actual no se modifica directamente con este método
-                // Solo modificamos la vida máxima si es necesario
-                int currentVida = character.getVida();
-                int newVida = (int) (currentVida * (1 + multiplier));
-                character.setVida(Math.max(1, newVida));
-
-                // Si el modificador es positivo, aumentamos también la vida actual proporcionalmente
-                if (multiplier > 0) {
-                    int currentVidaActual = character.getVidaActual();
-                    int newVidaActual = (int) (currentVidaActual * (1 + multiplier));
-                    character.setVidaActual(Math.min(newVida, newVidaActual)); // No exceder la vida máxima
-                }
-                break;
-
-            default:
-                // No hacer nada para estadísticas desconocidas
-                System.err.println("Estadística no reconocida: " + stat);
-                break;
-        }
-
-        // Actualizar la UI para reflejar los cambios
-        uiManager.updateCharacterViews(
-                playerCharacters.get(playerCharacterIndex),
-                aiCharacters.get(aiCharacterIndex),
-                playerCharacters,
-                aiCharacters,
-                playerCharacterIndex,
-                aiCharacterIndex
-        );
     }
 }

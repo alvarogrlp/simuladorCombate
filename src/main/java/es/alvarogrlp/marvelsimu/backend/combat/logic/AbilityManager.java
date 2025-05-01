@@ -16,10 +16,6 @@ public class AbilityManager {
     private final Map<String, Integer> maxUses;
     private final Map<String, Integer> usesRemaining;
     
-    // Mapa para transformaciones (sin usar StatModifier que causa el error)
-    private Map<PersonajeModel, PersonajeModel> originalFormMap = new HashMap<>();
-    private Map<PersonajeModel, Integer> originalHealthMap = new HashMap<>();
-    
     public AbilityManager(CombatManager combatManager) {
         this.combatManager = combatManager;
         this.abilityHandlers = new HashMap<>();
@@ -113,24 +109,53 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Darkchild Rising");
             consume(key);
 
-            // Transformarse en Darkchild durante 2 turnos:
-            // Crear directamente un nuevo personaje con las estadísticas de Darkchild
-            PersonajeModel darkchild = new PersonajeModel();
-            darkchild.setNombre("Magik (Darkchild)");
-            darkchild.setVida(4500);
-            darkchild.setFuerza(3500);
-            darkchild.setVelocidad(3000);
-            darkchild.setPoder(18000);
-            
-            // Usar nuestra implementación applyTransformation
-            applyTransformation(attacker, darkchild, 2);
+            // Daño simple: 3000
+            int damage = 3000;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Darkchild Rising - ¡Magik se transforma en la reina del Limbo!", true);
+                "Darkchild Rising - ¡Magik desata su poder! (" + damage + " daño)", true);
+        });
+
+        abilityHandlers.put("magik_hab2", (attacker, defender) -> {
+            String key = "magik_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Espada Alma");
+            consume(key);
+
+            // Daño: 80% de su Poder
+            int damage = (int)(attacker.getPoder() * 0.8);
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Espada Alma - ¡La espada absorbe la esencia vital! (" + damage + " daño)", true);
         });
 
         // === THANOS (Sin Guantelete) ===
-        // Ya implementadas correctamente
+        abilityHandlers.put("thanos_hab1", (attacker, defender) -> {
+            String key = "thanos_hab1";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Titán Eterno");
+            consume(key);
+
+            // Daño: 4000 fijo
+            int damage = 4000;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Titán Eterno - ¡Thanos demuestra su poder! (" + damage + " daño)", true);
+        });
+
+        abilityHandlers.put("thanos_hab2", (attacker, defender) -> {
+            String key = "thanos_hab2";
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Conquista");
+            consume(key);
+
+            // Daño: 2500 fijo
+            int damage = 2500;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
+
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Conquista - ¡Thanos avanza implacable! (" + damage + " daño)", true);
+        });
 
         // === THANOS (Guantelete) ===
         abilityHandlers.put("thanos_gauntlet_hab1", (attacker, defender) -> {
@@ -138,23 +163,8 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Chasquido del Infinito");
             consume(key);
 
-            // Elimina instantáneamente al enemigo
+            // Elimina instantáneamente al enemigo (mantenemos esta habilidad específica)
             defender.setVidaActual(0);
-            
-            // Vuelve a su forma sin guantelete, creando un nuevo personaje con los stats de Thanos normal
-            PersonajeModel thanosNormal = new PersonajeModel();
-            thanosNormal.setNombre("Thanos");
-            thanosNormal.setVida(8000);
-            thanosNormal.setFuerza(5000);
-            thanosNormal.setVelocidad(1500);
-            thanosNormal.setPoder(5500);
-            
-            // Usar nuestra implementación applyTransformation
-            applyTransformation(attacker, thanosNormal, 999); // Permanentemente
-            
-            // Daña a Thanos con el 70% de su vida actual
-            int damageToSelf = (int)(attacker.getVidaActual() * 0.7);
-            attacker.setVidaActual(attacker.getVidaActual() - damageToSelf);
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
                 "Chasquido del Infinito - ¡El universo se reordena a voluntad de Thanos!", true);
@@ -165,12 +175,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Voluntad de Thanos");
             consume(key);
 
-            // Durante 3 turnos: 50% menos daño recibido y 25% más daño causado
-            combatManager.applyDamageReduction(attacker, 0.5, 3);
-            combatManager.applyDamageBoost(attacker, 0.25, 3);
+            // Daño: 5000 fijo
+            int damage = 5000;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Voluntad de Thanos - ¡El Guantelete potencia al Titán!", true);
+                "Voluntad de Thanos - ¡El Guantelete desata su poder! (" + damage + " daño)", true);
         });
 
         // === SCARLET WITCH ===
@@ -179,12 +189,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Caos Absoluto");
             consume(key);
 
-            // 5000 daño directo y reduce 50% del Poder enemigo durante 2 turnos
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 5000));
-            combatManager.applyStatModifier(defender, Stat.PODER, -0.5, 2);
+            // Daño: 5000 fijo (mantenemos el daño directo)
+            int damage = 5000;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Caos Absoluto - ¡La realidad se distorsiona!", true);
+                "Caos Absoluto - ¡La realidad se distorsiona! (" + damage + " daño)", true);
         });
 
         abilityHandlers.put("scarlet_witch_hab2", (attacker, defender) -> {
@@ -192,11 +202,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Realidad Distorsionada");
             consume(key);
 
-            // Invierte todas las curaciones del enemigo en daño durante 2 turnos
-            combatManager.applyHealingInversion(defender, 2);
+            // Daño: 100% de su Poder
+            int damage = attacker.getPoder();
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Realidad Distorsionada - ¡La curación se convierte en dolor!", true);
+                "Realidad Distorsionada - ¡La realidad golpea al enemigo! (" + damage + " daño)", true);
         });
 
         // === LEGION ===
@@ -205,12 +216,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Personalidades Desatadas");
             consume(key);
 
-            // Duplica el Poder durante 3 turnos y 4000 daño inmediato
-            combatManager.applyStatModifier(attacker, Stat.PODER, 1.0, 3); // +100% = duplicar
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 4000));
+            // Daño: 4000 fijo
+            int damage = 4000;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Personalidades Desatadas - ¡Las múltiples identidades de Legion lo potencian!", true);
+                "Personalidades Desatadas - ¡Las múltiples identidades atacan! (" + damage + " daño)", true);
         });
 
         abilityHandlers.put("legion_hab2", (attacker, defender) -> {
@@ -218,17 +229,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Plano Mental");
             consume(key);
 
-            // Legion: +50% Poder, +30% Velocidad, +20% Fuerza
-            combatManager.applyStatModifier(attacker, Stat.PODER, 0.5, 2);
-            combatManager.applyStatModifier(attacker, Stat.VELOCIDAD, 0.3, 2);
-            combatManager.applyStatModifier(attacker, Stat.FUERZA, 0.2, 2);
-            
-            // Enemigo: -25% Poder y solo ataques básicos
-            combatManager.applyStatModifier(defender, Stat.PODER, -0.25, 2);
-            combatManager.restrictToBasicAttacks(defender, 2);
+            // Daño: 90% de su Poder
+            int damage = (int)(attacker.getPoder() * 0.9);
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Plano Mental - ¡Legion arrastra a todos a su mente!", true);
+                "Plano Mental - ¡Legion ataca la mente del enemigo! (" + damage + " daño)", true);
         });
 
         // === DOCTOR STRANGE ===
@@ -237,14 +243,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Dimensión Espejo");
             consume(key);
 
-            // Refleja el 30% del daño recibido durante 2 turnos
-            combatManager.applyDamageReflection(attacker, 0.3, 2);
-            
-            // +50% daño en su próxima habilidad ofensiva
-            combatManager.applyDamageBoost(attacker, 0.5, 1);
+            // Daño: 3500 fijo
+            int damage = 3500;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Dimensión Espejo - ¡Strange despliega una barrera reflectante!", true);
+                "Dimensión Espejo - ¡Strange ataca desde otra dimensión! (" + damage + " daño)", true);
         });
 
         abilityHandlers.put("doctor_strange_hab2", (attacker, defender) -> {
@@ -252,11 +256,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Ojo de Agamotto");
             consume(key);
 
-            // Omite 2 turnos del enemigo (Strange ataca 2 veces seguidas)
-            combatManager.skipEnemyTurns(2);
+            // Daño: 4500 fijo
+            int damage = 4500;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Ojo de Agamotto - ¡El tiempo se detiene para todos excepto Strange!", true);
+                "Ojo de Agamotto - ¡El tiempo se distorsiona! (" + damage + " daño)", true);
         });
 
         // === SILVER SURFER ===
@@ -265,12 +270,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Nova Cósmica");
             consume(key);
 
-            // 4500 daño y reduce 10% de la vida máxima del enemigo permanentemente
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 4500));
-            defender.setVida(Math.max(1, defender.getVida() - (defender.getVida() / 10)));
+            // Daño: 4500 fijo (mantenemos el daño directo)
+            int damage = 4500;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Nova Cósmica - ¡El poder cósmico debilita la esencia del enemigo!", true);
+                "Nova Cósmica - ¡El poder cósmico estalla! (" + damage + " daño)", true);
         });
 
         abilityHandlers.put("silver_surfer_hab2", (attacker, defender) -> {
@@ -278,11 +283,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Velocidad Estelar");
             consume(key);
 
-            // +50% Velocidad durante 3 turnos
-            combatManager.applyStatModifier(attacker, Stat.VELOCIDAD, 0.5, 3);
+            // Daño: 120% de su Velocidad
+            int damage = (int)(attacker.getVelocidad() * 1.2);
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Velocidad Estelar - ¡Surfer se mueve a velocidades inconcebibles!", true);
+                "Velocidad Estelar - ¡Surfer golpea a velocidades inconcebibles! (" + damage + " daño)", true);
         });
 
         // === ARISHEM ===
@@ -291,14 +297,18 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Juicio Celestial");
             consume(key);
 
-            // 100% de la vida actual del enemigo en daño, 50% probabilidad
+            // 100% de la vida actual del enemigo en daño, 50% probabilidad (mantenemos esta habilidad específica)
             if (Math.random() < 0.5) {
                 int damage = defender.getVidaActual();
                 defender.setVidaActual(0);
                 return CombatMessage.createAbilityMessage(attacker.getNombre(),
                     "Juicio Celestial - ¡El Celestial emite su veredicto final! (" + damage + " daño)", true);
             } else {
-                return CombatMessage.createFailedMessage(attacker.getNombre(), "Juicio Celestial - El enemigo escapa al juicio");
+                // Si falla, hace un daño base
+                int damage = 2000;
+                defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
+                return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                    "Juicio Celestial - El enemigo escapa al juicio completo (" + damage + " daño)", true);
             }
         });
 
@@ -307,11 +317,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Presencia Imponente");
             consume(key);
 
-            // Reduce 100% del daño recibido durante 1 turno
-            combatManager.applyDamageReduction(attacker, 1.0, 1);
+            // Daño: 3500 fijo
+            int damage = 3500;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Presencia Imponente - ¡Arishem se vuelve completamente invulnerable!", true);
+                "Presencia Imponente - ¡Arishem aplasta a su enemigo! (" + damage + " daño)", true);
         });
 
         // === KNULL ===
@@ -320,12 +331,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Oscuridad Primordial");
             consume(key);
 
-            // 6000 daño y reduce 25% del Poder del enemigo
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 6000));
-            combatManager.applyStatModifier(defender, Stat.PODER, -0.25, 2);
+            // Daño: 6000 fijo (mantenemos el daño directo)
+            int damage = 6000;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Oscuridad Primordial - ¡El vacío cósmico consume la energía vital!", true);
+                "Oscuridad Primordial - ¡El vacío cósmico consume la energía vital! (" + damage + " daño)", true);
         });
 
         abilityHandlers.put("knull_hab2", (attacker, defender) -> {
@@ -333,12 +344,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Rey de Simbiontes");
             consume(key);
 
-            // Cura 30% de vida máxima
-            int healAmount = (int)(attacker.getVida() * 0.3);
-            attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + healAmount));
+            // Daño: 4500 fijo
+            int damage = 4500;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Rey de Simbiontes - ¡Knull absorbe la fuerza de sus creaciones!", true);
+                "Rey de Simbiontes - ¡Knull desata la furia de sus creaciones! (" + damage + " daño)", true);
         });
 
         // === HULK (Máximo) ===
@@ -346,11 +357,8 @@ public class AbilityManager {
             String key = "hulk_hab1";
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Furia Gamma");
             consume(key);
-
-            // +100% Fuerza durante 2 turnos
-            combatManager.applyStatModifier(attacker, Stat.FUERZA, 1.0, 2);
             
-            // Daño: 200% de su Fuerza actual
+            // Daño: 200% de su Fuerza actual (mantenemos esta habilidad específica)
             int damage = attacker.getFuerza() * 2;
             defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
@@ -361,22 +369,14 @@ public class AbilityManager {
         abilityHandlers.put("hulk_hab2", (attacker, defender) -> {
             String key = "hulk_hab2";
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Cuanto más enfadado...");
+            consume(key);
             
-            // Esta habilidad se puede usar infinitas veces, no decrementar usos
-            // Pero sí registrar uso (para evitar spam en el mismo turno)
-            cdRemaining.put(key, 1);
+            // Daño: 150% de su Fuerza
+            int damage = (int)(attacker.getFuerza() * 1.5);
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
             
-            // Cura 10% de vida perdida
-            int vidaPerdida = attacker.getVida() - attacker.getVidaActual();
-            int healAmount = (int)(vidaPerdida * 0.1);
-            attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + healAmount));
-            
-            // +10% Fuerza permanente (modificación directa del atributo)
-            int fuerzaActual = attacker.getFuerza();
-            attacker.setFuerza((int)(fuerzaActual * 1.1));
-
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Cuanto más enfadado... - ¡HULK MÁS FUERTE!", true);
+                "Cuanto más enfadado... - ¡HULK MÁS FUERTE! (" + damage + " daño)", true);
         });
 
         // === DOCTOR DOOM ===
@@ -385,11 +385,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Conjuro de Muerte");
             consume(key);
 
-            // 4000 daño
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 4000));
+            // Daño: 4000 fijo (mantenemos este daño directo)
+            int damage = 4000;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Conjuro de Muerte - ¡Doom desata un hechizo devastador!", true);
+                "Conjuro de Muerte - ¡Doom desata un hechizo devastador! (" + damage + " daño)", true);
         });
 
         abilityHandlers.put("doctor_doom_hab2", (attacker, defender) -> {
@@ -397,11 +398,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Escudo de Latveria");
             consume(key);
 
-            // Reduce 70% del daño recibido durante 2 turnos
-            combatManager.applyDamageReduction(attacker, 0.7, 2);
+            // Daño: 2500 fijo
+            int damage = 2500;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Escudo de Latveria - ¡La tecnología y la magia de Doom lo protegen!", true);
+                "Escudo de Latveria - ¡La tecnología de Doom destruye a su enemigo! (" + damage + " daño)", true);
         });
 
         // === IRON MAN ===
@@ -410,12 +412,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Unibeam Máximo");
             consume(key);
 
-            // 2000 daño y reduce 25% del Poder enemigo durante 2 turnos
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 2000));
-            combatManager.applyStatModifier(defender, Stat.PODER, -0.25, 2);
+            // Daño: 2000 fijo (mantenemos el daño directo)
+            int damage = 2000;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Unibeam Máximo - ¡La armadura canaliza toda su energía!", true);
+                "Unibeam Máximo - ¡La armadura canaliza toda su energía! (" + damage + " daño)", true);
         });
 
         abilityHandlers.put("iron_man_hab2", (attacker, defender) -> {
@@ -423,12 +425,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Nanotecnología Adaptativa");
             consume(key);
 
-            // Cura 25% de vida máxima
-            int healAmount = (int)(attacker.getVida() * 0.25);
-            attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + healAmount));
+            // Daño: 80% de su Poder
+            int damage = (int)(attacker.getPoder() * 0.8);
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Nanotecnología Adaptativa - ¡La armadura se autorrepara!", true);
+                "Nanotecnología Adaptativa - ¡Armas adaptativas atacan al enemigo! (" + damage + " daño)", true);
         });
 
         // === WOLVERINE ===
@@ -437,26 +439,25 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Furia Berserker");
             consume(key);
 
-            // +100% Fuerza y Velocidad durante 2 turnos
-            combatManager.applyStatModifier(attacker, Stat.FUERZA, 1.0, 2);
-            combatManager.applyStatModifier(attacker, Stat.VELOCIDAD, 1.0, 2);
+            // Daño: 180% de su Fuerza
+            int damage = (int)(attacker.getFuerza() * 1.8);
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Furia Berserker - ¡Logan pierde el control!", true);
+                "Furia Berserker - ¡Logan pierde el control! (" + damage + " daño)", true);
         });
 
         abilityHandlers.put("wolverine_hab2", (attacker, defender) -> {
             String key = "wolverine_hab2";
-            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Regeneración Extrema");
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Ataque Adamantium");
             consume(key);
 
-            // Cura 40% de vida máxima perdida
-            int vidaPerdida = attacker.getVida() - attacker.getVidaActual();
-            int healAmount = (int)(vidaPerdida * 0.4);
-            attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + healAmount));
+            // Daño: 3500 fijo
+            int damage = 3500;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Regeneración Extrema - ¡El factor curativo de Wolverine en acción!", true);
+                "Ataque Adamantium - ¡Las garras de Adamantium desgarran al enemigo! (" + damage + " daño)", true);
         });
 
         // === SEBASTIAN SHAW ===
@@ -465,14 +466,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Absorción Cinética Total");
             consume(key);
 
-            // Inmune a daño durante 2 turnos, luego devuelve el total del daño recibido
-            combatManager.applyDamageReduction(attacker, 1.0, 2); // 100% reducción = inmune
-            
-            // El efecto de devolver daño se implementa en el método processAttackResult 
-            // de CombatManager, no lo implementamos directamente aquí
+            // Daño: 4000 fijo
+            int damage = 4000;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Absorción Cinética Total - ¡Shaw se prepara para absorber todo el daño!", true);
+                "Absorción Cinética Total - ¡Shaw libera la energía almacenada! (" + damage + " daño)", true);
         });
 
         abilityHandlers.put("sebastian_shaw_hab2", (attacker, defender) -> {
@@ -480,11 +479,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Contraataque Cinético");
             consume(key);
 
-            // Devuelve 20% del daño recibido el próximo turno
-            combatManager.applyDamageReflection(attacker, 0.2, 1);
+            // Daño: 3000 fijo
+            int damage = 3000;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Contraataque Cinético - ¡Shaw prepara su cuerpo para devolver energía!", true);
+                "Contraataque Cinético - ¡Shaw devuelve la energía! (" + damage + " daño)", true);
         });
 
         // === SPIDER-MAN ===
@@ -493,7 +493,7 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Ataque de Máxima Agilidad");
             consume(key);
 
-            // Daño: 150% de su Velocidad actual
+            // Daño: 150% de su Velocidad actual (mantenemos esta habilidad específica)
             int damage = (int)(attacker.getVelocidad() * 1.5);
             defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
@@ -506,11 +506,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Telaraña Inmovilizante");
             consume(key);
 
-            // Reduce 50% de Velocidad del enemigo durante 2 turnos
-            combatManager.applyStatModifier(defender, Stat.VELOCIDAD, -0.5, 2);
+            // Daño: 2000 fijo
+            int damage = 2000;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Telaraña Inmovilizante - ¡El enemigo queda atrapado en las redes de Spider-Man!", true);
+                "Telaraña Inmovilizante - ¡El enemigo queda atrapado en las redes de Spider-Man! (" + damage + " daño)", true);
         });
 
         // === BLACK PANTHER ===
@@ -519,7 +520,7 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Liberación de Energía Cinética");
             consume(key);
 
-            // Devuelve 200% del daño recibido en el turno anterior
+            // Mantenemos la lógica de devolver el daño recibido ya que es una mecánica específica
             int damageToReturn = combatManager.getLastDamageTaken(attacker) * 2;
             
             // Si no ha recibido daño, hacer un daño mínimo base
@@ -538,11 +539,12 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Garras de Vibranium");
             consume(key);
 
-            // 500 daño directo
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 500));
+            // Daño: 2500 fijo
+            int damage = 2500;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Garras de Vibranium - ¡Las garras de vibranium penetran cualquier defensa!", true);
+                "Garras de Vibranium - ¡Las garras de vibranium penetran cualquier defensa! (" + damage + " daño)", true);
         });
 
         // === CAPTAIN AMERICA ===
@@ -551,38 +553,39 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Justicia Imparable");
             consume(key);
 
-            // 400 daño directo
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 400));
+            // Daño: 90% de su Fuerza + 50% de su Velocidad
+            int damage = (int)(attacker.getFuerza() * 0.9 + attacker.getVelocidad() * 0.5);
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Justicia Imparable - ¡Capitán América golpea con todas sus fuerzas!", true);
+                "Justicia Imparable - ¡Capitán América golpea con todas sus fuerzas! (" + damage + " daño)", true);
         });
 
         abilityHandlers.put("captain_america_hab2", (attacker, defender) -> {
             String key = "captain_america_hab2";
-            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Escudo del Capitán");
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Lanzamiento de Escudo");
             consume(key);
 
-            // Reduce 50% del daño recibido durante 2 turnos
-            combatManager.applyDamageReduction(attacker, 0.5, 2);
+            // Daño: 2500 fijo
+            int damage = 2500;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Escudo del Capitán - ¡El escudo de vibranium protege a Steve!", true);
+                "Lanzamiento de Escudo - ¡El escudo de vibranium golpea con fuerza! (" + damage + " daño)", true);
         });
 
         // === DEADPOOL ===
         abilityHandlers.put("deadpool_hab1", (attacker, defender) -> {
             String key = "deadpool_hab1";
-            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Factor Curativo Extremo");
+            if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Ataque Múltiple");
             consume(key);
 
-            // Cura 70% de vida perdida
-            int vidaPerdida = attacker.getVida() - attacker.getVidaActual();
-            int healAmount = (int)(vidaPerdida * 0.7);
-            attacker.setVidaActual(Math.min(attacker.getVida(), attacker.getVidaActual() + healAmount));
+            // Daño: 3000 fijo
+            int damage = 3000;
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
 
             return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                "Factor Curativo Extremo - ¡Deadpool se regenera mientras rompe la cuarta pared!", true);
+                "Ataque Múltiple - ¡Deadpool ataca desde todos los ángulos! (" + damage + " daño)", true);
         });
 
         abilityHandlers.put("deadpool_hab2", (attacker, defender) -> {
@@ -590,71 +593,16 @@ public class AbilityManager {
             if (!canUse(key)) return CombatMessage.createFailedMessage(attacker.getNombre(), "Ataque Impredecible");
             consume(key);
 
-            // 200 daño directo
-            defender.setVidaActual(Math.max(0, defender.getVidaActual() - 200));
+            // Daño aleatorio entre 1000 y 5000
+            int damage = 1000 + (int)(Math.random() * 4000);
+            defender.setVidaActual(Math.max(0, defender.getVidaActual() - damage));
             
-            // 50% de reducir Velocidad enemiga un 50% durante 2 turnos
-            if (Math.random() < 0.5) {
-                combatManager.applyStatModifier(defender, Stat.VELOCIDAD, -0.5, 2);
-                return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                    "Ataque Impredecible - ¡Deadpool confunde a su enemigo y reduce su velocidad!", true);
-            } else {
-                return CombatMessage.createAbilityMessage(attacker.getNombre(),
-                    "Ataque Impredecible - ¡Deadpool ataca de forma caótica!", true);
-            }
+            return CombatMessage.createAbilityMessage(attacker.getNombre(),
+                "Ataque Impredecible - ¡Deadpool ataca de forma caótica! (" + damage + " daño)", true);
         });
     }
 
     /** 
-     * Guarda forma original, aplica transformación y programa la vuelta.
-     * Implementación corregida sin usar copyFrom
-     */
-    private void applyTransformation(PersonajeModel original, PersonajeModel transformed, int durationTurns) {
-        // Crear una copia manual del personaje original
-        PersonajeModel originalCopy = new PersonajeModel();
-        originalCopy.setId(original.getId());
-        originalCopy.setNombre(original.getNombre());
-        originalCopy.setVida(original.getVida());
-        originalCopy.setFuerza(original.getFuerza());
-        originalCopy.setVelocidad(original.getVelocidad());
-        originalCopy.setPoder(original.getPoder());
-        originalCopy.setAtaques(original.getAtaques());
-        
-        // Guardar referencia a la forma original
-        originalFormMap.put(original, originalCopy);
-        originalHealthMap.put(original, original.getVidaActual());
-        
-        // Aplicar los atributos de la transformación
-        original.setVida(transformed.getVida());
-        original.setFuerza(transformed.getFuerza());
-        original.setVelocidad(transformed.getVelocidad());
-        original.setPoder(transformed.getPoder());
-        original.setNombre(transformed.getNombre());
-        
-        // Programar la reversión después de ciertos turnos
-        combatManager.scheduleEffect(() -> revertTransformation(original), durationTurns);
-    }
-
-    /**
-     * Restaura forma y vida original.
-     * Implementación corregida sin usar copyFrom
-     */
-    public void revertTransformation(PersonajeModel transformed) {
-        PersonajeModel original = originalFormMap.remove(transformed);
-        Integer originalHealth = originalHealthMap.remove(transformed);
-        
-        if (original != null && originalHealth != null) {
-            // Restaurar manualmente los atributos originales
-            transformed.setVida(original.getVida());
-            transformed.setFuerza(original.getFuerza());
-            transformed.setVelocidad(original.getVelocidad());
-            transformed.setPoder(original.getPoder());
-            transformed.setNombre(original.getNombre());
-            transformed.setVidaActual(originalHealth);
-        }
-    }
-
-    /**
      * Ejecuta una habilidad según su código
      * @param abilityCode Código de la habilidad a ejecutar
      * @param attacker Personaje que usa la habilidad
@@ -687,10 +635,32 @@ public class AbilityManager {
     }
 
     private void consume(String key) {
-        // decrementar usos
-        usesRemaining.computeIfPresent(key, (k,v) -> v>0 ? v-1 : 0);
-        // reset cooldown
-        cdRemaining.put(key, usesRemaining.get(key)==0 && cdRemaining.get(key)>0 ? 999 : cdRemaining.get(key));
+        // Decrementar usos si existe
+        Integer currentUses = usesRemaining.get(key);
+        if (currentUses != null) {
+            usesRemaining.put(key, currentUses > 0 ? currentUses - 1 : 0);
+        } else {
+            // Si no existe, inicializarlo con 0
+            usesRemaining.put(key, 0);
+        }
+
+        // Reset cooldown con comprobación de nulos
+        Integer currentCd = cdRemaining.get(key);
+        Integer remainingUses = usesRemaining.get(key);
+        
+        if (remainingUses != null && currentCd != null) {
+            if (remainingUses == 0 && currentCd > 0) {
+                cdRemaining.put(key, 999); // Si no quedan usos, poner CD muy alto
+            }
+        } else {
+            // Inicializar valores si son nulos
+            if (remainingUses == null) {
+                usesRemaining.put(key, 0);
+            }
+            if (currentCd == null) {
+                cdRemaining.put(key, 0);
+            }
+        }
     }
     
     // Mantener métodos específicos para compatibilidad, pero delegando al nuevo sistema
