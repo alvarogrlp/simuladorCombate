@@ -94,7 +94,7 @@ La aplicación cuenta con un sistema de traducción automática gestionado por a
   <table>
     <tr>
       <td align="center">
-        <img src="docs/images/prototipo-inicial.png" width="210px" alt="Wireframe inicial"/>
+        <img src="docs/images/prototipo-inicial.png" width="250px" alt="Wireframe inicial"/>
         <br/>
         <i>Wireframe inicial</i>
       </td>
@@ -116,19 +116,29 @@ La aplicación cuenta con un sistema de traducción automática gestionado por a
 
 ---
 
-Perfecto. Para incluir ese video en el `README.md`, puedes usar una vista previa en forma de imagen enlazada al video, o directamente el enlace si lo subes a una plataforma como YouTube. Como está en una carpeta local (`contenido/demo.mp4`), GitHub no permite reproducirlo directamente, pero sí puedes hacer lo siguiente:
+Perfecto, tu idea es clara y muy efectiva: crear un “botón visual” con el logo para que el usuario sepa que debe hacer clic ahí para ver el video. Aquí tienes la sección mejorada y profesionalmente presentada para insertar directamente en tu `README.md`:
 
 ---
 
-### 📽️ Demostración en Video
+Sí, claro. Para ajustar el tamaño del logo de forma precisa, debes usar HTML en lugar de Markdown puro (porque Markdown no permite cambiar el tamaño de la imagen directamente).
+
+Aquí tienes la versión final con el logo redimensionado (por ejemplo a 200 píxeles de ancho), manteniendo el estilo profesional:
+
+---
+
+### 📽️ Demostración Interactiva
 
 <div align="center">
-  <video src="src\main\resources\images\Contenido\demo.mp4" controls width="600">
-    Tu navegador no soporta videos HTML5.
-  </video>
+
+🔴 **Haz clic en el icono para ver el video demo**  
+👇  
+<a href="https://www.youtube.com/shorts/X0rGoab48bI">
+  <img src="docs/images/icon-logo.png" width="200" alt="Ver demo en YouTube"/>
+</a>
+
 </div>
 
-> En este video se muestra el proceso completo de **selección de personajes** y el **combate por turnos**, con animaciones, estadísticas, IA enemiga y efectos visuales dinámicos.
+> 🎬 En este video se muestra el flujo completo de **selección de personajes** y el **combate por turnos**, incluyendo animaciones, estadísticas, lógica de IA enemiga y efectos visuales personalizados en los escenarios.
 
 ---
 
