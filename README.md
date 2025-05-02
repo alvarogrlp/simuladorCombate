@@ -116,16 +116,6 @@ La aplicación cuenta con un sistema de traducción automática gestionado por a
 
 ---
 
-Perfecto, tu idea es clara y muy efectiva: crear un “botón visual” con el logo para que el usuario sepa que debe hacer clic ahí para ver el video. Aquí tienes la sección mejorada y profesionalmente presentada para insertar directamente en tu `README.md`:
-
----
-
-Sí, claro. Para ajustar el tamaño del logo de forma precisa, debes usar HTML en lugar de Markdown puro (porque Markdown no permite cambiar el tamaño de la imagen directamente).
-
-Aquí tienes la versión final con el logo redimensionado (por ejemplo a 200 píxeles de ancho), manteniendo el estilo profesional:
-
----
-
 ### 📽️ Demostración Interactiva
 
 <div align="center">
